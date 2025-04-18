@@ -1,7 +1,14 @@
 .PHONY: setup run clean
 
+# Detect OS and set Python path accordingly
+ifeq ($(OS),Windows_NT)
+    PYTHON_PATH := .venv\Scripts\python
+else
+    PYTHON_PATH := .venv/bin/python
+endif
+
 run:
-	python main.py character
+	$(PYTHON_PATH) .\main.py
 
 clean:
 	@echo "Cleaning up..."

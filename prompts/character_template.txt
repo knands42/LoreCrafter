@@ -1,7 +1,0 @@
-Generate a fantasy RPG character with the following attributes:
-- Name
-- Race (e.g., Elf, Orc, Human, Dwarf)
-- Class (e.g., Wizard, Warrior, Ranger)
-- Personality Traits
-- Backstory (2-3 sentences)
-Return the response in JSON format.
