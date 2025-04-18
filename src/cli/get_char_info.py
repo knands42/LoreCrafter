@@ -43,9 +43,16 @@ def get_character_info():
         default="Human"
     )
 
-    personality = Prompt.ask(
-        "[bold green]Describe your character's personality[/bold green]",
-        default="Brave and adventurous"
+    personality = ask_with_examples(
+        "[bold green]Describe your character's personality (Optional)[/bold green]",
+        examples=["Impulsive", "Passionate", "Quiet", "Overly Analytical"],
+        default=None
+    )
+    
+    appearance = ask_with_examples(
+        "[bold green]Describe your character's appearance (Optional)[/bold green]",
+        examples=["Short black hair, with big cheeks and long neck"],
+        default=None
     )
 
     tone = ask_with_examples(
@@ -75,6 +82,7 @@ def get_character_info():
         "name": name,
         "race": race,
         "personality": personality,
+        "appearance": appearance,
         "universe": clean_text(universe).lower(),
         "universe_theme": clean_text(theme).lower(),
         "tone": clean_text(tone).lower(),

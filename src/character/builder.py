@@ -1,12 +1,16 @@
 import os
-from typing import Optional
+from typing import Optional, Any
 
 from dotenv import load_dotenv
 from langchain.schema.output_parser import StrOutputParser
+from langchain.schema.runnable import RunnableMap, RunnableSequence, Runnable
+from langchain_core.prompts import PromptTemplate
+from langchain_core.runnables import RunnableConfig, RunnableLambda
+from langchain_core.runnables.utils import Input, Output
 from langchain_openai import ChatOpenAI
 
-from .prompts import get_universe, get_universe_theme, get_tone_context, \
-    create_backstory_prompt, create_backstory_enhancement_prompt
+from .prompts import get_universe, get_universe_theme, get_tone_context, create_backstory_prompt, \
+    create_personality_prompt, create_appearance_prompt
 
 load_dotenv()
 
@@ -20,7 +24,23 @@ def create_llm() -> ChatOpenAI:
     )
 
 
-def generate_character(character_info: dict[str, str], custom_story: Optional[str] = None) -> str:
+def execute_chain(character_info: dict[str, str], context: dict[str, str]) -> str:
+    llm = create_llm()
+    parser = StrOutputParser()
+
+    appearance_chain = create_appearance_prompt(character_info['appearance']) | llm | parser
+    personality_chain = create_personality_prompt(character_info['personality']) | llm | parser
+    backstory_chain = create_backstory_prompt(character_info['custom_story']) | llm | parser
+
+    appearance_result = appearance_chain.invoke(context)
+    context['appearance'] = appearance_result
+    personality_result = personality_chain.invoke(context)
+    context['personality'] = personality_result
+
+    return backstory_chain.invoke(context)
+    
+
+def generate_character(character_info: dict[str, str]) -> str:
     """Generate or enhance a character's story based on the provided information."""
     universe = get_universe().get(character_info['universe'], character_info['universe'])
     theme = get_universe_theme().get(character_info['universe_theme'], character_info['universe_theme'])
@@ -29,17 +49,12 @@ def generate_character(character_info: dict[str, str], custom_story: Optional[st
     context = {
         "name": character_info["name"],
         "race": character_info["race"],
-        "personality": character_info["personality"],
         "universe": universe,
         "universe_theme": theme,
         "tone": tone,
-        "custom_story": custom_story,
+        "custom_story": character_info['custom_story'],
     }
 
-    llm = create_llm()
-    prompt = create_backstory_enhancement_prompt() if custom_story else create_backstory_prompt()
+    return execute_chain(character_info, context)
 
-    chain = prompt | llm | StrOutputParser()
-    result = chain.invoke(context)
 
-    return result
