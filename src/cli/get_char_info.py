@@ -84,8 +84,8 @@ def get_character_info():
         "race": race,
         "personality": personality,
         "appearance": appearance,
-        "universe": universe.lower(),
-        "world_theme": theme.lower(),
-        "tone": tone.lower(),
+        "universe": universe,
+        "world_theme": theme,
+        "tone": tone,
         "custom_story": custom_story
     }

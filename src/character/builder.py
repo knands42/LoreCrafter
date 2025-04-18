@@ -57,5 +57,5 @@ def generate_character(character_info: dict[str, str]) -> dict[str, str]:
     }
 
     execute_chain(character_info, context)
-    store_character_in_chroma(character_info)
+    store_character_in_chroma(context)
     return context

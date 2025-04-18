@@ -1,4 +1,6 @@
-.PHONY: setup run clean
+.PHONY: create-character search-character
+
+CHAR=Kirk
 
 # Detect OS and set Python path accordingly
 ifeq ($(OS),Windows_NT)
@@ -7,8 +9,11 @@ else
     PYTHON_PATH := .venv/bin/python
 endif
 
-run:
-	$(PYTHON_PATH) .\main.py
+create-character:
+	$(PYTHON_PATH) .\main.py character
+
+search-character:
+	$(PYTHON_PATH) .\main.py search-character "$(CHAR)"
 
 clean:
 	@echo "Cleaning up..."
