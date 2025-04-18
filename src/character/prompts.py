@@ -41,7 +41,13 @@ def get_tone_context() -> dict[str, str]:
     }
 
 
-def create_enhancement_prompt() -> PromptTemplate:
+def create_personality_prompt() -> PromptTemplate:
+    pass
+
+def create_appearance_prompt () -> PromptTemplate:
+    pass
+
+def create_backstory_enhancement_prompt() -> PromptTemplate:
     """Create a prompt template for enhancing an existing character story."""
     return PromptTemplate.from_template("""
     Enhance the character’s story based on the following information. The story should align with the specified universe, tone, theme and character attributes.
@@ -67,7 +73,7 @@ def create_enhancement_prompt() -> PromptTemplate:
     """)
 
 
-def create_creation_prompt() -> PromptTemplate:
+def create_backstory_prompt() -> PromptTemplate:
     """Create a prompt template for generating a new character backstory."""
     return PromptTemplate.from_template("""
     Create a rich and immersive backstory for the character below. The story should align with the specified universe, tone, theme and character attributes.

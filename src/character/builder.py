@@ -5,8 +5,8 @@ from dotenv import load_dotenv
 from langchain.schema.output_parser import StrOutputParser
 from langchain_openai import ChatOpenAI
 
-from .prompts import get_universe, get_universe_theme, get_tone_context, create_enhancement_prompt, \
-    create_creation_prompt
+from .prompts import get_universe, get_universe_theme, get_tone_context, \
+    create_backstory_prompt, create_backstory_enhancement_prompt
 
 load_dotenv()
 
@@ -37,7 +37,7 @@ def generate_character(character_info: dict[str, str], custom_story: Optional[st
     }
 
     llm = create_llm()
-    prompt = create_enhancement_prompt() if custom_story else create_creation_prompt()
+    prompt = create_backstory_enhancement_prompt() if custom_story else create_backstory_prompt()
 
     chain = prompt | llm | StrOutputParser()
     result = chain.invoke(context)
