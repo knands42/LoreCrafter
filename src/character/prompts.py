@@ -12,7 +12,7 @@ def get_universe() -> dict[str, str]:
     }
 
 
-def get_universe_theme() -> dict[str, str]:
+def get_world_theme() -> dict[str, str]:
     """Get thematic keywords and their descriptions that represent different story genres and settings."""
     return {
         "cyberpunk": "In a cyberpunk world, advanced technology collides with societal decay, where neon-lit cities are ruled by powerful corporations.",
@@ -48,6 +48,7 @@ def create_appearance_prompt(custom_appearance=None) -> PromptTemplate:
 
         Name: {name}
         Race: {race}
+        Story Tone: {tone}
 
         Existing Appearance Description:
         {custom_appearance}
@@ -65,6 +66,7 @@ def create_appearance_prompt(custom_appearance=None) -> PromptTemplate:
 
         Name: {name}
         Race: {race}
+        Story Tone: {tone}
 
         Guidelines:
         - Write 1–2 vivid sentences describing facial features, hair, build, clothing, and any unique characteristics.
@@ -83,6 +85,7 @@ def create_personality_prompt(custom_personality=None) -> PromptTemplate:
         Name: {name}
         Race: {race}
         Appearance: {appearance}
+        Story Tone: {tone}
 
         Existing Personality Description:
         {custom_personality}
@@ -103,6 +106,7 @@ def create_personality_prompt(custom_personality=None) -> PromptTemplate:
         Name: {name}
         Race: {race}
         Appearance: {appearance}
+        Story Tone: {tone}
 
         Guidelines:
         - Write 1-2 sentences describing key traits, motivations, behaviors, flaws, and emotional tendencies.
@@ -124,7 +128,7 @@ def create_backstory_prompt(premade_story=None) -> PromptTemplate:
         Personality: {personality}
         Appearance: {appearance}
         Universe: {universe}
-        Universe Theme: {universe_theme}
+        World Theme: {world_theme}
         Story Tone: {tone}
 
         Existing Backstory:
@@ -148,7 +152,7 @@ def create_backstory_prompt(premade_story=None) -> PromptTemplate:
         Personality: {personality}
         Appearance: {appearance}
         Universe: {universe}
-        Universe Theme: {universe_theme}
+        World Theme: {world_theme}
         Story Tone: {tone}
 
         Instructions:

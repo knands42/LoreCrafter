@@ -1,11 +1,12 @@
 import re
 
 from rich.prompt import Prompt, Confirm
+from rich import print
 
 
 def clean_text(value: str) -> str:
     # Lowercase and remove all characters except a-z, 0-9, and spaces
-    return re.sub(r'[^a-z0-9 ]+', '', value)
+    return re.sub(r'[^a-zA-Z0-9 ]+', '', value)
 
 
 def multiline_input(prompt: str) -> str:
@@ -27,7 +28,7 @@ def ask_with_examples(prompt_text: str, examples: list[str], default: str = None
 
 
 def get_character_info():
-    print("\n[bold cyan]Let's create your character![/bold cyan]")
+    print("\n[bold magenta]Let's create your character![/bold magenta]")
 
     universe = ask_with_examples(
         "[bold green]Choose your TTRPG universe[/bold green]",
@@ -35,7 +36,7 @@ def get_character_info():
         default="D&D"
     )
 
-    name = Prompt.ask("[bold green]What's your character's name?[/bold green]")
+    name = Prompt.ask("[bold green]What's your character's name?[/bold green]", default="Captain Kirk")
 
     race = ask_with_examples(
         "[bold green]Choose your character's race[/bold green]",
@@ -83,8 +84,8 @@ def get_character_info():
         "race": race,
         "personality": personality,
         "appearance": appearance,
-        "universe": clean_text(universe).lower(),
-        "universe_theme": clean_text(theme).lower(),
-        "tone": clean_text(tone).lower(),
+        "universe": universe.lower(),
+        "world_theme": theme.lower(),
+        "tone": tone.lower(),
         "custom_story": custom_story
     }
