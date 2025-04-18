@@ -6,3 +6,6 @@ venv/*
 # Env files
 .env*
 !.env.example
+
+# Others
+.TODO

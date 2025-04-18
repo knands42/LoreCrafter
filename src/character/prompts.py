@@ -166,3 +166,20 @@ def create_backstory_prompt(premade_story=None) -> PromptTemplate:
 
         Respond only with the final backstory paragraph.
         """)
+
+
+def summarize_backstory_prompt(backstory: str) -> PromptTemplate:
+    return PromptTemplate.from_template(f"""
+    Summarize the character's background story below.
+    
+    Background Story:
+    {backstory}
+    
+    Instructions:
+    - Summarize the backstory concisely.
+    - Limit the response to one or two sentences at most.
+    - Focus on the most relevant aspects of the character's past that define their identity or motivation.
+    - Do not add any extra information or interpretation.
+    
+    Respond only with the final summarized backstory.
+    """)

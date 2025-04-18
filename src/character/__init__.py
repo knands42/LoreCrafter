@@ -1,4 +1,4 @@
-from .builder import generate_character
-from .store import search_similar_characters
+from .character_generator import CharacterGenerator
+from .character_vector_store import CharacterVectorStore
 
-__all__ = ["generate_character", "search_similar_characters"]
+__all__ = ["CharacterGenerator", "CharacterVectorStore"]

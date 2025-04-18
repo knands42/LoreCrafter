@@ -1,0 +1,4 @@
+- [ ] Use Function calling to summarize the backstory
+- [ ] Use get_relevant_documents to help build characters with similar background (e.g., int the same universe)
+- [ ] Create an agent to become easy to interact (e.g. delete, update)
+- [ ] Implement RAG
