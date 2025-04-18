@@ -7,6 +7,7 @@ from langchain_openai import ChatOpenAI
 
 from .prompts import get_universe, get_world_theme, get_tone_context, create_backstory_prompt, \
     create_personality_prompt, create_appearance_prompt
+from .store import store_character_in_chroma
 
 load_dotenv()
 
@@ -56,4 +57,5 @@ def generate_character(character_info: dict[str, str]) -> dict[str, str]:
     }
 
     execute_chain(character_info, context)
+    store_character_in_chroma(character_info)
     return context
