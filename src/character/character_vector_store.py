@@ -1,5 +1,6 @@
 import json
 from typing import Any
+from uuid import uuid4
 
 from langchain.docstore.document import Document
 from langchain_chroma import Chroma
@@ -25,7 +26,7 @@ class CharacterVectorStore:
         doc = Document(
             page_content=json.dumps(character),
             metadata={
-                "id": str(uuid.uuid4()),
+                "id": str(uuid4()),
                 "name": character.get("name", "unknown")
             }
         )
