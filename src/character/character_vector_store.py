@@ -1,13 +1,9 @@
 import json
-import uuid
 from typing import Any
 
-from dotenv import load_dotenv
 from langchain.docstore.document import Document
 from langchain_chroma import Chroma
 from langchain_openai import OpenAIEmbeddings
-
-load_dotenv()
 
 
 class CharacterVectorStore:

@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 from langchain_core.output_parsers import StrOutputParser
 
 from src.character.character_vector_store import CharacterVectorStore
@@ -25,6 +27,7 @@ class CharacterGenerator:
 
 
     def generate(self, info: dict[str, str]) -> dict[str, str]:
+        info['id'] = str(uuid4())
         info['universe'] = get_universe().get(info['universe'], info['universe'])
         info['world_theme'] = get_world_theme().get(info['world_theme'], info['world_theme'])
         info['tone'] = get_tone_context().get(info['tone'], info['tone'])
