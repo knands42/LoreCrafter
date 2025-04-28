@@ -4,9 +4,20 @@ from rich.markdown import Markdown
 from rich import print
 
 
-def format_section(title: str, content: str) -> Panel:
+def format_section(title: str, content: str, use_markdown: bool = False) -> Panel:
+    """Format a section of text with a title and border.
+
+    Args:
+        title: The title of the section
+        content: The content of the section
+        use_markdown: Whether to render the content as Markdown
+
+    Returns:
+        A Panel containing the formatted content
+    """
+    content_obj = Markdown(content.strip()) if use_markdown else Text(content.strip(), style="italic")
     return Panel.fit(
-        Text(content.strip(), style="italic"),
+        content_obj,
         title=title,
         border_style="cyan",
         padding=(1, 2),
@@ -31,7 +42,7 @@ def print_character(character: dict[str, str | None]):
         print(format_section("Personality", character["personality"]))
 
     if character.get("backstory"):
-        print(format_section("Backstory", character["backstory"]))
+        print(format_section("Backstory", character["backstory"], use_markdown=True))
 
 
 def print_world(world: dict[str, str | None]):
@@ -44,7 +55,7 @@ def print_world(world: dict[str, str | None]):
     print()
 
     if world.get("history"):
-        print(format_section("World History", world["history"]))
+        print(format_section("World History", world["history"], use_markdown=True))
 
     if world.get("timeline"):
-        print(format_section("Timeline", world["timeline"]))
+        print(format_section("Timeline", world["timeline"], use_markdown=True))

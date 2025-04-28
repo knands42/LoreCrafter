@@ -85,55 +85,76 @@ def create_personality_prompt(personality=None) -> PromptTemplate:
 
 
 def create_backstory_prompt(premade_story=None) -> PromptTemplate:
+    base_format = """
+## Early Life
+Describe their origins: birthplace, family situation, early influences, and how their race/culture shaped them.
+
+## Formative Events
+Highlight 2-3 major events (losses, victories, betrayals, discoveries) that defined their character and shaped their outlook.
+
+## Current Motivations
+Summarize what drives them now: goals, inner conflicts, fears, ambitions, or unresolved past matters.
+
+(Write in a style fitting the world theme, universe, and story tone.)
+"""
+
     if premade_story:
-        return PromptTemplate.from_template("""
-        Enhance the TTRPG character’s existing backstory. Use the context below to deepen their journey while staying true to established elements.
+        prompt = f"""
+Enhance the TTRPG character’s existing backstory. Use the context below to deepen their journey while staying true to established elements.
 
-        Name: {name}
-        Gender: {gender}
-        Race: {race}
-        Personality: {personality}
-        Appearance: {appearance}
-        Universe: {universe_prompt}
-        World Theme: {world_theme_prompt}
-        Story Tone: {tone_prompt}
+Name: {{name}}
+Gender: {{gender}}
+Race: {{race}}
+Personality: {{personality}}
+Appearance: {{appearance}}
+Universe: {{universe_prompt}}
+World Theme: {{world_theme_prompt}}
+Story Tone: {{tone_prompt}}
 
-        Existing Backstory:
-        {custom_story}
+Existing Backstory:
+{{custom_story}}
 
-        Guidelines:
-        1. Preserve the original narrative's key elements and emotional beats.
-        2. Expand on unanswered questions, mysterious hints, or impactful moments.
-        3. Maintain consistency with the character’s personality, appearance, and universe.
-        4. Add one seamless paragraph that elevates the story's emotional depth and complexity.
-        5. Keep the language tone consistent with what’s provided.
+Guidelines:
+1. Preserve the original narrative's key elements and emotional beats.
+2. Expand on unanswered questions, mysterious hints, or impactful moments.
+3. Maintain consistency with the character’s personality, appearance, and universe.
+4. Add one seamless paragraph that elevates the emotional depth and complexity.
+5. Keep the language tone consistent with what’s provided.
 
-        Respond only with the enriched story.
-        """)
+Use the following structure:
+{base_format}
+
+Respond only with the enriched story.
+"""
     else:
-        return PromptTemplate.from_template("""
-        Create a rich, immersive backstory for the following TTRPG character. Use the provided attributes to guide the storytelling.
+        prompt = f"""
+Create a rich, immersive backstory for the following TTRPG character. Use the provided attributes to guide the storytelling.
 
-        Name: {name}
-        Gender: {gender}
-        Race: {race}
-        Personality: {personality}
-        Appearance: {appearance}
-        Universe: {universe_prompt}
-        World Theme: {world_theme_prompt}
-        Story Tone: {tone_prompt}
+Name: {{name}}
+Gender: {{gender}}
+Race: {{race}}
+Personality: {{personality}}
+Appearance: {{appearance}}
+Universe: {{universe_prompt}}
+World Theme: {{world_theme_prompt}}
+Story Tone: {{tone_prompt}}
 
-        Instructions:
-        - Write one compelling paragraph that includes:
-            • Their origins and upbringing
-            • Events that shaped who they are
-            • Their internal motivations and current goals
-            • Any defining relationships or pivotal experiences
-        - Stay true to the personality and appearance provided.
-        - Reflect the tone and universe style in your language.
+Instructions:
+- Write a compelling backstory covering:
+  • Early life (origins, culture, early influences)
+  • 2-3 key events that shaped their beliefs or abilities
+  • Current motivations, fears, ambitions, or mysteries
+- Reflect the character's personality and appearance.
+- Match the language style to the world theme and story tone.
 
-        Respond only with the final backstory paragraph.
-        """)
+Use the following structure:
+{base_format}
+
+Respond only with the final backstory.
+"""
+
+    return PromptTemplate.from_template(prompt)
+
 
 
 def summarize_backstory_prompt(backstory: str) -> PromptTemplate:

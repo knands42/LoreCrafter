@@ -308,7 +308,7 @@ class TemplateManager:
 
         <div class="section">
             <h2>Backstory</h2>
-            <p>{character_info['backstory']}</p>
+            <div>{self.__markdown_to_html(character_info['backstory'])}</div>
 
             <div class="highlight">
                 Key moments from {character_info['name']}'s past have shaped who they are today.
@@ -393,7 +393,7 @@ class TemplateManager:
 
         <div class="section">
             <h2>Backstory</h2>
-            <p>{character_info['backstory']}</p>
+            <div>{self.__markdown_to_html(character_info['backstory'])}</div>
 
             <div class="highlight">
                 TODO
@@ -478,7 +478,7 @@ class TemplateManager:
 
         <div class="section">
             <h2>Backstory</h2>
-            <p>{character_info['backstory']}</p>
+            <div>{self.__markdown_to_html(character_info['backstory'])}</div>
 
             <div class="highlight">
                 Key moments from {character_info['name']}'s here: TODO.
@@ -496,7 +496,7 @@ class TemplateManager:
                 </div>
             </div>
         </div>
-{'''
+{f'''
         <div class="section">
             <h2>World Theme</h2>
             <p>{character_info['world_theme_prompt']}</p>
@@ -606,13 +606,13 @@ class TemplateManager:
 
         <div class="section">
             <h2>World History</h2>
-            <p>{world_info.get('history', 'No history available.')}</p>
+            <div>{self.__markdown_to_html(world_info.get('history', 'No history available.'))}</div>
         </div>
 
         <div class="section">
             <h2>Timeline</h2>
             <div class="timeline">
-                {world_info.get('timeline', 'No timeline available.')}
+                {self.__markdown_to_html(world_info.get('timeline', 'No timeline available.'))}
             </div>
         </div>
 
