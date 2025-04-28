@@ -1,5 +1,7 @@
 from dotenv import load_dotenv
 
+from src.content.pdf_generator import create_pdf
+
 load_dotenv()
 
 import json
@@ -28,6 +30,7 @@ def create_character():
     character_result = char_generator.generate(character_info)
 
     print_character(character_result)
+    create_pdf(character_result)
 
 
 @app.command()
@@ -39,12 +42,6 @@ def search_character(query: str, top: Optional[int] = 2):
         retrieved_character = json.loads(doc.page_content)
         print_character(retrieved_character)
 
-
-# @app.command()
-# def create_character_with_reference(query: str):
-#     results = retrieve_relevant_docs(query)
-#     print(results)
-# 
 
 if __name__ == "__main__":
     app()

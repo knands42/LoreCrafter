@@ -1,5 +1,6 @@
 # Python files
 __pycache__/*
+**/__pycache__/*
 .venv/*
 venv/*
 
@@ -12,3 +13,4 @@ chroma_db/
 
 # Others
 .TODO
+assets/*.pdf

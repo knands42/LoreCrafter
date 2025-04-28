@@ -15,9 +15,6 @@ create-character:
 search-character:
 	$(PYTHON_PATH) .\main.py search-character "$(CHAR)"
 
-create-character-with-reference:
-	$(PYTHON_PATH) .\main.py create-character-with-reference "$(CHAR)"
-
 clean:
 	@echo "Cleaning up..."
 	rm -rf .venv
