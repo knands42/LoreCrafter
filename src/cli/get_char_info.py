@@ -35,7 +35,7 @@ def get_character_info(get_default: bool = False):
             "personality": None,
             "appearance": None,
             "universe": "D&D",
-            "world_theme": "Fantasy world full of magic",
+            "world_theme": "fantasy",
             "tone": "Epic",
             "custom_story": None
         }
