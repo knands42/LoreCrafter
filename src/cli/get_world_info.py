@@ -13,7 +13,6 @@ def get_world_info(get_default: bool = False):
             "tone": "Epic",
             "custom_history": None,
             "custom_timeline": None,
-            "custom_campaign": None
         }
 
     print("\n[bold magenta]Let's create your world![/bold magenta]")
@@ -60,9 +59,6 @@ def get_world_info(get_default: bool = False):
         default=False
     )
 
-    custom_setting = multiline_input(
-        "Enter your campaign setting (press Enter twice to finish)") if has_custom_setting else None
-
     return {
         "name": name,
         "universe": universe,
@@ -70,5 +66,4 @@ def get_world_info(get_default: bool = False):
         "tone": tone,
         "custom_history": custom_history,
         "custom_timeline": custom_timeline,
-        "custom_setting": custom_setting
     }

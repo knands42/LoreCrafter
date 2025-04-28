@@ -1,0 +1,1 @@
+from src.campaign.campaign_generator import CampaignGenerator

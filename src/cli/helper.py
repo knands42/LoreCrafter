@@ -1,5 +1,6 @@
 from rich.panel import Panel
 from rich.text import Text
+from rich.markdown import Markdown
 from rich import print
 
 
@@ -47,9 +48,3 @@ def print_world(world: dict[str, str | None]):
 
     if world.get("timeline"):
         print(format_section("Timeline", world["timeline"]))
-
-    if world.get("setting"):
-        print(format_section("Campaign Setting", world["setting"]))
-
-    if world.get("hidden_elements"):
-        print(format_section("Hidden Elements", world["hidden_elements"]))

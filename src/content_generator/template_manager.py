@@ -1,3 +1,5 @@
+import markdown
+
 class TemplateManager:
     """Class to manage PDF templates and themes for character sheets."""
 
@@ -89,7 +91,8 @@ class TemplateManager:
     def __get_theme_css(self, world_theme: str) -> str:
         """Get CSS template based on world theme."""
         theme = self.theme_map.get(world_theme.lower() if world_theme else "default", self.fantasy_theme)
-        font_import = self.font_imports.get(world_theme.lower() if world_theme else "default", self.font_imports["fantasy"])
+        font_import = self.font_imports.get(world_theme.lower() if world_theme else "default",
+                                            self.font_imports["fantasy"])
 
         return f"""
             @page {{
@@ -518,21 +521,30 @@ class TemplateManager:
 
         if 'image_filename' in character_info:
             image_html = self.__get_character_image_html(character_info)
-            template = template.replace('<img src="https://via.placeholder.com/180" alt="Character Portrait"/>', image_html)
+            template = template.replace('<img src="https://via.placeholder.com/180" alt="Character Portrait"/>',
+                                        image_html)
 
         return template
+
+    def __markdown_to_html(self, md_text: str) -> str:
+        """Convert Markdown text to HTML."""
+        if not md_text:
+            return ""
+        return markdown.markdown(md_text)
 
     def __get_world_image_html(self, world_info: dict) -> str:
         """Get the HTML for the world image."""
         image_filename = world_info.get('image_filename')
-        
+
+        if not image_filename:
+            return '<img src="https://via.placeholder.com/800x400" alt="World Landscape"/>'
+
         if image_filename.startswith(('http://', 'https://')):
             return f'<img src="{image_filename}" alt="Character Portrait"/>'
         else:
             import os
             absolute_path = os.path.abspath(os.path.join('assets', image_filename))
             return f'<img src="file:///{absolute_path}" alt="Character Portrait"/>'
-
 
     def get_world_template(self, world_info: dict) -> str:
         """Get the template for world lore."""
@@ -576,19 +588,6 @@ class TemplateManager:
             color: var(--accent-color);
         }}
 
-        .hidden-elements {{
-            margin-top: 30px;
-            padding: 20px;
-            background-color: rgba(0, 0, 0, 0.05);
-            border-radius: 8px;
-        }}
-
-        .hidden-element {{
-            margin-bottom: 15px;
-            padding: 10px;
-            border-left: 3px solid var(--secondary-color);
-            background-color: rgba(0, 0, 0, 0.02);
-        }}
     </style>
 </head>
 <body>
@@ -617,17 +616,6 @@ class TemplateManager:
             </div>
         </div>
 
-        <div class="section">
-            <h2>Campaign Setting</h2>
-            <p>{world_info.get('setting', 'No campaign setting available.')}</p>
-        </div>
-
-        <div class="section">
-            <h2>Hidden Elements</h2>
-            <div class="hidden-elements">
-                {world_info.get('hidden_elements', 'No hidden elements available.')}
-            </div>
-        </div>
 
         <div class="footer">
             World created with LoreCrafter • ID: {world_info.get('id', 'Unknown')}

@@ -6,12 +6,10 @@ from pathlib import Path
 from langchain_core.output_parsers import StrOutputParser
 
 from src.character.llm import LLMFactory
-from src.character.prompts import get_world_theme, get_story_tone, get_universe
+from src.common import get_world_theme, get_story_tone, get_universe
 from src.world.prompts import (
     create_world_history_prompt,
     create_timeline_prompt,
-    create_campaign_setting_prompt,
-    create_hidden_elements_prompt,
     get_world_image_prompt
 )
 from src.world.world_vector_store import WorldVectorStore
@@ -49,12 +47,6 @@ class WorldGenerator:
         timeline_chain = create_timeline_prompt(world_info.get('custom_timeline'))
         world_info['timeline'] = (timeline_chain | self.llm | self.parser).invoke(world_info)
 
-        campaign_chain = create_campaign_setting_prompt(world_info.get('custom_setting'))
-        world_info['campaign'] = (campaign_chain | self.llm | self.parser).invoke(world_info)
-
-        hidden_elements_chain = create_hidden_elements_prompt()
-        world_info['hidden_elements'] = (hidden_elements_chain | self.llm | self.parser).invoke(world_info)
-
     def __generate_image(self, world_description: str) -> str | None:
         """Generate an image based on the world description and save it to the assets folder.
 
@@ -80,7 +72,7 @@ class WorldGenerator:
                 [prompt],
                 generation_config=dict(response_modalities=["TEXT", "IMAGE"]),
             )
-            
+
             image_base64 = response.content[0].get("image_url").get("url").split(",")[-1]
             if image_base64:
                 with open(image_path, 'wb') as f:
