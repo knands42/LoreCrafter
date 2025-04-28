@@ -1,3 +1,5 @@
+- [ ] Create a world lore
+- [ ] Add the option to create characters not tight to the world
 - [ ] Parse PDFs from many books and store them as embbeddings (each pdf book should contains custom parsing features)
 - [ ] Use context based on curent embbeddings before prompting
 - [ ] Output an pdf version character sheet

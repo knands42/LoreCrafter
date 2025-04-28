@@ -2,112 +2,92 @@ from weasyprint import HTML
 from rich import print
 
 # You could also load this from a file or Jinja2 template engine
-html_content = """
+def get_template(character_info: dict[str, any]) -> str:
+    return f"""
 <html>
 <head>
     <style>
-        body {
+        body {{
             font-family: 'Georgia', serif;
-            margin: 20px;
+            margin: 5px;
             background-color: #f5f5f5;
-        }
-        .container {
+        }}
+        .container {{
             background: white;
-            padding: 20px;
+            padding: 5px;
             border-radius: 10px;
-        }
-        h1, h2 {
+        }}
+        h1, h2 {{
             color: #2e4053;
             border-bottom: 1px solid #ccc;
             padding-bottom: 5px;
-        }
-        .section {
-            margin-bottom: 20px;
-        }
-        .character-sheet {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-        }
-        .stat {
+        }}
+        .section {{
+            margin-bottom: 10px;
+        }}
+        .stat {{
             background: #e8eaf6;
             padding: 10px;
             border-radius: 5px;
             text-align: center;
-        }
-        img {
-            float: right;
-            margin-left: 20px;
+        }}
+        img {{
             width: 150px;
             height: 150px;
             object-fit: cover;
             border-radius: 10px;
-        }
-        ul {
+            float: right;
+            margin-left: 20px;
+        }}
+        ul {{
             padding-left: 20px;
-        }
-        .highlight {
+        }}
+        .highlight {{
             background-color: #ffe0b2;
             padding: 5px;
             margin: 5px 0;
             border-radius: 5px;
-        }
+        }}
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Thalor Windblade</h1>
+        <h1>{character_info['name']}</h1>
         <img src="https://via.placeholder.com/150" alt="Character Portrait"/>
 
         <div class="section">
             <h2>Appearance</h2>
-            <p>Tall and lean elf with silver hair braided with leaves, deep green eyes, and tribal tattoos on his arms.</p>
+            <p>{character_info['appearance']}</p>
         </div>
 
         <div class="section">
             <h2>Personality</h2>
-            <ul>
-                <li>Brave and selfless</li>
-                <li>Silent observer</li>
-                <li>Devoted to protecting the forest</li>
-            </ul>
+            <p>{character_info['personality']}</p>
         </div>
 
         <div class="section">
             <h2>Backstory</h2>
-            <p>Raised by druids after his village was destroyed, Thalor pledged himself to the ancient spirits of the forest. He now roams the realms as a silent protector, unseen and unstoppable.</p>
+            <p>{character_info['backstory']}</p>
         </div>
 
         <div class="section">
-            <h2>World Lore</h2>
-            <p>The world of Vhaloria was shattered centuries ago, leaving isolated islands of civilization amidst wild chaos. Ancient magics fuel both wonders and horrors, and alliances are fragile at best.</p>
+            <h2>Universe</h2>
+            <p>{character_info['universe']}</p>
         </div>
 
         <div class="section">
-            <h2>Highlights</h2>
-            <div class="highlight">Defeated the corrupted Ent, Morvath, single-handedly.</div>
-            <div class="highlight">Found the lost Amulet of Whispering Leaves.</div>
-            <div class="highlight">First elf in 500 years to be named "Guardian of the Verdant Court."</div>
-        </div>
-
-        <div class="section">
-            <h2>Character Sheet</h2>
-            <div class="character-sheet">
-                <div class="stat"><strong>Strength:</strong> 14</div>
-                <div class="stat"><strong>Dexterity:</strong> 18</div>
-                <div class="stat"><strong>Constitution:</strong> 12</div>
-                <div class="stat"><strong>Wisdom:</strong> 16</div>
-                <div class="stat"><strong>Intelligence:</strong> 13</div>
-                <div class="stat"><strong>Charisma:</strong> 11</div>
-            </div>
+            <h2>World Theme</h2>
+            <p>{character_info['world_theme']}</p>
         </div>
     </div>
 </body>
 </html>
 """
 
+
 # Create the PDF
 def create_pdf(content: dict):
     print("\n[bold yellow]Generating your character sheet...[/bold yellow]")
+    html_content = get_template(content)
     HTML(string=html_content).write_pdf("assets/character_profile.pdf")
     print("\n[bold yellow]Character sheet ready[/bold yellow]")

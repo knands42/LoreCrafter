@@ -21,13 +21,17 @@ char_vector_db = CharacterVectorStore()
 
 
 @app.command()
-def create_character():
+def create_character(
+    default: bool = typer.Option(False, "--default", help="Use predefined character information")
+):
     print("[bold cyan]🧙 Welcome to LoreCrafter![/bold cyan]")
 
-    character_info = get_character_info()
+    character_info = get_character_info(default)
 
     print("\n[bold yellow]Generating your character's story...[/bold yellow]")
     character_result = char_generator.generate(character_info)
+    print("sonic")
+    print(character_result)
 
     print_character(character_result)
     create_pdf(character_result)

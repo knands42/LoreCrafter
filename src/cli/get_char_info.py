@@ -27,7 +27,19 @@ def ask_with_examples(prompt_text: str, examples: list[str], default: str = None
     return Prompt.ask(full_prompt, default=default)
 
 
-def get_character_info():
+def get_character_info(get_default: bool = False):
+    if get_default:
+        return {
+            "name": "Captain Kirk",
+            "race": "Human",
+            "personality": None,
+            "appearance": None,
+            "universe": "D&D",
+            "world_theme": "default",
+            "tone": "Epic",
+            "custom_story": None
+        }
+
     print("\n[bold magenta]Let's create your character![/bold magenta]")
 
     universe = ask_with_examples(
