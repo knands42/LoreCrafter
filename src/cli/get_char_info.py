@@ -31,6 +31,7 @@ def get_character_info(get_default: bool = False):
     if get_default:
         return {
             "name": "Captain Kirk",
+            "gender": "male",
             "race": "Human",
             "personality": None,
             "appearance": None,
@@ -50,6 +51,8 @@ def get_character_info(get_default: bool = False):
     )
 
     name = Prompt.ask("[bold green]What's your character's name?[/bold green]", default="Captain Kirk")
+
+    gender = Prompt.ask("[bold green]What's your character's gender?[/bold green]", choices=["male", "female", "other"], default="male")
 
     race = ask_with_examples(
         "[bold green]Choose your character's race[/bold green]",
@@ -91,6 +94,7 @@ def get_character_info(get_default: bool = False):
 
     return {
         "name": name,
+        "gender": gender,
         "race": race,
         "personality": personality,
         "appearance": appearance,

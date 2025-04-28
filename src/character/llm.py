@@ -18,3 +18,10 @@ class LLMFactory:
             temperature=0.8,
             api_key=os.getenv("OPENAI_API_KEY")
         )
+
+    @staticmethod
+    def create_image_generator():
+        return ChatGoogleGenerativeAI(
+            model="models/gemini-2.0-flash-exp-image-generation",
+            api_key=os.getenv("GOOGLE_API_KEY")
+        )

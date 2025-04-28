@@ -1,4 +1,6 @@
 from langchain.prompts import PromptTemplate
+from langchain_core.messages import HumanMessage
+
 
 def get_universe(universe: str) -> str:
     """Get the context descriptions for different TTRPG universes."""
@@ -55,14 +57,13 @@ def get_story_tone(tone: str) -> str:
     return tones.get(tone.lower(), tone)
 
 
-
 def create_appearance_prompt(appearance=None) -> PromptTemplate:
     if appearance:
         return PromptTemplate.from_template("""
         Enhance the following appearance description of a TTRPG character with vivid detail and unique features.
 
-        Name: {name}
         Race: {race}
+        Gender: {gender}
         Story Tone: {tone_prompt}
 
         Existing Appearance Description:
@@ -79,8 +80,8 @@ def create_appearance_prompt(appearance=None) -> PromptTemplate:
         return PromptTemplate.from_template("""
         Describe the physical appearance of the following TTRPG character.
 
-        Name: {name}
         Race: {race}
+        Gender: {gender}
         Story Tone: {tone_prompt}
 
         Guidelines:
@@ -98,6 +99,7 @@ def create_personality_prompt(personality=None) -> PromptTemplate:
         Enhance the personality description of the following TTRPG character with depth, nuance, and immersion.
 
         Name: {name}
+        Gender: {gender}
         Race: {race}
         Appearance: {appearance}
         Story Tone: {tone_prompt}
@@ -119,6 +121,7 @@ def create_personality_prompt(personality=None) -> PromptTemplate:
         Create a deep and vivid personality for the following TTRPG character.
 
         Name: {name}
+        Gender: {gender}
         Race: {race}
         Appearance: {appearance}
         Story Tone: {tone_prompt}
@@ -139,6 +142,7 @@ def create_backstory_prompt(premade_story=None) -> PromptTemplate:
         Enhance the TTRPG character’s existing backstory. Use the context below to deepen their journey while staying true to established elements.
 
         Name: {name}
+        Gender: {gender}
         Race: {race}
         Personality: {personality}
         Appearance: {appearance}
@@ -163,6 +167,7 @@ def create_backstory_prompt(premade_story=None) -> PromptTemplate:
         Create a rich, immersive backstory for the following TTRPG character. Use the provided attributes to guide the storytelling.
 
         Name: {name}
+        Gender: {gender}
         Race: {race}
         Personality: {personality}
         Appearance: {appearance}
@@ -197,4 +202,13 @@ def summarize_backstory_prompt(backstory: str) -> PromptTemplate:
     - Do not add any extra information or interpretation.
     
     Respond only with the final summarized backstory.
+    """)
+
+
+def get_character_image_prompt(character_appearance: str) -> HumanMessage:
+    return HumanMessage(f"""
+    Create a portrait image of a character with the following appearance:
+    {character_appearance}
+
+    The image should be a high-quality character portrait suitable for a TTRPG character sheet.
     """)

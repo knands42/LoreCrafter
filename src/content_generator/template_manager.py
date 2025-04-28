@@ -1,6 +1,6 @@
 class TemplateManager:
     """Class to manage PDF templates and themes for character sheets."""
-    
+
     def __init__(self):
         # Default fantasy theme (for D&D and similar)
         self.fantasy_theme = {
@@ -90,7 +90,7 @@ class TemplateManager:
         """Get CSS template based on world theme."""
         theme = self.theme_map.get(world_theme.lower() if world_theme else "default", self.fantasy_theme)
         font_import = self.font_imports.get(world_theme.lower() if world_theme else "default", self.font_imports["fantasy"])
-        
+
         return f"""
             @page {{
                 margin: 0mm;
@@ -241,6 +241,21 @@ class TemplateManager:
             }}
         """
 
+    def __get_character_image_html(self, character_info: dict) -> str:
+        """Get the HTML for the character image."""
+        # Get the character image path or use a placeholder
+        image_filename = character_info.get('image_filename', 'https://via.placeholder.com/180')
+
+        # Check if the image_filename is a URL or a local file path
+        if image_filename.startswith(('http://', 'https://')):
+            # If it's a URL, use it directly
+            return f'<img src="{image_filename}" alt="Character Portrait"/>'
+        else:
+            # If it's a local file, use an absolute path
+            import os
+            absolute_path = os.path.abspath(os.path.join('assets', image_filename))
+            return f'<img src="file:///{absolute_path}" alt="Character Portrait"/>'
+
     def __get_universe_template(self, character_info: dict) -> str:
         """Get HTML template based on world theme."""
         universe = character_info.get('universe', '').lower() if character_info.get('universe') else ''
@@ -259,7 +274,7 @@ class TemplateManager:
         <header>
             <div class="character-title">
                 <h1>{character_info.get('name', 'Unknown Name')}</h1>
-                <div class="character-subtitle">{character_info.get('race', 'Unknown Race')}</div>
+                <div class="character-subtitle">{character_info.get('race', 'Unknown Race')} • {character_info.get('gender', 'Unknown Gender')}</div>
                 <div class="character-meta">
                     <div class="meta-item">Universe: {character_info.get('universe', 'Unknown')}</div>
                     <div class="meta-item">Alignment: {character_info.get('alignment', 'Neutral')}</div>
@@ -344,7 +359,7 @@ class TemplateManager:
         <header>
             <div class="character-title">
                 <h1>{character_info.get('name', 'Unknown Name')}</h1>
-                <div class="character-subtitle">{character_info.get('race', 'Unknown Race')}</div>
+                <div class="character-subtitle">{character_info.get('race', 'Unknown Race')} • {character_info.get('gender', 'Unknown Gender')}</div>
                 <div class="character-meta">
                     <div class="meta-item">Universe: {character_info.get('universe', 'Unknown')}</div>
                     <div class="meta-item">Street Cred: High</div>
@@ -429,7 +444,7 @@ class TemplateManager:
         <header>
             <div class="character-title">
                 <h1>{character_info.get('name', 'Unknown Name')}</h1>
-                <div class="character-subtitle">{character_info.get('race', 'Unknown Race')}</div>
+                <div class="character-subtitle">{character_info.get('race', 'Unknown Race')} • {character_info.get('gender', 'Unknown Gender')}</div>
                 <div class="character-meta">
                     <div class="meta-item">Universe: {character_info.get('universe', 'Unknown')}</div>
                     <div class="meta-item">Alignment: {character_info.get('alignment', 'Neutral')}</div>
@@ -503,4 +518,10 @@ class TemplateManager:
 
     def get_template(self, character_info: dict) -> str:
         """Get the appropriate template based on character info."""
-        return self.__get_universe_template(character_info)
+        template = self.__get_universe_template(character_info)
+
+        if 'image_filename' in character_info:
+            image_html = self.__get_character_image_html(character_info)
+            template = template.replace('<img src="https://via.placeholder.com/180" alt="Character Portrait"/>', image_html)
+
+        return template

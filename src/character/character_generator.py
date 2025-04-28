@@ -1,16 +1,20 @@
 from uuid import uuid4
+import os
+import base64
+from pathlib import Path
 
 from langchain_core.output_parsers import StrOutputParser
 
 from src.character.character_vector_store import CharacterVectorStore
 from src.character.llm import LLMFactory
 from src.character.prompts import create_appearance_prompt, create_personality_prompt, create_backstory_prompt, \
-    get_world_theme, get_story_tone, get_universe
+    get_world_theme, get_story_tone, get_universe, get_character_image_prompt
 
 
 class CharacterGenerator:
     def __init__(self):
         self.llm = LLMFactory.create()
+        self.image_llm = LLMFactory.create_image_generator()
         self.parser = StrOutputParser()
         self.vector_db = CharacterVectorStore()
 
@@ -24,7 +28,11 @@ class CharacterGenerator:
 
         self.__execute_chain(character_info)
         self.vector_db.store(character_info)
-        self.__generate_image(character_info.get("appearance"))
+
+        # Generate character image and store the path
+        image_filename = self.__generate_image(character_info.get("appearance"))
+        if image_filename:
+            character_info['image_filename'] = image_filename
 
         return character_info
 
@@ -38,5 +46,42 @@ class CharacterGenerator:
         for key, chain in chains.items():
             character_info[key] = (chain | self.llm | self.parser).invoke(character_info)
 
-    def __generate_image(self, appearance_description: str):
-        pass
+    def __generate_image(self, appearance_description: str) -> str | None:
+        """Generate an image based on the character's appearance description and save it to the assets folder.
+
+        Args:
+            appearance_description: A detailed description of the character's appearance.
+
+        Returns:
+            The path to the generated image file.
+        """
+        if not appearance_description:
+            return None
+
+
+        assets_dir = Path("assets")
+        assets_dir.mkdir(exist_ok=True)
+
+        # Generate a unique filename for the image
+        image_filename = f"character_image_{uuid4()}.png"
+        image_path = assets_dir / image_filename
+
+        try:
+            prompt = get_character_image_prompt(appearance_description)
+            response = self.image_llm.invoke(
+                [prompt],
+                generation_config=dict(response_modalities=["TEXT", "IMAGE"]),
+            )
+            
+            image_base64 = response.content[0].get("image_url").get("url").split(",")[-1]
+            if image_base64:
+                with open(image_path, 'wb') as f:
+                    f.write(base64.b64decode(image_base64))
+                    return str(image_filename)
+
+            print("No image data received from the API.")
+            return None
+
+        except Exception as e:
+            print(f"Error generating image: {e}")
+            return None
