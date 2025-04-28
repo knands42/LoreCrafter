@@ -1,6 +1,6 @@
 from dotenv import load_dotenv
 
-from src.content.pdf_generator import create_pdf
+from src.content_generator.pdf_generator import create_pdf
 
 load_dotenv()
 
@@ -30,8 +30,6 @@ def create_character(
 
     print("\n[bold yellow]Generating your character's story...[/bold yellow]")
     character_result = char_generator.generate(character_info)
-    print("sonic")
-    print(character_result)
 
     print_character(character_result)
     create_pdf(character_result)

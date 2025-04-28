@@ -3,9 +3,11 @@ import re
 from rich.prompt import Prompt, Confirm
 from rich import print
 
+from src.cli.prompts import get_tone_context, get_universe, get_world_theme
+
 
 def clean_text(value: str) -> str:
-    # Lowercase and remove all characters except a-z, 0-9, and spaces
+    # remove all characters except a-z, 0-9, and spaces
     return re.sub(r'[^a-zA-Z0-9 ]+', '', value)
 
 
@@ -34,8 +36,8 @@ def get_character_info(get_default: bool = False):
             "race": "Human",
             "personality": None,
             "appearance": None,
-            "universe": "D&D",
-            "world_theme": "default",
+            "universe": get_universe("D&D"),
+            "world_theme": None,
             "tone": "Epic",
             "custom_story": None
         }
@@ -96,8 +98,8 @@ def get_character_info(get_default: bool = False):
         "race": race,
         "personality": personality,
         "appearance": appearance,
-        "universe": universe,
-        "world_theme": theme,
-        "tone": tone,
+        "universe": get_universe(universe),
+        "world_theme": get_world_theme(theme),
+        "tone": get_tone_context(tone),
         "custom_story": custom_story
     }

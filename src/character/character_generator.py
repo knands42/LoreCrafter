@@ -4,8 +4,7 @@ from langchain_core.output_parsers import StrOutputParser
 
 from src.character.character_vector_store import CharacterVectorStore
 from src.character.llm import LLMFactory
-from src.character.prompts import get_universe, get_world_theme, get_tone_context, create_appearance_prompt, \
-    create_personality_prompt, create_backstory_prompt
+from src.character.prompts import create_appearance_prompt, create_personality_prompt, create_backstory_prompt
 
 
 class CharacterGenerator:
@@ -15,24 +14,28 @@ class CharacterGenerator:
         self.vector_db = CharacterVectorStore()
 
 
-    def __execute_chain(self, info: dict[str, str]) -> None:
+    def generate(self, info: dict[str, str]) -> dict[str, str]:
+        character_info = {key: value for key, value in info.items()}
+
+        character_info['id'] = str(uuid4())
+
+        self.__execute_chain(character_info)
+        self.vector_db.store(character_info)
+        self.__generate_image(character_info.get("appearance"))
+
+        return character_info
+
+
+    def __execute_chain(self, character_info: dict[str, str]) -> None:
         chains = {
-            'appearance': create_appearance_prompt(info['appearance']),
-            'personality': create_personality_prompt(info['personality']),
-            'backstory': create_backstory_prompt(info['custom_story']),
+            'appearance': create_appearance_prompt(character_info['appearance']),
+            'personality': create_personality_prompt(character_info['personality']),
+            'backstory': create_backstory_prompt(character_info['custom_story']),
         }
 
         for key, chain in chains.items():
-            info[key] = (chain | self.llm | self.parser).invoke(info)
+            character_info[key] = (chain | self.llm | self.parser).invoke(character_info)
 
 
-    def generate(self, info: dict[str, str]) -> dict[str, str]:
-        info['id'] = str(uuid4())
-        info['universe'] = get_universe().get(info['universe'], info['universe'])
-        info['world_theme'] = get_world_theme().get(info['world_theme'], info['world_theme'])
-        info['tone'] = get_tone_context().get(info['tone'], info['tone'])
-
-        self.__execute_chain(info)
-        self.vector_db.store(info)
-
-        return info
+    def __generate_image(self, appearance_description: str):
+        pass
