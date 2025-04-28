@@ -46,7 +46,7 @@ def get_character_info(get_default: bool = False):
 
     universe = ask_with_examples(
         "[bold green]Choose your TTRPG universe[/bold green]",
-        examples=["D&D", "Call of Cthulhu", "Starfinder", "Other"],
+        examples=["D&D", "Call of Cthulhu", "Warhammer 40K", "Shadowrun", "Star Wars RPG", "Vampire The Masquerade", "Other"],
         default="D&D"
     )
 
@@ -63,7 +63,7 @@ def get_character_info(get_default: bool = False):
         examples=["Impulsive", "Passionate", "Quiet", "Overly Analytical"],
         default=None
     )
-    
+
     appearance = ask_with_examples(
         "[bold green]Describe your character's appearance (Optional)[/bold green]",
         examples=["Short black hair, with big cheeks and long neck"],

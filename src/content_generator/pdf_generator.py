@@ -7,24 +7,29 @@ def get_template(character_info: dict[str, any]) -> str:
 <html>
 <head>
     <style>
+        @page {{
+            margin: 0mm;
+        }}
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Lato:wght@300;400;700&display=swap');
 
         body {{
             font-family: 'Lato', sans-serif;
             margin: 0;
-            padding: 20px;
+            padding: 0;
             background-color: #f0e6d2;
             color: #333;
             line-height: 1.6;
+            width: 100%;
+            height: 100%;
         }}
 
         .container {{
-            max-width: 800px;
-            margin: 0 auto;
+            max-width: 80%;
+            margin: 20px auto;
             background: #fff;
             padding: 30px;
             border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 5px 5px rgba(0,0,0,0.1);
             border: 1px solid #d3b17d;
         }}
 
@@ -61,13 +66,16 @@ def get_template(character_info: dict[str, any]) -> str:
             display: flex;
             gap: 15px;
             font-size: 14px;
+            align-items: stretch;
         }}
 
         .meta-item {{
             background: #f8f1e3;
             padding: 5px 10px;
-            border-radius: 20px;
+            border-radius: 10px;
             border: 1px solid #e6d5b8;
+            font-size: 10px;
+            text-align: center;
         }}
 
         img {{
@@ -99,6 +107,7 @@ def get_template(character_info: dict[str, any]) -> str:
         p {{
             margin: 0;
             text-align: justify;
+            font-size: 12px
         }}
 
         .stat-block {{
@@ -176,7 +185,7 @@ def get_template(character_info: dict[str, any]) -> str:
         <div class="section">
             <h2>Personality</h2>
             <p>{character_info['personality']}</p>
-            
+
             <div class="stat-block">
                 <div class="stat">
                     <div class="stat-label">Highlights</div>
@@ -211,7 +220,7 @@ def get_template(character_info: dict[str, any]) -> str:
             <p>{character_info['world_theme']}</p>
 
             <div class="highlight">
-                
+
             </div>
         </div>
 ''' if 'world_theme' in character_info and character_info['world_theme'] else ''}
@@ -229,5 +238,5 @@ def get_template(character_info: dict[str, any]) -> str:
 def create_pdf(content: dict):
     print("\n[bold yellow]Generating your character sheet...[/bold yellow]")
     html_content = get_template(content)
-    HTML(string=html_content).write_pdf("assets/character_profile.pdf")
+    HTML(string=html_content).write_pdf("assets/character_profile.pdf", presentational_hints=True)
     print("\n[bold yellow]Character sheet ready[/bold yellow]")

@@ -1,8 +1,8 @@
 from langchain.prompts import PromptTemplate
 
 
-def create_appearance_prompt(custom_appearance=None) -> PromptTemplate:
-    if custom_appearance:
+def create_appearance_prompt(appearance=None) -> PromptTemplate:
+    if appearance:
         return PromptTemplate.from_template("""
         Enhance the following appearance description of a TTRPG character with vivid detail and unique features.
 
@@ -11,7 +11,7 @@ def create_appearance_prompt(custom_appearance=None) -> PromptTemplate:
         Story Tone: {tone}
 
         Existing Appearance Description:
-        {custom_appearance}
+        {appearance}
 
         Guidelines:
         - Preserve the existing description while expanding on distinct physical traits, expressions, and presence.
@@ -37,8 +37,8 @@ def create_appearance_prompt(custom_appearance=None) -> PromptTemplate:
         """)
 
 
-def create_personality_prompt(custom_personality=None) -> PromptTemplate:
-    if custom_personality:
+def create_personality_prompt(personality=None) -> PromptTemplate:
+    if personality:
         return PromptTemplate.from_template("""
         Enhance the personality description of the following TTRPG character with depth, nuance, and immersion.
 
@@ -48,7 +48,7 @@ def create_personality_prompt(custom_personality=None) -> PromptTemplate:
         Story Tone: {tone}
 
         Existing Personality Description:
-        {custom_personality}
+        {personality}
 
         Guidelines:
         - Preserve the core traits provided.

@@ -7,7 +7,17 @@ def get_universe(universe: str) -> str:
         "call of cthulhu": "Call of Cthulhu universe plunges characters into Lovecraftian horror, where cosmic secrets unravel sanity and danger lurks in the unknown.",
         "starfinder": "Starfinder universe, science fiction meets fantasy as players journey through galaxies filled with aliens, starships, and arcane technology.",
         "pathfinder": "Pathfinder universe, a deep high-fantasy universe teeming with diverse cultures, sprawling lore, and epic quests driven by heroism and conflict.",
-        "vampire the masquerade": "Vampire The Masquerade immerses players in a modern gothic world of vampires, where political intrigue and personal horror shape every dark corner."
+        "vampire the masquerade": "Vampire The Masquerade immerses players in a modern gothic world of vampires, where political intrigue and personal horror shape every dark corner.",
+        "chronicles of darkness": "Chronicles of Darkness universe presents a dark reflection of our modern world, where supernatural entities hide in plain sight and ordinary people confront terrifying mysteries.",
+        "warhammer 40k": "Warhammer 40K universe depicts a grim, dystopian future where humanity fights for survival against aliens, demons, and heretics in an endless, brutal war across the galaxy.",
+        "shadowrun": "Shadowrun universe blends cyberpunk with fantasy in a near-future world where magic has returned, megacorporations rule, and street mercenaries navigate between advanced technology and mystical powers.",
+        "traveller": "Traveller universe offers a hard science fiction setting spanning thousands of worlds, where interstellar traders, explorers, and adventurers carve their own path among the stars.",
+        "savage worlds": "Savage Worlds universe provides a versatile framework for fast-paced adventures across genres, from pulp heroes to space explorers, with an emphasis on action and heroic deeds.",
+        "fate": "FATE universe emphasizes narrative-driven gameplay across infinite settings, where character aspects and story consequences matter more than rigid rules or specific worlds.",
+        "blades in the dark": "Blades in the Dark immerses players in the haunted industrial city of Doskvol, where daring scoundrels build criminal enterprises amid supernatural threats and rival gangs.",
+        "numenera": "Numenera universe unfolds in Earth's far future, where explorers discover the remnants of ancient, incomprehensible technologies amid the ruins of eight previous civilizations.",
+        "star wars rpg": "Star Wars RPG brings the iconic space fantasy to life, with Jedi, smugglers, and rebels fighting against the Empire across exotic planets in a galaxy far, far away.",
+        "cyberpunk red": "Cyberpunk RED universe depicts a dystopian future where cybernetic enhancement, corporate domination, and street violence define life in the dangerous urban sprawls of Night City."
     }
 
     return universes.get(universe.lower(), universe)
