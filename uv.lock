@@ -1026,7 +1026,10 @@ dependencies = [
     { name = "langchain-openai" },
     { name = "markdown" },
     { name = "openai" },
+    { name = "peewee" },
+    { name = "psycopg2" },
     { name = "python-dotenv" },
+    { name = "python-paseto" },
     { name = "rich" },
     { name = "typer" },
     { name = "weasyprint" },
@@ -1042,7 +1045,10 @@ requires-dist = [
     { name = "langchain-openai", specifier = ">=0.3.14" },
     { name = "markdown", specifier = ">=3.5.1" },
     { name = "openai", specifier = ">=1.75.0" },
+    { name = "peewee", specifier = ">=3.17.9" },
+    { name = "psycopg2", specifier = ">=2.9.10" },
     { name = "python-dotenv", specifier = ">=1.1.0" },
+    { name = "python-paseto", specifier = ">=0.5.2" },
     { name = "rich", specifier = ">=14.0.0" },
     { name = "typer", specifier = ">=0.15.2" },
     { name = "weasyprint", specifier = ">=65.1" },
@@ -1440,6 +1446,12 @@ wheels = [
 ]
 
 [[package]]
+name = "peewee"
+version = "3.17.9"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/57/09/4393bd378e70b7fc3163ee83353cc27bb520010a5c2b3c924121e7e7e068/peewee-3.17.9.tar.gz", hash = "sha256:fe15cd001758e324c8e3ca8c8ed900e7397c2907291789e1efc383e66b9bc7a8", size = 3026085 }
+
+[[package]]
 name = "pillow"
 version = "11.2.1"
 source = { registry = "https://pypi.org/simple" }
@@ -1551,6 +1563,15 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/a2/b5/bade14ae31ba871a139aa45e7a8183d869efe87c34a4850c87b936963261/protobuf-5.29.4-cp38-abi3-manylinux2014_aarch64.whl", hash = "sha256:aec4962f9ea93c431d5714ed1be1c93f13e1a8618e70035ba2b0564d9e633f2e", size = 319574 },
     { url = "https://files.pythonhosted.org/packages/46/88/b01ed2291aae68b708f7d334288ad5fb3e7aa769a9c309c91a0d55cb91b0/protobuf-5.29.4-cp38-abi3-manylinux2014_x86_64.whl", hash = "sha256:d7d3f7d1d5a66ed4942d4fefb12ac4b14a29028b209d4bfb25c68ae172059922", size = 319672 },
     { url = "https://files.pythonhosted.org/packages/12/fb/a586e0c973c95502e054ac5f81f88394f24ccc7982dac19c515acd9e2c93/protobuf-5.29.4-py3-none-any.whl", hash = "sha256:3fde11b505e1597f71b875ef2fc52062b6a9740e5f7c8997ce878b6009145862", size = 172551 },
+]
+
+[[package]]
+name = "psycopg2"
+version = "2.9.10"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/62/51/2007ea29e605957a17ac6357115d0c1a1b60c8c984951c19419b3474cdfd/psycopg2-2.9.10.tar.gz", hash = "sha256:12ec0b40b0273f95296233e8750441339298e6a572f7039da5b260e3c8b60e11", size = 385672 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/ae/49/a6cfc94a9c483b1fa401fbcb23aca7892f60c7269c5ffa2ac408364f80dc/psycopg2-2.9.10-cp313-cp313-win_amd64.whl", hash = "sha256:91fd603a2155da8d0cfcdbf8ab24a2d54bca72795b90d2a3ed2b6da8d979dee2", size = 2569060 },
 ]
 
 [[package]]
@@ -1691,6 +1712,12 @@ wheels = [
 ]
 
 [[package]]
+name = "pysodium"
+version = "0.7.18"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/d7/a5/bcb82a6056bc8ad0dbfdb0956ae1ff3b8eb9dd76c187723e82a3c5678982/pysodium-0.7.18.tar.gz", hash = "sha256:781ada024456ac74c411193b82d94018c85c94130ea01a22dbec48b8ff458b07", size = 26876 }
+
+[[package]]
 name = "python-dateutil"
 version = "2.9.0.post0"
 source = { registry = "https://pypi.org/simple" }
@@ -1709,6 +1736,18 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/88/2c/7bb1416c5620485aa793f2de31d3df393d3686aa8a8506d11e10e13c5baf/python_dotenv-1.1.0.tar.gz", hash = "sha256:41f90bc6f5f177fb41f53e87666db362025010eb28f60a01c9143bfa33a2b2d5", size = 39920 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/1e/18/98a99ad95133c6a6e2005fe89faedf294a748bd5dc803008059409ac9b1e/python_dotenv-1.1.0-py3-none-any.whl", hash = "sha256:d7c01d9e2293916c18baf562d95698754b0dbbb5e74d457c45d4f6561fb9d55d", size = 20256 },
+]
+
+[[package]]
+name = "python-paseto"
+version = "0.5.2"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pysodium" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/7d/58/99e1c46a9f1b442510c488bc9d7782f5a3b5e5f36c0f50595a356a080548/python-paseto-0.5.2.tar.gz", hash = "sha256:a27032ba706e9e0e44dc5af5723579935c5a45c1f1bb991023e0d53f258c4c89", size = 11157 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/32/26/959c2689988cb94a6a0c38ce3fb80f94689b0a41975c442e8ee890b12f8a/python_paseto-0.5.2-py3-none-any.whl", hash = "sha256:dcf7b4699e7c03c7e1ee7291cd0249a63aad11928a31fb6bd2efe36720d02ff4", size = 13091 },
 ]
 
 [[package]]
