@@ -14,3 +14,4 @@ chroma_db/
 # Others
 .TODO
 assets/*.pdf
+assets/*.png

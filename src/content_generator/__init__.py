@@ -1,1 +1,1 @@
-from .pdf_generator import create_pdf
+from .pdf_generator import create_character_pdf

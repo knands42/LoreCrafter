@@ -243,15 +243,11 @@ class TemplateManager:
 
     def __get_character_image_html(self, character_info: dict) -> str:
         """Get the HTML for the character image."""
-        # Get the character image path or use a placeholder
         image_filename = character_info.get('image_filename', 'https://via.placeholder.com/180')
 
-        # Check if the image_filename is a URL or a local file path
         if image_filename.startswith(('http://', 'https://')):
-            # If it's a URL, use it directly
             return f'<img src="{image_filename}" alt="Character Portrait"/>'
         else:
-            # If it's a local file, use an absolute path
             import os
             absolute_path = os.path.abspath(os.path.join('assets', image_filename))
             return f'<img src="file:///{absolute_path}" alt="Character Portrait"/>'
@@ -523,5 +519,122 @@ class TemplateManager:
         if 'image_filename' in character_info:
             image_html = self.__get_character_image_html(character_info)
             template = template.replace('<img src="https://via.placeholder.com/180" alt="Character Portrait"/>', image_html)
+
+        return template
+
+    def __get_world_image_html(self, world_info: dict) -> str:
+        """Get the HTML for the world image."""
+        image_filename = world_info.get('image_filename')
+        
+        if image_filename.startswith(('http://', 'https://')):
+            return f'<img src="{image_filename}" alt="Character Portrait"/>'
+        else:
+            import os
+            absolute_path = os.path.abspath(os.path.join('assets', image_filename))
+            return f'<img src="file:///{absolute_path}" alt="Character Portrait"/>'
+
+
+    def get_world_template(self, world_info: dict) -> str:
+        """Get the template for world lore."""
+        # Get the CSS based on the world theme
+        theme_css = self.__get_theme_css(world_info.get('world_theme', 'default'))
+
+        # Get the image HTML
+        image_html = self.__get_world_image_html(world_info)
+
+        # Create the world lore template
+        template = f"""
+<html>
+<head>
+    <style>
+        {theme_css}
+
+        /* Additional styles for world lore document */
+        .world-image {{
+            width: 100%;
+            max-height: 400px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }}
+
+        .timeline {{
+            margin: 20px 0;
+            padding: 20px;
+            background-color: rgba(0, 0, 0, 0.05);
+            border-radius: 8px;
+        }}
+
+        .timeline-entry {{
+            margin-bottom: 15px;
+            padding-left: 20px;
+            border-left: 3px solid var(--accent-color);
+        }}
+
+        .timeline-date {{
+            font-weight: bold;
+            color: var(--accent-color);
+        }}
+
+        .hidden-elements {{
+            margin-top: 30px;
+            padding: 20px;
+            background-color: rgba(0, 0, 0, 0.05);
+            border-radius: 8px;
+        }}
+
+        .hidden-element {{
+            margin-bottom: 15px;
+            padding: 10px;
+            border-left: 3px solid var(--secondary-color);
+            background-color: rgba(0, 0, 0, 0.02);
+        }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="character-title">
+                <h1>{world_info.get('name', 'Unknown World')}</h1>
+                <div class="character-subtitle">{world_info.get('universe', 'Unknown Universe')} • {world_info.get('world_theme', 'Unknown Theme')}</div>
+                <div class="character-meta">
+                    <div class="meta-item">Tone: {world_info.get('tone', 'Unknown')}</div>
+                </div>
+            </div>
+        </header>
+
+        {image_html}
+
+        <div class="section">
+            <h2>World History</h2>
+            <p>{world_info.get('history', 'No history available.')}</p>
+        </div>
+
+        <div class="section">
+            <h2>Timeline</h2>
+            <div class="timeline">
+                {world_info.get('timeline', 'No timeline available.')}
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Campaign Setting</h2>
+            <p>{world_info.get('setting', 'No campaign setting available.')}</p>
+        </div>
+
+        <div class="section">
+            <h2>Hidden Elements</h2>
+            <div class="hidden-elements">
+                {world_info.get('hidden_elements', 'No hidden elements available.')}
+            </div>
+        </div>
+
+        <div class="footer">
+            World created with LoreCrafter • ID: {world_info.get('id', 'Unknown')}
+        </div>
+    </div>
+</body>
+</html>
+"""
 
         return template
