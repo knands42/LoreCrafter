@@ -1,9 +1,7 @@
 import re
 
-from rich.prompt import Prompt, Confirm
 from rich import print
-
-from src.cli.prompts import get_tone_context, get_universe, get_world_theme
+from rich.prompt import Prompt, Confirm
 
 
 def clean_text(value: str) -> str:
@@ -36,8 +34,8 @@ def get_character_info(get_default: bool = False):
             "race": "Human",
             "personality": None,
             "appearance": None,
-            "universe": get_universe("D&D"),
-            "world_theme": None,
+            "universe": "D&D",
+            "world_theme": "Fantasy world full of magic",
             "tone": "Epic",
             "custom_story": None
         }
@@ -46,7 +44,8 @@ def get_character_info(get_default: bool = False):
 
     universe = ask_with_examples(
         "[bold green]Choose your TTRPG universe[/bold green]",
-        examples=["D&D", "Call of Cthulhu", "Warhammer 40K", "Shadowrun", "Star Wars RPG", "Vampire The Masquerade", "Other"],
+        examples=["D&D", "Call of Cthulhu", "Warhammer 40K", "Shadowrun", "Star Wars RPG", "Vampire The Masquerade",
+                  "Other"],
         default="D&D"
     )
 
@@ -82,9 +81,6 @@ def get_character_info(get_default: bool = False):
         default=None
     )
 
-    if theme is None:
-        theme = "default"
-
     has_custom_story = Confirm.ask(
         "[bold yellow]Do you have a story you'd like to enhance?[/bold yellow]",
         default=False
@@ -98,8 +94,8 @@ def get_character_info(get_default: bool = False):
         "race": race,
         "personality": personality,
         "appearance": appearance,
-        "universe": get_universe(universe),
-        "world_theme": get_world_theme(theme),
-        "tone": get_tone_context(tone),
+        "universe": universe,
+        "world_theme": theme,
+        "tone": tone,
         "custom_story": custom_story
     }

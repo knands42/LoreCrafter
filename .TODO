@@ -1,3 +1,6 @@
+- [ ] Make universe, theme and tone limited choices
+- [ ] Move cli.prompts to character creation prompts, since it will create a differente dictionary with the proper prompt
+    e.g., {"world_theme": "cyberpunk", "world_theme_description": "..."}
 - [ ] Add image generation
 - [ ] Create a world lore
 - [ ] Add the option to create characters not tight to the world
