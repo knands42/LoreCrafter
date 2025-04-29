@@ -68,3 +68,25 @@ class WorldVectorStore:
         if results:
             return json.loads(results[0].page_content)
         return None
+
+    def get_all_worlds(self) -> List[dict]:
+        """Get all worlds from the vector store.
+
+        Returns:
+            A list of dictionaries containing world information.
+        """
+        # Use a generic query that should match all documents
+        results = self.vector_store.similarity_search(
+            "world",
+            k=100  # Set a high limit to get all worlds
+        )
+
+        worlds = []
+        for doc in results:
+            try:
+                world_info = json.loads(doc.page_content)
+                worlds.append(world_info)
+            except json.JSONDecodeError:
+                continue
+
+        return worlds

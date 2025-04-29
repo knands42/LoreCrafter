@@ -27,7 +27,8 @@ class CharacterVectorStore:
             page_content=json.dumps(character),
             metadata={
                 "id": str(uuid4()),
-                "name": character.get("name", "unknown")
+                "name": character.get("name", "unknown"),
+                "world_linked": character.get("linked_world_id", "unknown"),
             }
         )
         self.vectorstore.add_documents([doc])
