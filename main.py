@@ -1,5 +1,6 @@
 from dotenv import load_dotenv
 
+from src.character.llm import LLMFactory
 from src.content_generator.pdf_generator import create_character_pdf, create_world_pdf
 
 load_dotenv()
@@ -13,16 +14,18 @@ from rich import print
 from src.character import CharacterGenerator, CharacterVectorStore
 from src.world import WorldGenerator
 from src.world.world_vector_store import WorldVectorStore
-from src.cli import get_character_info
-from src.cli.get_world_info import get_world_info
-from src.cli.helper import print_character, print_world
+from src.cli import CharCLIShell, WorldCLIShell, print_world, print_character
 
 app = typer.Typer()
+llm = LLMFactory.create()
 
-char_generator = CharacterGenerator()
 char_vector_db = CharacterVectorStore()
-world_generator = WorldGenerator()
+char_generator = CharacterGenerator(llm, char_vector_db)
 world_vector_db = WorldVectorStore()
+world_generator = WorldGenerator(llm, world_vector_db)
+
+charCLIShell = CharCLIShell(world_vector_db)
+worldCLIShell = WorldCLIShell()
 
 
 @app.command()
@@ -31,7 +34,7 @@ def create_character(
 ):
     print("[bold cyan]🧙 Welcome to LoreCrafter![/bold cyan]")
 
-    character_info = get_character_info(default)
+    character_info = charCLIShell.get_character_info(default)
 
     print("\n[bold yellow]Generating your character's story...[/bold yellow]")
     character_result = char_generator.generate(character_info)
@@ -46,7 +49,7 @@ def create_world(
 ):
     print("[bold cyan]🌍 Welcome to LoreCrafter World Builder![/bold cyan]")
 
-    world_info = get_world_info(default)
+    world_info = worldCLIShell.get_world_info(default)
 
     print("\n[bold yellow]Generating your world...[/bold yellow]")
     world_result = world_generator.generate(world_info)

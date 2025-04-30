@@ -13,11 +13,15 @@ from src.common import get_world_theme, get_story_tone, get_universe
 
 
 class CharacterGenerator:
-    def __init__(self):
-        self.llm = LLMFactory.create()
-        self.image_llm = LLMFactory.create_image_generator()
+    def __init__(
+        self,
+        llm: LLMFactory,
+        vector_db: CharacterVectorStore,
+    ):
+        self.llm = llm.create(),
+        self.image_llm = llm.create_image_generator()
         self.parser = StrOutputParser()
-        self.vector_db = CharacterVectorStore()
+        self.vector_db = vector_db
 
     def generate(self, info: dict[str, str]) -> dict[str, str]:
         character_info = {key: value for key, value in info.items()}
