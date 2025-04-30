@@ -18,11 +18,10 @@ from src.world.world_vector_store import WorldVectorStore
 class WorldGenerator:
     def __init__(
         self,
-        llm: LLMFactory,
         vector_db: WorldVectorStore,
     ):
-        self.llm = llm.create()
-        self.image_llm = llm.create_image_generator()
+        self.llm = LLMFactory.create()
+        self.image_llm = LLMFactory.create_image_generator()
         self.parser = StrOutputParser()
         self.vector_db = vector_db
 

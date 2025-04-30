@@ -13,19 +13,22 @@ from rich import print
 
 from src.character import CharacterGenerator, CharacterVectorStore
 from src.world import WorldGenerator
+from src.campaign import CampaignGenerator
 from src.world.world_vector_store import WorldVectorStore
-from src.cli import CharCLIShell, WorldCLIShell, print_world, print_character
+from src.cli import CharCLIShell, WorldCLIShell, CampaignCLIShell, print_world, print_character, print_campaign
 
 app = typer.Typer()
 llm = LLMFactory.create()
 
 char_vector_db = CharacterVectorStore()
-char_generator = CharacterGenerator(llm, char_vector_db)
+char_generator = CharacterGenerator(char_vector_db)
 world_vector_db = WorldVectorStore()
-world_generator = WorldGenerator(llm, world_vector_db)
+world_generator = WorldGenerator(world_vector_db)
+campaign_generator = CampaignGenerator(world_vector_db)
 
 charCLIShell = CharCLIShell(world_vector_db)
 worldCLIShell = WorldCLIShell()
+campaignCLIShell = CampaignCLIShell(world_vector_db)
 
 
 @app.command()
@@ -76,6 +79,20 @@ def search_world(query: str, top: Optional[int] = 2):
         print(f"\n--- Result #{i + 1} ---")
         retrieved_world = json.loads(doc.page_content)
         print_world(retrieved_world)
+
+
+@app.command()
+def create_campaign(
+    default: bool = typer.Option(False, "--default", help="Use predefined campaign information")
+):
+    print("[bold cyan]🎭 Welcome to LoreCrafter Campaign Builder![/bold cyan]")
+
+    campaign_info = campaignCLIShell.get_campaign_info(default)
+
+    print("\n[bold yellow]Generating your campaign...[/bold yellow]")
+    campaign_result = campaign_generator.generate(campaign_info)
+
+    print_campaign(campaign_result)
 
 
 if __name__ == "__main__":

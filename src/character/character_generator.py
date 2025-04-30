@@ -1,5 +1,4 @@
 from uuid import uuid4
-import os
 import base64
 from pathlib import Path
 
@@ -15,11 +14,10 @@ from src.common import get_world_theme, get_story_tone, get_universe
 class CharacterGenerator:
     def __init__(
         self,
-        llm: LLMFactory,
         vector_db: CharacterVectorStore,
     ):
-        self.llm = llm.create(),
-        self.image_llm = llm.create_image_generator()
+        self.llm = LLMFactory.create(),
+        self.image_llm = LLMFactory.create_image_generator()
         self.parser = StrOutputParser()
         self.vector_db = vector_db
 

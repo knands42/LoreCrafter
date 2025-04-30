@@ -59,3 +59,19 @@ def print_world(world: dict[str, str | None]):
 
     if world.get("timeline"):
         print(format_section("Timeline", world["timeline"], use_markdown=True))
+
+
+def print_campaign(campaign: dict[str, str | None]):
+    print("[bold magenta]✨ Campaign Overview ✨[/bold magenta]\n")
+
+    print(f"[bold]Name:[/bold] {campaign.get('name') or '[dim]Unknown[/dim]'}")
+    print(f"[bold]Universe:[/bold] {campaign.get('universe') or '[dim]Unknown[/dim]'}")
+    print(f"[bold]Theme:[/bold] {campaign.get('world_theme', '[dim]Unknown[/dim]')}")
+    print(f"[bold]Tone:[/bold] {campaign.get('tone', '[dim]Unknown[/dim]')}")
+    print()
+
+    if campaign.get("campaign"):
+        print(format_section("Campaign Setting", campaign["campaign"], use_markdown=True))
+
+    if campaign.get("hidden_elements"):
+        print(format_section("Hidden Elements", campaign["hidden_elements"], use_markdown=True))

@@ -3,7 +3,6 @@ from typing import Optional
 from rich import print
 from rich.console import Console
 from rich.prompt import Prompt, Confirm
-from rich.table import Table
 
 from src.cli.ShellUtils import ShellUtils
 from src.world.world_vector_store import WorldVectorStore
@@ -43,8 +42,8 @@ class CharCLIShell(ShellUtils):
         worlds = None
 
         if should_link_with_world:
-            worlds = self.__display_worlds()
-            linked_world = self.__select_world_by_id(worlds)
+            worlds = self.display_worlds()
+            linked_world = self.select_world_by_id(worlds)
 
             if linked_world:
                 # Use universe and world_theme from the linked world
@@ -123,36 +122,6 @@ class CharCLIShell(ShellUtils):
             "linked_world_id": linked_world.get("id") if linked_world else None
         }
 
-    def __display_worlds(self) -> list[dict]:
-        """Display a list of available worlds and let the user select one.
-
-        Returns:
-            The selected world as a dictionary, or None if no world is selected.
-        """
-        worlds = self.vector_store.get_all_worlds()
-
-        if not worlds:
-            print("[yellow]No worlds found. You'll need to create a character without linking to a world.[/yellow]")
-            return []
-
-        table = Table(title="Available Worlds")
-
-        table.add_column("#", style="dim")
-        table.add_column("Name", style="bold")
-        table.add_column("Universe", style="cyan")
-        table.add_column("Theme", style="green")
-
-        for i, world in enumerate(worlds, 1):
-            table.add_row(
-                str(i),
-                world.get("name", "Unknown"),
-                world.get("universe", "Unknown"),
-                world.get("world_theme", "Unknown")
-            )
-
-        self.console.print(table)
-
-        return worlds
 
     def __select_world_by_id(self, worlds: list[dict] | None) -> Optional[dict]:
         if not worlds:
