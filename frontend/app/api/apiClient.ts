@@ -10,11 +10,12 @@ const apiClient = axios.create({
   withCredentials: true,
 });
 
-// Add response interceptor for error handling
+// Add response interceptor for handling responses and errors
 apiClient.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    return response;
+  },
   (error) => {
-    // Handle errors globally
     console.error('API Error:', error.response?.data || error.message);
     return Promise.reject(error);
   }
@@ -118,7 +119,7 @@ export const authApi = {
     }
     return response.data;
   },
-  
+
   getCurrentUser: async (): Promise<User> => {
     const cachedUser = sessionStorage.getItem('currentUser');
     if (cachedUser) {

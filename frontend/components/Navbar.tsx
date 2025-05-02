@@ -8,7 +8,7 @@ const Navbar: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
-            <Link href="/public" className="flex items-center">
+            <Link href="/" className="flex items-center">
               <FaDragon className="h-8 w-8 text-purple-500" />
               <span className="ml-2 text-xl font-bold">LoreCrafter</span>
             </Link>
