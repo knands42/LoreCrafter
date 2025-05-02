@@ -1,4 +1,5 @@
 import axios from 'axios';
+import {AuthResponse, LoginRequest, RegisterRequest, User} from './types';
 
 // Create an axios instance with default configuration
 const apiClient = axios.create({
@@ -6,6 +7,7 @@ const apiClient = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true,
 });
 
 // Add response interceptor for error handling
@@ -90,6 +92,55 @@ export const assetApi = {
   },
   getWorldImage: (filename: string): string => {
     return ``;
+  },
+};
+
+// Authentication API functions
+export const authApi = {
+  login: async (credentials: LoginRequest): Promise<AuthResponse> => {
+    const response = await apiClient.post('/auth/login', credentials);
+    if (response.data.user) {
+      sessionStorage.setItem('currentUser', JSON.stringify(response.data.user));
+    }
+    return response.data;
+  },
+
+  logout: async (): Promise<{ message: string }> => {
+    const response = await apiClient.post('/auth/logout');
+    sessionStorage.removeItem('currentUser');
+    return response.data;
+  },
+
+  register: async (userData: RegisterRequest): Promise<AuthResponse> => {
+    const response = await apiClient.post('/auth/register', userData);
+    if (response.data.user) {
+      sessionStorage.setItem('currentUser', JSON.stringify(response.data.user));
+    }
+    return response.data;
+  },
+  
+  getCurrentUser: async (): Promise<User> => {
+    const cachedUser = sessionStorage.getItem('currentUser');
+    if (cachedUser) {
+      try {
+        return JSON.parse(cachedUser);
+      } catch (error) {
+        sessionStorage.removeItem('currentUser');
+      }
+    }
+
+    const response = await apiClient.get('/auth/me');
+    sessionStorage.setItem('currentUser', JSON.stringify(response.data));
+    return response.data;
+  },
+
+  isAuthenticated: async (): Promise<boolean> => {
+    try {
+      await authApi.getCurrentUser();
+      return true;
+    } catch (error) {
+      return false;
+    }
   },
 };
 
