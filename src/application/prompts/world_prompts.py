@@ -149,8 +149,6 @@ Respond only with the final timeline.
     return PromptTemplate.from_template(prompt)
 
 
-
-
 def get_world_image_prompt(world_description: str) -> HumanMessage:
     return HumanMessage(f"""
     Create a landscape image representing a fantasy world with the following description:

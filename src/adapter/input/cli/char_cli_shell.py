@@ -4,12 +4,13 @@ from rich import print
 from rich.console import Console
 from rich.prompt import Prompt, Confirm
 
-from src.cli.ShellUtils import ShellUtils
-from src.world.world_vector_store import WorldVectorStore
+from src.adapter.input.cli.ShellUtils import ShellUtils
+from src.adapter.output.repository.world_vector_store import WorldVectorStore
 
 
 class CharCLIShell(ShellUtils):
-    def __init__(self, vector_store: WorldVectorStore):
+    def __init__(self, console: Console, vector_store: WorldVectorStore):
+        super().__init__(console, vector_store)
         self.vector_store = vector_store
         self.console = Console()
 
@@ -115,9 +116,9 @@ class CharCLIShell(ShellUtils):
             "race": race,
             "personality": personality,
             "appearance": appearance,
-            "universe": universe,
-            "world_theme": theme,
-            "tone": tone,
+            "universe": universe if universe else "d&d",
+            "world_theme": theme if theme else "fantasy",
+            "tone": tone if tone else "epic",
             "custom_story": custom_story,
             "linked_world_id": linked_world.get("id") if linked_world else None
         }

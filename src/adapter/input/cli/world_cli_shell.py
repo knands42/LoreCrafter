@@ -2,11 +2,13 @@ from rich import print
 from rich.console import Console
 from rich.prompt import Prompt, Confirm
 
-from src.cli.ShellUtils import ShellUtils
+from src.adapter.input.cli.ShellUtils import ShellUtils
+from src.adapter.output.repository import WorldVectorStore
 
 
 class WorldCLIShell(ShellUtils):
-    def __init__(self):
+    def __init__(self, console: Console, vector_store: WorldVectorStore):
+        super().__init__(console, vector_store)
         self.console = Console()
 
     def get_world_info(self, get_default: bool = False):

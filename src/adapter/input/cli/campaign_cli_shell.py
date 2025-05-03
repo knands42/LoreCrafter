@@ -4,13 +4,13 @@ from rich import print
 from rich.console import Console
 from rich.prompt import Prompt, Confirm
 
-from src.cli.ShellUtils import ShellUtils
-from src.world.world_vector_store import WorldVectorStore
+from src.adapter.input.cli.ShellUtils import ShellUtils
+from src.adapter.output.repository.world_vector_store import WorldVectorStore
 
 
 class CampaignCLIShell(ShellUtils):
-    def __init__(self, world_vector_store: WorldVectorStore):
-        super().__init__(Console(), world_vector_store)
+    def __init__(self, console: Console, world_vector_store: WorldVectorStore):
+        super().__init__(console, world_vector_store)
 
     def get_campaign_info(self, get_default: bool = False):
         if get_default:

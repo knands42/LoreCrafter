@@ -1,7 +1,11 @@
 from dotenv import load_dotenv
 
-from src.character.llm import LLMFactory
-from src.content_generator.pdf_generator import create_character_pdf, create_world_pdf
+from src.adapter.input.cli import CharCLIShell, WorldCLIShell, CampaignCLIShell, print_character, print_world, \
+    print_campaign
+from src.adapter.output.llm import LLMFactory
+from src.adapter.output.pdf import create_character_pdf, create_world_pdf
+from src.adapter.output.repository import CharacterVectorStore, WorldVectorStore
+from src.application.usecases import CharacterGenerator, WorldGenerator, CampaignGenerator
 
 load_dotenv()
 
@@ -10,15 +14,11 @@ from typing import Optional
 
 import typer
 from rich import print
-
-from src.character import CharacterGenerator, CharacterVectorStore
-from src.world import WorldGenerator
-from src.campaign import CampaignGenerator
-from src.world.world_vector_store import WorldVectorStore
-from src.cli import CharCLIShell, WorldCLIShell, CampaignCLIShell, print_world, print_character, print_campaign
+from rich.console import Console
 
 app = typer.Typer()
 llm = LLMFactory.create()
+console = Console()
 
 char_vector_db = CharacterVectorStore()
 char_generator = CharacterGenerator(char_vector_db)
@@ -26,9 +26,9 @@ world_vector_db = WorldVectorStore()
 world_generator = WorldGenerator(world_vector_db)
 campaign_generator = CampaignGenerator(world_vector_db)
 
-charCLIShell = CharCLIShell(world_vector_db)
-worldCLIShell = WorldCLIShell()
-campaignCLIShell = CampaignCLIShell(world_vector_db)
+charCLIShell = CharCLIShell(console, world_vector_db)
+worldCLIShell = WorldCLIShell(console, world_vector_db)
+campaignCLIShell = CampaignCLIShell(console, world_vector_db)
 
 
 @app.command()

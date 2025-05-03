@@ -4,6 +4,7 @@ This document contains a prioritized list of tasks for improving the LoreCrafter
 
 ## Core Functionality Improvements
 
+- [ ] Create Domains
 - [ ] Implement restricted choices for universe, theme, and tone
 - [x] Create world lore generation functionality
 - [ ] Create a campaign setting (will be only visible for campaign master)

@@ -1,6 +1,7 @@
 from weasyprint import HTML
 from rich import print
-from src.content_generator.template_manager import TemplateManager
+
+from src.adapter.output.pdf.template_manager import TemplateManager
 
 # Create an instance of the TemplateManager
 template_manager = TemplateManager()

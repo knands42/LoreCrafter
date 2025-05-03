@@ -1,5 +1,4 @@
 from langchain.prompts import PromptTemplate
-from langchain_core.messages import HumanMessage
 
 
 def create_campaign_setting_prompt(premade_setting=None) -> PromptTemplate:

@@ -1,14 +1,13 @@
-from uuid import uuid4
 import base64
 from pathlib import Path
+from uuid import uuid4
 
 from langchain_core.output_parsers import StrOutputParser
 
-from src.character.character_vector_store import CharacterVectorStore
-from src.character.llm import LLMFactory
-from src.character.prompts import create_appearance_prompt, create_personality_prompt, create_backstory_prompt, \
-    get_character_image_prompt
-from src.common import get_world_theme, get_story_tone, get_universe
+from src.adapter.output.llm import LLMFactory
+from src.adapter.output.repository import CharacterVectorStore
+from src.application.prompts import get_world_theme, get_universe, get_story_tone, create_appearance_prompt, \
+    create_personality_prompt, create_backstory_prompt, get_character_image_prompt
 
 
 class CharacterGenerator:
@@ -60,7 +59,6 @@ class CharacterGenerator:
         """
         if not appearance_description:
             return None
-
 
         assets_dir = Path("assets")
         assets_dir.mkdir(exist_ok=True)

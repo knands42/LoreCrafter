@@ -2,9 +2,6 @@ from langchain.prompts import PromptTemplate
 from langchain_core.messages import HumanMessage
 
 
-from src.common import get_universe, get_world_theme, get_story_tone
-
-
 def create_appearance_prompt(appearance=None) -> PromptTemplate:
     if appearance:
         return PromptTemplate.from_template("""
@@ -154,7 +151,6 @@ Respond only with the final backstory.
 """
 
     return PromptTemplate.from_template(prompt)
-
 
 
 def summarize_backstory_prompt(backstory: str) -> PromptTemplate:
