@@ -53,7 +53,7 @@ class WorldVectorStore:
         """
         return self.vector_store.similarity_search(query, k=top_k)
 
-    def get_by_id(self, world_id: str) -> dict | None:
+    def get_by_id(self, world_id: str) -> WorldDomain | None:
         """Get a world by its ID.
 
         Args:
@@ -71,7 +71,7 @@ class WorldVectorStore:
             return json.loads(results[0].page_content)
         return None
 
-    def get_all_worlds(self) -> List[dict]:
+    def get_all_worlds(self) -> list[WorldDomain]:
         """Get all worlds from the vector store.
 
         Returns:

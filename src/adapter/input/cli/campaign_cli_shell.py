@@ -1,4 +1,4 @@
-from typing import Optional, List
+from typing import List
 
 from rich import print
 from rich.console import Console
@@ -6,23 +6,24 @@ from rich.prompt import Prompt, Confirm
 
 from src.adapter.input.cli.ShellUtils import ShellUtils
 from src.adapter.output.repository.world_vector_store import WorldVectorStore
+from src.application.domain.campaign_domain import CampaignCreationDomain
 
 
 class CampaignCLIShell(ShellUtils):
     def __init__(self, console: Console, world_vector_store: WorldVectorStore):
         super().__init__(console, world_vector_store)
 
-    def get_campaign_info(self, get_default: bool = False):
+    def get_campaign_info(self, get_default: bool = False) -> CampaignCreationDomain:
         if get_default:
-            return {
-                "name": "The Lost Mines",
-                "universe": "D&D",
-                "world_theme": "fantasy",
-                "tone": "Epic",
-                "custom_campaign": None,
-                "linked_world_id": None,
-                "linked_character_ids": []
-            }
+            return CampaignCreationDomain(
+                name="The Lost Mines",
+                universe="D&D",
+                world_theme="fantasy",
+                tone="Epic",
+                campaign=None,
+                linked_world=None,
+                linked_character=[],
+            )
 
         print("\n[bold magenta]Let's create your campaign![/bold magenta]")
 
@@ -32,7 +33,6 @@ class CampaignCLIShell(ShellUtils):
             default=True
         )
 
-        linked_world = None
         universe = None
         theme = None
         selected_world = None
@@ -64,7 +64,7 @@ class CampaignCLIShell(ShellUtils):
             theme = self.ask_with_examples(
                 "[bold green]Choose the universe theme for your campaign[/bold green]",
                 examples=["Cyberpunk", "Gothic Horror", "Solarpunk", "Apocalypse", "Noir", "Urban Fantasy"],
-                default=None
+                default="Fantasy"
             )
 
         name = Prompt.ask("[bold green]What's your campaign's name?[/bold green]", default="The Lost Mines")
@@ -81,9 +81,9 @@ class CampaignCLIShell(ShellUtils):
             default=False
         )
 
-        linked_character_ids = []
+        linked_character = []
         if should_link_characters:
-            linked_character_ids = self.__select_characters()
+            linked_character = self.__select_characters()
 
         has_custom_campaign = Confirm.ask(
             "[bold yellow]Do you have a campaign setting you'd like to enhance?[/bold yellow]",
@@ -93,15 +93,15 @@ class CampaignCLIShell(ShellUtils):
         custom_campaign = self.multiline_input(
             "Enter your campaign setting (press Enter twice to finish)") if has_custom_campaign else None
 
-        return {
-            "name": name,
-            "universe": universe,
-            "world_theme": theme,
-            "tone": tone,
-            "custom_campaign": custom_campaign,
-            "linked_world": selected_world,
-            "linked_character_ids": linked_character_ids
-        }
+        return CampaignCreationDomain(
+            name=name,
+            universe=universe.lower(),
+            world_theme=theme.lower(),
+            tone=tone.lower(),
+            campaign=custom_campaign,
+            linked_world=selected_world,
+            linked_character=linked_character
+        )
 
     def __select_characters(self) -> List[str]:
         """Display a list of available characters and let the user select multiple.
