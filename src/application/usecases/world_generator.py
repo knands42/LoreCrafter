@@ -6,6 +6,7 @@ from langchain_core.output_parsers import StrOutputParser
 
 from src.adapter.output.llm.llm_factory import LLMFactory
 from src.adapter.output.repository import WorldVectorStore
+from src.application.domain.word_domain import WorldDomain, WorldCreateDomain
 from src.application.prompts import get_world_theme, get_universe, get_story_tone, create_world_history_prompt, \
     create_timeline_prompt, get_world_image_prompt
 
@@ -15,35 +16,37 @@ class WorldGenerator:
         self,
         vector_db: WorldVectorStore,
     ):
-        self.llm = LLMFactory.create()
+        self.llm = LLMFactory.create_chat()
         self.image_llm = LLMFactory.create_image_generator()
         self.parser = StrOutputParser()
         self.vector_db = vector_db
 
-    def generate(self, info: dict[str, str]) -> dict[str, str]:
-        world_info = {key: value for key, value in info.items()}
+    def generate(self, world_create_domain: WorldCreateDomain) -> WorldDomain:
+        world_create_domain['world_theme'] = get_world_theme(world_create_domain['world_theme'])
+        world_create_domain['universe'] = get_universe(world_create_domain['universe'])
+        world_create_domain['tone'] = get_story_tone(world_create_domain['tone'])
 
-        world_info['id'] = str(uuid4())
-        world_info['world_theme_prompt'] = get_world_theme(world_info['world_theme'])
-        world_info['universe_prompt'] = get_universe(world_info['universe'])
-        world_info['tone_prompt'] = get_story_tone(world_info['tone'])
+        history_chain = create_world_history_prompt(world_create_domain.get('backstory'))
+        created_history = (history_chain | self.llm | self.parser).invoke(world_create_domain)
 
-        self.__execute_chain(world_info)
-        self.vector_db.store(world_info)
+        timeline_chain = create_timeline_prompt(world_create_domain.get('timeline'))
+        timeline_history = (timeline_chain | self.llm | self.parser).invoke(world_create_domain)
 
-        # Generate world image and store the path
-        image_filename = self.__generate_image(world_info.get("history"))
-        if image_filename:
-            world_info['image_filename'] = image_filename
+        image_filename = self.__generate_image(created_history)
 
-        return world_info
+        world_domain = WorldDomain(
+            id=uuid4(),
+            name=world_create_domain['name'],
+            universe=world_create_domain['universe'],
+            world_theme=world_create_domain['world_theme'],
+            tone=world_create_domain['tone'],
+            backstory=created_history,
+            timeline=timeline_history,
+            image_filename=image_filename
+        )
+        self.vector_db.store(world_domain)
 
-    def __execute_chain(self, world_info: dict[str, str]) -> None:
-        history_chain = create_world_history_prompt(world_info.get('custom_history'))
-        world_info['history'] = (history_chain | self.llm | self.parser).invoke(world_info)
-
-        timeline_chain = create_timeline_prompt(world_info.get('custom_timeline'))
-        world_info['timeline'] = (timeline_chain | self.llm | self.parser).invoke(world_info)
+        return world_domain
 
     def __generate_image(self, world_description: str) -> str | None:
         """Generate an image based on the world description and save it to the assets folder.
@@ -61,7 +64,7 @@ class WorldGenerator:
         assets_dir.mkdir(exist_ok=True)
 
         # Generate a unique filename for the image
-        image_filename = f"world_image_{uuid4()}.png"
+        image_filename = f"world_image.png"
         image_path = assets_dir / image_filename
 
         try:

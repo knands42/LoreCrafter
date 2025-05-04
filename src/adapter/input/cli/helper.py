@@ -3,6 +3,9 @@ from rich.text import Text
 from rich.markdown import Markdown
 from rich import print
 
+from src.application.domain.character_domain import CharacterDomain
+from src.application.domain.word_domain import WorldDomain
+
 
 def format_section(title: str, content: str, use_markdown: bool = False) -> Panel:
     """Format a section of text with a title and border.
@@ -25,14 +28,14 @@ def format_section(title: str, content: str, use_markdown: bool = False) -> Pane
     )
 
 
-def print_character(character: dict[str, str | None]):
+def print_character(character: CharacterDomain):
     print("[bold magenta]✨ Character Overview ✨[/bold magenta]\n")
 
     print(f"[bold]Name:[/bold] {character.get('name') or '[dim]Unknown[/dim]'}")
-    print(f"[bold]Race:[/bold] {character.get('race', '[dim]Unknown[/dim]')}")
+    print(f"[bold]Race:[/bold] {character.get('race') or '[dim]Unknown[/dim]'}")
     print(f"[bold]Universe:[/bold] {character.get('universe') or '[dim]Unknown[/dim]'}")
-    print(f"[bold]Theme:[/bold] {character.get('world_theme', '[dim]Unknown[/dim]')}")
-    print(f"[bold]Tone:[/bold] {character.get('tone', '[dim]Unknown[/dim]')}")
+    print(f"[bold]Theme:[/bold] {character.get('world_theme') or '[dim]Unknown[/dim]'}")
+    print(f"[bold]Tone:[/bold] {character.get('tone') or '[dim]Unknown[/dim]'}")
     print()
 
     if character.get("appearance"):
@@ -45,17 +48,17 @@ def print_character(character: dict[str, str | None]):
         print(format_section("Backstory", character["backstory"], use_markdown=True))
 
 
-def print_world(world: dict[str, str | None]):
+def print_world(world: WorldDomain):
     print("[bold magenta]✨ World Overview ✨[/bold magenta]\n")
 
     print(f"[bold]Name:[/bold] {world.get('name') or '[dim]Unknown[/dim]'}")
     print(f"[bold]Universe:[/bold] {world.get('universe') or '[dim]Unknown[/dim]'}")
-    print(f"[bold]Theme:[/bold] {world.get('world_theme', '[dim]Unknown[/dim]')}")
-    print(f"[bold]Tone:[/bold] {world.get('tone', '[dim]Unknown[/dim]')}")
+    print(f"[bold]Theme:[/bold] {world.get('world_theme') or '[dim]Unknown[/dim]'}")
+    print(f"[bold]Tone:[/bold] {world.get('tone') or '[dim]Unknown[/dim]'}")
     print()
 
-    if world.get("history"):
-        print(format_section("World History", world["history"], use_markdown=True))
+    if world.get("backstory"):
+        print(format_section("World History", world["backstory"], use_markdown=True))
 
     if world.get("timeline"):
         print(format_section("Timeline", world["timeline"], use_markdown=True))
@@ -66,8 +69,8 @@ def print_campaign(campaign: dict[str, str | None]):
 
     print(f"[bold]Name:[/bold] {campaign.get('name') or '[dim]Unknown[/dim]'}")
     print(f"[bold]Universe:[/bold] {campaign.get('universe') or '[dim]Unknown[/dim]'}")
-    print(f"[bold]Theme:[/bold] {campaign.get('world_theme', '[dim]Unknown[/dim]')}")
-    print(f"[bold]Tone:[/bold] {campaign.get('tone', '[dim]Unknown[/dim]')}")
+    print(f"[bold]Theme:[/bold] {campaign.get('world_theme') or '[dim]Unknown[/dim]'}")
+    print(f"[bold]Tone:[/bold] {campaign.get('tone') or '[dim]Unknown[/dim]'}")
     print()
 
     if campaign.get("campaign"):

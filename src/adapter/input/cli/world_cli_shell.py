@@ -4,6 +4,7 @@ from rich.prompt import Prompt, Confirm
 
 from src.adapter.input.cli.ShellUtils import ShellUtils
 from src.adapter.output.repository import WorldVectorStore
+from src.application.domain.word_domain import WorldCreateDomain
 
 
 class WorldCLIShell(ShellUtils):
@@ -11,15 +12,15 @@ class WorldCLIShell(ShellUtils):
         super().__init__(console, vector_store)
         self.console = Console()
 
-    def get_world_info(self, get_default: bool = False):
+    def get_world_info(self, get_default: bool = False) -> WorldCreateDomain:
         if get_default:
             return {
                 "name": "Eldoria",
                 "universe": "D&D",
                 "world_theme": "fantasy",
                 "tone": "Epic",
-                "custom_history": None,
-                "custom_timeline": None,
+                "backstory": None,
+                "timeline": None,
             }
 
         print("\n[bold magenta]Let's create your world![/bold magenta]")
@@ -61,20 +62,11 @@ class WorldCLIShell(ShellUtils):
         custom_timeline = self.multiline_input(
             "Enter your world's timeline (press Enter twice to finish)") if has_custom_timeline else None
 
-        has_custom_backstory = Confirm.ask(
-            "[bold yellow]Do you have a campaign setting you'd like to enhance?[/bold yellow]",
-            default=False
-        )
-
-        custom_backstory = self.multiline_input(
-            "Enter your world's backstory (press Enter twice to finish)") if has_custom_backstory else None
-
         return {
             "name": name,
             "universe": universe,
             "world_theme": theme,
             "tone": tone,
-            "custom_history": custom_history,
-            "custom_timeline": custom_timeline,
-            "custom_backstory": custom_backstory,
+            "backstory": custom_history,
+            "timeline": custom_timeline,
         }

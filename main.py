@@ -17,7 +17,7 @@ from rich import print
 from rich.console import Console
 
 app = typer.Typer()
-llm = LLMFactory.create()
+llm = LLMFactory.create_chat()
 console = Console()
 
 char_vector_db = CharacterVectorStore()

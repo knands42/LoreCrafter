@@ -12,7 +12,7 @@ class CampaignGenerator:
         self,
         world_vector_db: WorldVectorStore,
     ):
-        self.llm = LLMFactory.create()
+        self.llm = LLMFactory.create_chat()
         self.parser = StrOutputParser()
         self.world_vector_db = world_vector_db
 

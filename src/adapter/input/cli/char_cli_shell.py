@@ -6,6 +6,7 @@ from rich.prompt import Prompt, Confirm
 
 from src.adapter.input.cli.ShellUtils import ShellUtils
 from src.adapter.output.repository.world_vector_store import WorldVectorStore
+from src.application.domain.character_domain import CharacterCreateDomain
 
 
 class CharCLIShell(ShellUtils):
@@ -14,20 +15,20 @@ class CharCLIShell(ShellUtils):
         self.vector_store = vector_store
         self.console = Console()
 
-    def get_character_info(self, get_default: bool = False):
+    def get_character_info(self, get_default: bool = False) -> CharacterCreateDomain:
         if get_default:
-            return {
-                "name": "Captain Kirk",
-                "gender": "male",
-                "race": "Human",
-                "personality": None,
-                "appearance": None,
-                "universe": "D&D",
-                "world_theme": "fantasy",
-                "tone": "Epic",
-                "custom_story": None,
-                "linked_world_id": None
-            }
+            return CharacterCreateDomain(
+                name="Captain Kirk",
+                gender="male",
+                race="Human",
+                personality=None,
+                appearance=None,
+                universe="D&D",
+                world_theme="fantasy",
+                tone="Epic",
+                backstory=None,
+                linked_world_id=None
+            )
 
         print("\n[bold magenta]Let's create your character![/bold magenta]")
 
@@ -110,41 +111,15 @@ class CharCLIShell(ShellUtils):
         custom_story = self.multiline_input(
             "Enter your character's story (press Enter twice to finish)") if has_custom_story else None
 
-        return {
-            "name": name,
-            "gender": gender,
-            "race": race,
-            "personality": personality,
-            "appearance": appearance,
-            "universe": universe if universe else "d&d",
-            "world_theme": theme if theme else "fantasy",
-            "tone": tone if tone else "epic",
-            "custom_story": custom_story,
-            "linked_world_id": linked_world.get("id") if linked_world else None
-        }
-
-
-    def __select_world_by_id(self, worlds: list[dict] | None) -> Optional[dict]:
-        if not worlds:
-            print("[red]Non existing world to be linked.[/red]")
-            print("[red]Creating character without linking to a world.[/red]")
-            return None
-
-        selection = Prompt.ask(
-            "[bold green]Select a world by number (or press Enter to skip)[/bold green]",
-            default=None
+        return CharacterCreateDomain(
+            name=name,
+            gender=gender,
+            race=race,
+            personality=personality,
+            appearance=appearance,
+            universe=universe if universe else "d&d",
+            world_theme=theme if theme else "fantasy",
+            tone=tone if tone else "epic",
+            backstory=custom_story,
+            linked_world_id=linked_world.get("id") if linked_world else None
         )
-
-        if not selection:
-            return None
-
-        try:
-            index = int(selection) - 1
-            if 0 <= index < len(worlds):
-                return worlds[index]
-            else:
-                print("[red]Invalid selection. Creating character without linking to a world.[/red]")
-                return None
-        except ValueError:
-            print("[red]Invalid input. Creating character without linking to a world.[/red]")
-            return None

@@ -6,8 +6,9 @@ from langchain_core.output_parsers import StrOutputParser
 
 from src.adapter.output.llm import LLMFactory
 from src.adapter.output.repository import CharacterVectorStore
+from src.application.domain.character_domain import CharacterCreateDomain, CharacterDomain
 from src.application.prompts import get_world_theme, get_universe, get_story_tone, create_appearance_prompt, \
-    create_personality_prompt, create_backstory_prompt, get_character_image_prompt
+    get_character_image_prompt
 
 
 class CharacterGenerator:
@@ -15,38 +16,47 @@ class CharacterGenerator:
         self,
         vector_db: CharacterVectorStore,
     ):
-        self.llm = LLMFactory.create(),
+        self.llm = LLMFactory.create_chat()
         self.image_llm = LLMFactory.create_image_generator()
         self.parser = StrOutputParser()
         self.vector_db = vector_db
 
-    def generate(self, info: dict[str, str]) -> dict[str, str]:
-        character_info = {key: value for key, value in info.items()}
+    def generate(self, character_creation_info: CharacterCreateDomain) -> CharacterDomain:
+        character_creation_info['world_theme'] = get_world_theme(character_creation_info['world_theme'])
+        character_creation_info['universe'] = get_universe(character_creation_info['universe'])
+        character_creation_info['tone'] = get_story_tone(character_creation_info['tone'])
 
-        character_info['id'] = str(uuid4())
-        character_info['world_theme_prompt'] = get_world_theme(character_info['world_theme'])
-        character_info['universe_prompt'] = get_universe(character_info['universe'])
-        character_info['tone_prompt'] = get_story_tone(character_info['tone'])
+        appearance_chain = create_appearance_prompt(character_creation_info['appearance'])
+        generated_appearance = (appearance_chain | self.llm | self.parser).invoke(character_creation_info)
 
-        self.__execute_chain(character_info)
-        self.vector_db.store(character_info)
+        personality_chain = create_appearance_prompt(character_creation_info['personality'])
+        generated_personality = (personality_chain | self.llm | self.parser).invoke(character_creation_info)
 
-        # Generate character image and store the path
-        image_filename = self.__generate_image(character_info.get("appearance"))
-        if image_filename:
-            character_info['image_filename'] = image_filename
+        backstory_chain = create_appearance_prompt(character_creation_info['backstory'])
+        generated_backstory = (backstory_chain | self.llm | self.parser).invoke(character_creation_info)
+        image_filename = self.__generate_image(generated_appearance)
 
-        return character_info
+        character_domain = CharacterDomain(
+            id=uuid4(),
+            name=character_creation_info['name'],
+            race=character_creation_info['race'],
+            gender=character_creation_info['gender'],
 
-    def __execute_chain(self, character_info: dict[str, str]) -> None:
-        chains = {
-            'appearance': create_appearance_prompt(character_info['appearance']),
-            'personality': create_personality_prompt(character_info['personality']),
-            'backstory': create_backstory_prompt(character_info['custom_story']),
-        }
+            appearance=generated_appearance,
+            personality=generated_personality,
+            backstory=generated_backstory,
 
-        for key, chain in chains.items():
-            character_info[key] = (chain | self.llm | self.parser).invoke(character_info)
+            world_theme=character_creation_info['world_theme'],
+            universe=character_creation_info['universe'],
+            tone=character_creation_info['tone'],
+
+            linked_world_id=character_creation_info['linked_world_id'],
+            image_filename=image_filename,
+        )
+
+        self.vector_db.store(character_domain)
+
+        return character_domain
 
     def __generate_image(self, appearance_description: str) -> str | None:
         """Generate an image based on the character's appearance description and save it to the assets folder.

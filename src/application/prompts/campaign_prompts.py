@@ -9,11 +9,11 @@ def create_campaign_setting_prompt(premade_setting=None) -> PromptTemplate:
 ---
 
 ## World Background
-- **World History:** (Key points from {history})
+- **World History:** (Key points from {backstory})
 - **Timeline Highlights:** (Notable events from {timeline})
-- **Universe Overview:** (Summary from {universe_prompt})
-- **World Theme:** (Summary from {world_theme_prompt})
-- **Story Tone:** (Summary from {tone_prompt})
+- **Universe Overview:** (Summary from {universe})
+- **World Theme:** (Summary from {world_theme})
+- **Story Tone:** (Summary from {tone})
 
 ---
 
@@ -58,11 +58,11 @@ def create_campaign_setting_prompt(premade_setting=None) -> PromptTemplate:
 Enhance the existing campaign setting for a TTRPG world. Use the context below to deepen the setting while staying true to established elements.
 
 World Name: {{name}}
-World History: {{history}}
+World History: {{backstory}}
 Timeline: {{timeline}}
-Universe: {{universe_prompt}}
-World Theme: {{world_theme_prompt}}
-Story Tone: {{tone_prompt}}
+Universe: {{universe}}
+World Theme: {{world_theme}}
+Story Tone: {{tone}}
 
 Existing Campaign Setting:
 {{custom_setting}}
@@ -84,11 +84,11 @@ Respond only with the enhanced campaign setting, following the structure above.
 Create a detailed campaign setting for a TTRPG world using the provided attributes.
 
 World Name: {{name}}
-World History: {{history}}
+World History: {{backstory}}
 Timeline: {{timeline}}
-Universe: {{universe_prompt}}
-World Theme: {{world_theme_prompt}}
-Story Tone: {{tone_prompt}}
+Universe: {{universe}}
+World Theme: {{world_theme}}
+Story Tone: {{tone}}
 
 Instructions:
 - Write using the format below.
@@ -110,12 +110,12 @@ def create_hidden_elements_prompt() -> PromptTemplate:
     Create a list of hidden elements and secrets for a TTRPG world. These should be unknown to most inhabitants but discoverable by players during campaigns.
 
     World Name: {name}
-    World History: {history}
+    World History: {backstory}
     Timeline: {timeline}
     Campaign Setting: {campaign}
-    Universe: {universe_prompt}
-    World Theme: {world_theme_prompt}
-    Story Tone: {tone_prompt}
+    Universe: {universe}
+    World Theme: {world_theme}
+    Story Tone: {tone}
 
     Instructions:
     - Create 5-8 hidden elements or secrets that could be revealed during gameplay

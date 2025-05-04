@@ -1,5 +1,8 @@
 import markdown
 
+from src.application.domain.word_domain import WorldDomain
+
+
 class TemplateManager:
     """Class to manage PDF templates and themes for character sheets."""
 
@@ -317,7 +320,7 @@ class TemplateManager:
 
         <div class="section">
             <h2>Universe</h2>
-            <p>{character_info['universe_prompt']}</p>
+            <p>{character_info['universe']}</p>
 
             <div class="stat-block">
                 <div class="stat">
@@ -329,7 +332,7 @@ class TemplateManager:
 {'''
         <div class="section">
             <h2>World Theme</h2>
-            <p>{character_info['world_theme_prompt']}</p>
+            <p>{character_info['world_theme']}</p>
 
             <div class="highlight">
                 TODO.
@@ -487,7 +490,7 @@ class TemplateManager:
 
         <div class="section">
             <h2>Universe</h2>
-            <p>{character_info['universe_prompt']}</p>
+            <p>{character_info['universe']}</p>
 
             <div class="stat-block">
                 <div class="stat">
@@ -499,7 +502,7 @@ class TemplateManager:
 {f'''
         <div class="section">
             <h2>World Theme</h2>
-            <p>{character_info['world_theme_prompt']}</p>
+            <p>{character_info['world_theme']}</p>
 
             <div class="highlight">
                 TODO
@@ -532,7 +535,7 @@ class TemplateManager:
             return ""
         return markdown.markdown(md_text)
 
-    def __get_world_image_html(self, world_info: dict) -> str:
+    def __get_world_image_html(self, world_info: WorldDomain) -> str:
         """Get the HTML for the world image."""
         image_filename = world_info.get('image_filename')
 
@@ -546,7 +549,7 @@ class TemplateManager:
             absolute_path = os.path.abspath(os.path.join('assets', image_filename))
             return f'<img src="file:///{absolute_path}" alt="Character Portrait"/>'
 
-    def get_world_template(self, world_info: dict) -> str:
+    def get_world_template(self, world_info: WorldDomain) -> str:
         """Get the template for world lore."""
         # Get the CSS based on the world theme
         theme_css = self.__get_theme_css(world_info.get('world_theme', 'default'))
@@ -606,7 +609,7 @@ class TemplateManager:
 
         <div class="section">
             <h2>World History</h2>
-            <div>{self.__markdown_to_html(world_info.get('history', 'No history available.'))}</div>
+            <div>{self.__markdown_to_html(world_info.get('backstory', 'No history available.'))}</div>
         </div>
 
         <div class="section">

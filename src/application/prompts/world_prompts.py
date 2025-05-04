@@ -24,12 +24,12 @@ Summarize the world's current status: tensions, mysteries, and potential adventu
 Enhance the existing world history for a TTRPG campaign. Use the context below to deepen the lore while staying true to established elements.
 
 World Name: {{name}}
-Universe: {{universe_prompt}}
-World Theme: {{world_theme_prompt}}
-Story Tone: {{tone_prompt}}
+Universe: {{universe}}
+World Theme: {{world_theme}}
+Story Tone: {{tone}}
 
 Existing World History:
-{{custom_history}}
+{{backstory}}
 
 Guidelines:
 1. Preserve the original narrative's key elements and historical events.
@@ -49,9 +49,9 @@ Respond only with the enriched world history.
 Create a rich, immersive world history for a TTRPG campaign. Use the provided attributes to guide the storytelling.
 
 World Name: {{name}}
-Universe: {{universe_prompt}}
-World Theme: {{world_theme_prompt}}
-Story Tone: {{tone_prompt}}
+Universe: {{universe}}
+World Theme: {{world_theme}}
+Story Tone: {{tone}}
 
 Instructions:
 - Write 2-3 compelling paragraphs covering:
@@ -94,13 +94,13 @@ Short description of the event. (1-3 sentences.)
 Enhance the existing timeline for a TTRPG world. Use the context below to deepen the chronology while staying true to established elements.
 
 World Name: {{name}}
-World History: {{history}}
-Universe: {{universe_prompt}}
-World Theme: {{world_theme_prompt}}
-Story Tone: {{tone_prompt}}
+World History: {{backstory}}
+Universe: {{universe}}
+World Theme: {{world_theme}}
+Story Tone: {{tone}}
 
 Existing Timeline:
-{{custom_timeline}}
+{{timeline}}
 
 Guidelines:
 1. Preserve the original timeline's key events and dates.
@@ -121,10 +121,10 @@ Respond only with the enhanced timeline.
 Create a detailed timeline for a TTRPG world. Use the provided attributes to guide the chronology.
 
 World Name: {{name}}
-World History: {{history}}
-Universe: {{universe_prompt}}
-World Theme: {{world_theme_prompt}}
-Story Tone: {{tone_prompt}}
+World History: {{backstory}}
+Universe: {{universe}}
+World Theme: {{world_theme}}
+Story Tone: {{tone}}
 
 Instructions:
 - Create a chronological timeline with 8-12 significant events.

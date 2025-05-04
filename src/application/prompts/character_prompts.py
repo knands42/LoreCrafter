@@ -2,14 +2,14 @@ from langchain.prompts import PromptTemplate
 from langchain_core.messages import HumanMessage
 
 
-def create_appearance_prompt(appearance=None) -> PromptTemplate:
-    if appearance:
+def create_appearance_prompt(custom_appearance=None) -> PromptTemplate:
+    if custom_appearance:
         return PromptTemplate.from_template("""
         Enhance the following appearance description of a TTRPG character with vivid detail and unique features.
 
         Race: {race}
         Gender: {gender}
-        Story Tone: {tone_prompt}
+        Story Tone: {tone}
 
         Existing Appearance Description:
         {appearance}
@@ -27,7 +27,7 @@ def create_appearance_prompt(appearance=None) -> PromptTemplate:
 
         Race: {race}
         Gender: {gender}
-        Story Tone: {tone_prompt}
+        Story Tone: {tone}
 
         Guidelines:
         - Write 1–2 vivid sentences describing facial features, hair, build, clothing, and any unique characteristics.
@@ -38,8 +38,8 @@ def create_appearance_prompt(appearance=None) -> PromptTemplate:
         """)
 
 
-def create_personality_prompt(personality=None) -> PromptTemplate:
-    if personality:
+def create_personality_prompt(custom_personality=None) -> PromptTemplate:
+    if custom_personality:
         return PromptTemplate.from_template("""
         Enhance the personality description of the following TTRPG character with depth, nuance, and immersion.
 
@@ -47,7 +47,7 @@ def create_personality_prompt(personality=None) -> PromptTemplate:
         Gender: {gender}
         Race: {race}
         Appearance: {appearance}
-        Story Tone: {tone_prompt}
+        Story Tone: {tone}
 
         Existing Personality Description:
         {personality}
@@ -69,7 +69,7 @@ def create_personality_prompt(personality=None) -> PromptTemplate:
         Gender: {gender}
         Race: {race}
         Appearance: {appearance}
-        Story Tone: {tone_prompt}
+        Story Tone: {tone}
 
         Guidelines:
         - Write 1-2 sentences describing key traits, motivations, behaviors, flaws, and emotional tendencies.
@@ -104,12 +104,12 @@ Gender: {{gender}}
 Race: {{race}}
 Personality: {{personality}}
 Appearance: {{appearance}}
-Universe: {{universe_prompt}}
-World Theme: {{world_theme_prompt}}
-Story Tone: {{tone_prompt}}
+Universe: {{universe}}
+World Theme: {{world_theme}}
+Story Tone: {{tone}}
 
 Existing Backstory:
-{{custom_story}}
+{{backstory}}
 
 Guidelines:
 1. Preserve the original narrative's key elements and emotional beats.
@@ -132,9 +132,9 @@ Gender: {{gender}}
 Race: {{race}}
 Personality: {{personality}}
 Appearance: {{appearance}}
-Universe: {{universe_prompt}}
-World Theme: {{world_theme_prompt}}
-Story Tone: {{tone_prompt}}
+Universe: {{universe}}
+World Theme: {{world_theme}}
+Story Tone: {{tone}}
 
 Instructions:
 - Write a compelling backstory covering:
@@ -176,4 +176,6 @@ def get_character_image_prompt(character_appearance: str) -> HumanMessage:
     {character_appearance}
 
     The image should be a high-quality character portrait suitable for a TTRPG character sheet.
+    
+    Respond only with the final portrait image.
     """)

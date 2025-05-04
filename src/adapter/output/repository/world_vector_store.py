@@ -1,10 +1,12 @@
 import json
 from typing import List, Any
-from uuid import uuid4
 
 from langchain.docstore.document import Document
 from langchain_chroma import Chroma
-from langchain_openai import OpenAIEmbeddings
+
+from src.adapter.output.llm import LLMFactory
+from src.adapter.output.utils import UUIDEncoder
+from src.application.domain.word_domain import WorldDomain
 
 
 class WorldVectorStore:
@@ -13,27 +15,27 @@ class WorldVectorStore:
         collection_name: str = "worlds",
         persist_directory: str = "chroma_db",
         embedding_function: Any = None,
-     ):
-        self.embedding_function = embedding_function or OpenAIEmbeddings()
+    ):
+        self.embedding_function = embedding_function if embedding_function else LLMFactory.create_function_embeddings()
         self.vector_store = Chroma(
             collection_name=collection_name,
             embedding_function=self.embedding_function,
             persist_directory=persist_directory
         )
 
-    def store(self, world_info: dict) -> None:
+    def store(self, world_info: WorldDomain) -> None:
         """Store world information in the vector database.
 
         Args:
             world_info: A dictionary containing world information.
         """
-        world_json = json.dumps(world_info)
+        world_json = json.dumps(world_info, cls=UUIDEncoder)
 
         document = Document(
             page_content=world_json,
             metadata={
-                "id": str(uuid4()),
-                "name": world_info.get("name", "unknown")
+                "id": str(world_info['id']),
+                "name": world_info.get("name") or "unknown"
             }
         )
 

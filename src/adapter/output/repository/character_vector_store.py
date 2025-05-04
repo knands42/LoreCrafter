@@ -1,10 +1,12 @@
 import json
 from typing import Any
-from uuid import uuid4
 
 from langchain.docstore.document import Document
 from langchain_chroma import Chroma
-from langchain_openai import OpenAIEmbeddings
+
+from src.adapter.output.llm import LLMFactory
+from src.adapter.output.utils import UUIDEncoder
+from src.application.domain.character_domain import CharacterDomain
 
 
 class CharacterVectorStore:
@@ -14,7 +16,7 @@ class CharacterVectorStore:
         persist_directory: str = "chroma_db",
         embedding_function: Any = None,
     ):
-        self.embedding_function = embedding_function or OpenAIEmbeddings()
+        self.embedding_function = embedding_function if embedding_function else LLMFactory.create_function_embeddings()
         self.vectorstore = Chroma(
             collection_name=collection_name,
             embedding_function=self.embedding_function,
@@ -22,15 +24,16 @@ class CharacterVectorStore:
         )
         self.retriever = self.vectorstore.as_retriever()
 
-    def store(self, character: dict[str, str]) -> None:
+    def store(self, character: CharacterDomain) -> None:
         doc = Document(
-            page_content=json.dumps(character),
+            page_content=json.dumps(character, cls=UUIDEncoder),
             metadata={
-                "id": str(uuid4()),
-                "name": character.get("name", "unknown"),
-                "world_linked": character.get("linked_world_id", "unknown"),
+                "id": str(character['id']),
+                "name": character.get("name") or "unknown",
+                "world_linked": character.get("linked_world_id") or "unknown",
             }
         )
+        
         self.vectorstore.add_documents([doc])
 
     def search_similar(self, query: str, top_k: int = 3) -> list[Document]:
