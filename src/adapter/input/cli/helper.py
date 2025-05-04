@@ -3,6 +3,7 @@ from rich.text import Text
 from rich.markdown import Markdown
 from rich import print
 
+from src.application.domain.campaign_domain import CampaignDomain
 from src.application.domain.character_domain import CharacterDomain
 from src.application.domain.word_domain import WorldDomain
 
@@ -64,7 +65,7 @@ def print_world(world: WorldDomain):
         print(format_section("Timeline", world["timeline"], use_markdown=True))
 
 
-def print_campaign(campaign: dict[str, str | None]):
+def print_campaign(campaign: CampaignDomain):
     print("[bold magenta]✨ Campaign Overview ✨[/bold magenta]\n")
 
     print(f"[bold]Name:[/bold] {campaign.get('name') or '[dim]Unknown[/dim]'}")

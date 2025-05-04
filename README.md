@@ -1,59 +1,87 @@
 # LoreCrafter
 
-LoreCrafter is an interactive CLI tool that helps you create rich backstories for your TTRPG characters. Using AI, it generates detailed narratives based on your character's basic information.
+LoreCrafter is a tool that helps users create rich backstories for tabletop role-playing game (TTRPG) characters, worlds, and campaigns using AI. The system generates detailed narratives based on user-provided information and can link characters, worlds, and campaigns together to create a cohesive storytelling experience.
 
 ## Features
 
--   Interactive character creation
--   Customizable character attributes
--   AI-generated detailed backstories
--   Rich CLI interface with Typer
+- Generate character backstories, personalities, and appearances
+- Create world histories and timelines
+- Design campaign settings and hidden elements
+- Generate character and world images
+- Export character and world information as PDFs
+- Search for characters and worlds
 
-## Setup
+## Installation
 
-1. Initialize the virtual environment (if not already done):
-
+1. Clone the repository:
 ```bash
-uv venv
+git clone https://github.com/yourusername/LoreCrafter.git
+cd LoreCrafter
 ```
 
-2. Activate the virtual environment:
-
+2. Install the required dependencies:
 ```bash
-# On Windows
-.venv\Scripts\activate
-# On Unix/MacOS
-source .venv/bin/activate
+pip install -r requirements.txt
 ```
 
-3. Install dependencies:
-
-```bash
-uv pip install -r pyproject.toml
-```
-
-4. Create a `.env` from the `.env.example` file with your OpenAI API key:
-
-```bash
-OPENAI_API_KEY=your_api_key_here
-```
+3. Set up environment variables:
+Create a `.env` file in the root directory with your API keys and other configuration.
 
 ## Usage
 
-Run the character generator:
+### CLI Mode
+
+LoreCrafter can be used as a command-line tool:
 
 ```bash
-make create-character
+# Create a character
+python main.py create-character
+
+# Create a world
+python main.py create-world
+
+# Create a campaign
+python main.py create-campaign
+
+# Search for a character
+python main.py search-character "brave warrior"
+
+# Search for a world
+python main.py search-world "fantasy kingdom"
 ```
+
+### API Mode
+
+LoreCrafter also provides a RESTful API using FastAPI:
 
 ```bash
-make search-character CHAR=kirk
+# Start the API server
+python main.py api
+
+# Start with custom host and port
+python main.py api --host 0.0.0.0 --port 8080
+
+# Start with auto-reload for development
+python main.py api --reload
 ```
 
-Follow the interactive prompts to create your character's backstory.
+Once the API server is running, you can access the API documentation at `http://localhost:8000/docs`.
 
-## Development
+## API Documentation
 
--   `make setup`: Initialize virtual environment and install dependencies
--   `make run`: Run the character generator
--   `make clean`: Remove virtual environment and cache files
+The API provides endpoints for creating and retrieving characters, worlds, and campaigns. See the [API Documentation](frontend/docs/api_documentation.md) for details.
+
+## Project Structure
+
+- `src/adapter/input/cli`: CLI interface
+- `src/adapter/input/api`: API interface
+- `src/adapter/output/repository`: Data storage
+- `src/adapter/output/llm`: LLM integration
+- `src/adapter/output/pdf`: PDF generation
+- `src/application/domain`: Domain models
+- `src/application/usecases`: Application logic
+- `src/application/prompts`: LLM prompts
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.

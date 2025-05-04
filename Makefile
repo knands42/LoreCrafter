@@ -15,6 +15,9 @@ create-character:
 search-character:
 	$(PYTHON_PATH) .\main.py search-character "$(CHAR)"
 
+start-api:
+	$(PYTHON_PATH) .\main.py api --host 0.0.0.0 --port 8080
+
 clean:
 	@echo "Cleaning up..."
 	rm -rf .venv

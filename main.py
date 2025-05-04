@@ -10,9 +10,11 @@ from src.application.usecases import CharacterGenerator, WorldGenerator, Campaig
 load_dotenv()
 
 import json
+import os
 from typing import Optional
 
 import typer
+import uvicorn
 from rich import print
 from rich.console import Console
 
@@ -93,6 +95,28 @@ def create_campaign(
     campaign_result = campaign_generator.generate(campaign_info)
 
     print_campaign(campaign_result)
+
+
+@app.command()
+def api(
+    host: str = "127.0.0.1",
+    port: int = 8000,
+    reload: bool = False
+):
+    """
+    Run the FastAPI server for the LoreCrafter API.
+    """
+    print("[bold cyan]🚀 Starting LoreCrafter API server...[/bold cyan]")
+
+    # Import here to avoid circular imports
+    from src.adapter.input.api.app import app as fastapi_app
+
+    uvicorn.run(
+        "src.adapter.input.api.app:app",
+        host=host,
+        port=port,
+        reload=reload
+    )
 
 
 if __name__ == "__main__":
