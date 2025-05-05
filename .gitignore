@@ -3,6 +3,7 @@ __pycache__/*
 **/__pycache__/*
 .venv/*
 venv/*
+build/
 
 # Env files
 .env*
@@ -13,5 +14,4 @@ chroma_db/
 
 # Others
 .TODO
-assets/*.pdf
-assets/*.png
+assets/

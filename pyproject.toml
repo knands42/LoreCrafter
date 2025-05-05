@@ -22,3 +22,16 @@ dependencies = [
     "typer>=0.15.2",
     "weasyprint>=65.1",
 ]
+
+[project.optional-dependencies]
+test = [
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+    "httpx>=0.24.1",
+    "pytest-mock>=3.11.1",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_functions = "test_*"

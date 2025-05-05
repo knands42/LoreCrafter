@@ -1,3 +1,7 @@
+from dotenv import load_dotenv
+
+load_dotenv()
+
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException

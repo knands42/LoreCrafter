@@ -59,15 +59,4 @@ async def get_character(
     """
     Retrieve a specific character by ID.
     """
-    try:
-        # Search for the character by ID
-        results = vector_store.search_similar(f"id:{character_id}", 1)
-        if not results:
-            raise HTTPException(status_code=404, detail=f"Character with ID {character_id} not found")
-        
-        character = json.loads(results[0].page_content)
-        return character
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error retrieving character: {str(e)}")
+    pass

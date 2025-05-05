@@ -5,6 +5,7 @@ from uuid import uuid4
 from langchain_core.output_parsers import StrOutputParser
 
 from src.adapter.output.llm import LLMFactory
+from src.adapter.output.pdf import create_character_pdf
 from src.adapter.output.repository import CharacterVectorStore
 from src.application.domain.character_domain import CharacterCreateDomain, CharacterDomain
 from src.application.prompts import get_world_theme, get_universe, get_story_tone, create_appearance_prompt, \
@@ -55,6 +56,7 @@ class CharacterGenerator:
         )
 
         self.vector_db.store(character_domain)
+        create_character_pdf(character_domain, "character_profile.pdf")
 
         return character_domain
 
