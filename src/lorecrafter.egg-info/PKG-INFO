@@ -49,8 +49,8 @@ cd LoreCrafter
 
 2. Install the required dependencies:
 ```bash
-uv pip install .
-uv pip install .[test]
+make create-env
+make install-deps
 ```
 
 3. Set up environment variables:

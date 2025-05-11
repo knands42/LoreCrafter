@@ -4,7 +4,7 @@ from rich import print
 from rich.console import Console
 from rich.prompt import Prompt, Confirm
 
-from src.adapter.input.cli.ShellUtils import ShellUtils
+from src.adapter.input.cli.user_input.ShellUtils import ShellUtils
 from src.adapter.output.repository.world_vector_store import WorldVectorStore
 from src.application.domain.campaign_domain import CampaignCreationDomain
 
