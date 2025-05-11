@@ -10,6 +10,7 @@ class CharacterCreation(BaseModel):
     name: str = Field(..., description="The character's name")
     gender: str = Field(..., description="The character's gender")
     race: str = Field(..., description="The character's race")
+    alignment: Optional[str] = Field(None, description="The character's moral and ethical alignment")
 
     appearance: Optional[str] = Field(None, description="The character's appearance description")
     personality: Optional[str] = Field(None, description="The character's personality traits")
@@ -27,6 +28,7 @@ class CharacterCreation(BaseModel):
                 "name": "Elara Nightshade",
                 "gender": "Female",
                 "race": "Half-Elf",
+                "alignment": "Chaotic Good",
                 "appearance": "Tall with silver hair and violet eyes",
                 "personality": "Mysterious and calculating",
                 "backstory": "Born in the shadow of the Misty Mountains...",
@@ -45,6 +47,7 @@ class Character(BaseModel):
     name: str = Field(..., description="The character's name")
     gender: str = Field(..., description="The character's gender")
     race: str = Field(..., description="The character's race")
+    alignment: str = Field(..., description="The character's moral and ethical alignment")
 
     appearance: str = Field(..., description="The character's appearance description")
     personality: str = Field(..., description="The character's personality traits")
@@ -64,6 +67,7 @@ class Character(BaseModel):
                 "name": "Elara Nightshade",
                 "gender": "Female",
                 "race": "Half-Elf",
+                "alignment": "Chaotic Good",
                 "appearance": "Tall with silver hair and violet eyes",
                 "personality": "Mysterious and calculating",
                 "backstory": "Born in the shadow of the Misty Mountains...",
@@ -74,4 +78,3 @@ class Character(BaseModel):
                 "image_filename": "character_image_3fa85f64-5717-4562-b3fc-2c963f66afa6.png"
             }
         }
-

@@ -365,6 +365,7 @@ class TemplateManager:
                 <div class="character-subtitle">{character_info.race} • {character_info.gender}</div>
                 <div class="character-meta">
                     <div class="meta-item">Universe: {character_info.universe}</div>
+                    <div class="meta-item">Alignment: {character_info.alignment}</div>
                     <div class="meta-item">Street Cred: High</div>
                 </div>
             </div>

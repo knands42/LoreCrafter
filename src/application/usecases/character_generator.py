@@ -35,7 +35,7 @@ class CharacterGenerator:
 
         backstory_chain = create_appearance_prompt(character_creation.backstory)
         generated_backstory = (backstory_chain | self.llm | self.parser).invoke(character_creation.__dict__)
-        
+
         image_filename = self.__generate_image(generated_appearance)
 
         character_domain = Character(
@@ -43,6 +43,7 @@ class CharacterGenerator:
             name=character_creation.name,
             race=character_creation.race,
             gender=character_creation.gender,
+            alignment=character_creation.alignment or "Neutral",
 
             appearance=generated_appearance,
             personality=generated_personality,

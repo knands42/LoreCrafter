@@ -46,6 +46,7 @@ def create_personality_prompt(custom_personality=None) -> PromptTemplate:
         Name: {name}
         Gender: {gender}
         Race: {race}
+        Alignment: {alignment}
         Appearance: {appearance}
         Story Tone: {tone}
 
@@ -56,8 +57,10 @@ def create_personality_prompt(custom_personality=None) -> PromptTemplate:
         - Preserve the core traits provided.
         - Add emotional depth, contradictions, or quirks that make the character feel real.
         - Describe motivations, behaviors, and notable personality traits in 1-2 sentences.
+        - Reflect the character's alignment in their personality traits and moral compass.
         - Avoid clichés and make it feel grounded in a fantasy setting.
         - If relevant, subtly reflect how their appearance may influence behavior or social perception (only if it feels natural — this is rare).
+        - Do not describe the character's alignment directly, make it narratively.
 
         Respond only with the enhanced personality.
         """)
@@ -68,14 +71,17 @@ def create_personality_prompt(custom_personality=None) -> PromptTemplate:
         Name: {name}
         Gender: {gender}
         Race: {race}
+        Alignment: {alignment}
         Appearance: {appearance}
         Story Tone: {tone}
 
         Guidelines:
         - Write 1-2 sentences describing key traits, motivations, behaviors, flaws, and emotional tendencies.
+        - Reflect the character's alignment in their personality traits and moral compass.
         - If relevant, subtly reflect how their appearance may influence behavior or social perception (only if it feels natural — this is rare).
         - Make it immersive and unique — suitable for storytelling or roleplaying.
         - Avoid listing traits — describe them narratively.
+        - Do not describe the character's alignment directly, make it narratively.
 
         Respond only with the personality description.
         """)
@@ -102,6 +108,7 @@ Enhance the TTRPG character’s existing backstory. Use the context below to dee
 Name: {{name}}
 Gender: {{gender}}
 Race: {{race}}
+Alignment: {{alignment}}
 Personality: {{personality}}
 Appearance: {{appearance}}
 Universe: {{universe}}
@@ -130,6 +137,7 @@ Create a rich, immersive backstory for the following TTRPG character. Use the pr
 Name: {{name}}
 Gender: {{gender}}
 Race: {{race}}
+Alignment: {{alignment}}
 Personality: {{personality}}
 Appearance: {{appearance}}
 Universe: {{universe}}
@@ -176,6 +184,6 @@ def get_character_image_prompt(character_appearance: str) -> HumanMessage:
     {character_appearance}
 
     The image should be a high-quality character portrait suitable for a TTRPG character sheet.
-    
+
     Respond only with the final portrait image.
     """)
