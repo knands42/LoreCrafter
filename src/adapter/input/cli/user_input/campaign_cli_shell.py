@@ -6,16 +6,16 @@ from rich.prompt import Prompt, Confirm
 
 from src.adapter.input.cli.user_input.ShellUtils import ShellUtils
 from src.adapter.output.repository.world_vector_store import WorldVectorStore
-from src.application.domain.campaign_domain import CampaignCreationDomain
+from src.application.domain.campaign_domain import CampaignCreation
 
 
 class CampaignCLIShell(ShellUtils):
     def __init__(self, console: Console, world_vector_store: WorldVectorStore):
         super().__init__(console, world_vector_store)
 
-    def get_campaign_info(self, get_default: bool = False) -> CampaignCreationDomain:
+    def get_campaign_info(self, get_default: bool = False) -> CampaignCreation:
         if get_default:
-            return CampaignCreationDomain(
+            return CampaignCreation(
                 name="The Lost Mines",
                 universe="D&D",
                 world_theme="fantasy",
@@ -93,7 +93,7 @@ class CampaignCLIShell(ShellUtils):
         custom_campaign = self.multiline_input(
             "Enter your campaign setting (press Enter twice to finish)") if has_custom_campaign else None
 
-        return CampaignCreationDomain(
+        return CampaignCreation(
             name=name,
             universe=universe.lower(),
             world_theme=theme.lower(),

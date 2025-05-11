@@ -7,14 +7,44 @@ from pathlib import Path
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from fastapi.openapi.docs import get_swagger_ui_html, get_redoc_html
+from fastapi.openapi.utils import get_openapi
 
 from src.adapter.input.api.routers import character_router, world_router, campaign_router, asset_router, pdf_router
 
+APP_TITLE = "LoreCrafter API"
+APP_DESCRIPTION = "API for LoreCrafter, a tool that helps users create rich backstories for tabletop role-playing game characters, worlds, and campaigns using AI."
+APP_VERSION = "1.0.0"
+
 # Create FastAPI app
 app = FastAPI(
-    title="LoreCrafter API",
-    description="API for LoreCrafter, a tool that helps users create rich backstories for tabletop role-playing game characters, worlds, and campaigns using AI.",
-    version="1.0.0",
+    title=APP_TITLE,
+    description=APP_DESCRIPTION,
+    version=APP_VERSION,
+    docs_url="/docs",  # Custom docs URL
+    redoc_url="/redoc",  # Custom ReDoc URL
+    openapi_tags=[
+        {
+            "name": "characters",
+            "description": "Operations with characters. Create, retrieve, and search for characters with AI-generated backstories."
+        },
+        {
+            "name": "worlds",
+            "description": "Operations with worlds. Create, retrieve, and search for worlds with AI-generated histories and timelines."
+        },
+        {
+            "name": "campaigns",
+            "description": "Operations with campaigns. Create and retrieve campaigns with AI-generated settings and hidden elements."
+        },
+        {
+            "name": "assets",
+            "description": "Operations with assets. Retrieve character and world images."
+        },
+        {
+            "name": "pdf",
+            "description": "Operations with PDFs. Generate PDF documents for characters and worlds."
+        },
+    ]
 )
 
 # Add CORS middleware
@@ -54,5 +84,6 @@ async def root():
 
 
 @app.get("/healthcheck")
-async def root():
+async def healthcheck():
     return {"message": "API is healthy"}
+

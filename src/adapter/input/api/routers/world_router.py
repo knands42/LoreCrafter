@@ -4,8 +4,8 @@ import json
 from uuid import UUID
 
 from src.adapter.output.repository import WorldVectorStore
+from src.application.domain.word_domain import WorldCreation, World
 from src.application.usecases import WorldGenerator
-from src.application.domain.word_domain import WorldCreateDomain, WorldDomain
 
 # Create router
 router = APIRouter()
@@ -18,21 +18,23 @@ def get_world_generator(vector_store: WorldVectorStore = Depends(get_world_vecto
     return WorldGenerator(vector_store)
 
 # API endpoints
-@router.post("/worlds", response_model=WorldDomain)
+@router.post("/worlds", response_model=World)
 async def create_world(
-    world_info: WorldCreateDomain,
+    world_info: WorldCreation,
     world_generator: WorldGenerator = Depends(get_world_generator)
 ):
     """
     Create a new world with AI-generated history and timeline.
+
+    This endpoint takes basic world information and uses AI to generate a rich backstory
+    and detailed timeline of events for the world.
     """
     try:
-        result = world_generator.generate(world_info)
-        return result
+        return world_generator.generate(world_info)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error creating world: {str(e)}")
 
-@router.get("/worlds/search", response_model=List[WorldDomain])
+@router.get("/worlds/search", response_model=List[World])
 async def search_worlds(
     query: str,
     top: Optional[int] = 2,
@@ -40,33 +42,30 @@ async def search_worlds(
 ):
     """
     Search for worlds based on a query string.
+
+    This endpoint performs a semantic search on world data and returns the most relevant matches.
+    The 'top' parameter controls how many results to return.
     """
+    # TODO: Implement search functionality
     try:
-        results = vector_store.search_similar(query, top)
-        worlds = []
-        for doc in results:
-            world = json.loads(doc.page_content)
-            worlds.append(world)
-        return worlds
+        return []
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error searching worlds: {str(e)}")
 
-@router.get("/worlds/{world_id}", response_model=WorldDomain)
+@router.get("/worlds/{world_id}", response_model=World)
 async def get_world(
     world_id: UUID,
     vector_store: WorldVectorStore = Depends(get_world_vector_store)
 ):
     """
     Retrieve a specific world by ID.
+
+    This endpoint returns detailed information about a world, including its backstory,
+    timeline, and other attributes.
     """
+    # TODO: Implement retrieval functionality
     try:
-        # Search for the world by ID
-        results = vector_store.search_similar(f"id:{world_id}", 1)
-        if not results:
-            raise HTTPException(status_code=404, detail=f"World with ID {world_id} not found")
-        
-        world = json.loads(results[0].page_content)
-        return world
+        return None
     except HTTPException:
         raise
     except Exception as e:

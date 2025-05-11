@@ -6,7 +6,7 @@ from langchain_chroma import Chroma
 
 from src.adapter.output.llm import LLMFactory
 from src.adapter.output.utils import UUIDEncoder
-from src.application.domain.word_domain import WorldDomain
+from src.application.domain.word_domain import World
 
 
 class WorldVectorStore:
@@ -23,18 +23,18 @@ class WorldVectorStore:
             persist_directory=persist_directory
         )
 
-    def store(self, world_info: WorldDomain) -> None:
+    def store(self, world_info: World) -> None:
         """Store world information in the vector database.
 
         Args:
             world_info: A dictionary containing world information.
         """
-        world_json = json.dumps(world_info, cls=UUIDEncoder)
+        world_json = json.dumps(world_info.__dict__, cls=UUIDEncoder)
 
         document = Document(
             page_content=world_json,
             metadata={
-                "id": str(world_info['id']),
+                "id": str(world_info.id),
                 "name": world_info.get("name") or "unknown"
             }
         )
@@ -53,7 +53,7 @@ class WorldVectorStore:
         """
         return self.vector_store.similarity_search(query, k=top_k)
 
-    def get_by_id(self, world_id: str) -> WorldDomain | None:
+    def get_by_id(self, world_id: str) -> World | None:
         """Get a world by its ID.
 
         Args:
@@ -71,7 +71,7 @@ class WorldVectorStore:
             return json.loads(results[0].page_content)
         return None
 
-    def get_all_worlds(self) -> list[WorldDomain]:
+    def get_all_worlds(self) -> list[World]:
         """Get all worlds from the vector store.
 
         Returns:

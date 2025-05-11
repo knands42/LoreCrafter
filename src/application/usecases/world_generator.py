@@ -7,7 +7,7 @@ from langchain_core.output_parsers import StrOutputParser
 from src.adapter.output.llm.llm_factory import LLMFactory
 from src.adapter.output.pdf import create_world_pdf
 from src.adapter.output.repository import WorldVectorStore
-from src.application.domain.word_domain import WorldDomain, WorldCreateDomain
+from src.application.domain.word_domain import World, WorldCreation
 from src.application.prompts import get_world_theme, get_universe, get_story_tone, create_world_history_prompt, \
     create_timeline_prompt, get_world_image_prompt
 
@@ -22,25 +22,25 @@ class WorldGenerator:
         self.parser = StrOutputParser()
         self.vector_db = vector_db
 
-    def generate(self, world_create_domain: WorldCreateDomain) -> WorldDomain:
-        world_create_domain['world_theme'] = get_world_theme(world_create_domain['world_theme'])
-        world_create_domain['universe'] = get_universe(world_create_domain['universe'])
-        world_create_domain['tone'] = get_story_tone(world_create_domain['tone'])
+    def generate(self, world_create_domain: WorldCreation) -> World:
+        world_create_domain.world_theme = get_world_theme(world_create_domain.world_theme)
+        world_create_domain.universe = get_universe(world_create_domain.universe)
+        world_create_domain.tone = get_story_tone(world_create_domain.tone)
 
-        history_chain = create_world_history_prompt(world_create_domain.get('backstory'))
+        history_chain = create_world_history_prompt(world_create_domain.backstory)
         created_history = (history_chain | self.llm | self.parser).invoke(world_create_domain)
 
-        timeline_chain = create_timeline_prompt(world_create_domain.get('timeline'))
+        timeline_chain = create_timeline_prompt(world_create_domain.timeline)
         timeline_history = (timeline_chain | self.llm | self.parser).invoke(world_create_domain)
 
         image_filename = self.__generate_image(created_history)
 
-        world_domain = WorldDomain(
+        world_domain = World(
             id=uuid4(),
-            name=world_create_domain['name'],
-            universe=world_create_domain['universe'],
-            world_theme=world_create_domain['world_theme'],
-            tone=world_create_domain['tone'],
+            name=world_create_domain.name,
+            universe=world_create_domain.universe,
+            world_theme=world_create_domain.world_theme,
+            tone=world_create_domain.tone,
             backstory=created_history,
             timeline=timeline_history,
             image_filename=image_filename

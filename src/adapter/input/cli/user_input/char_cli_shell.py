@@ -6,7 +6,7 @@ from rich.prompt import Prompt, Confirm
 
 from src.adapter.input.cli.user_input.ShellUtils import ShellUtils
 from src.adapter.output.repository.world_vector_store import WorldVectorStore
-from src.application.domain.character_domain import CharacterCreateDomain
+from src.application.domain.character_domain import CharacterCreation
 
 
 class CharCLIShell(ShellUtils):
@@ -15,9 +15,9 @@ class CharCLIShell(ShellUtils):
         self.vector_store = vector_store
         self.console = Console()
 
-    def get_character_info(self, get_default: bool = False) -> CharacterCreateDomain:
+    def get_character_info(self, get_default: bool = False) -> CharacterCreation:
         if get_default:
-            return CharacterCreateDomain(
+            return CharacterCreation(
                 name="Captain Kirk",
                 gender="male",
                 race="Human",
@@ -111,7 +111,7 @@ class CharCLIShell(ShellUtils):
         custom_story = self.multiline_input(
             "Enter your character's story (press Enter twice to finish)") if has_custom_story else None
 
-        return CharacterCreateDomain(
+        return CharacterCreation(
             name=name,
             gender=gender,
             race=race,

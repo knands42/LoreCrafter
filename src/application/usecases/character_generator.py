@@ -7,7 +7,7 @@ from langchain_core.output_parsers import StrOutputParser
 from src.adapter.output.llm import LLMFactory
 from src.adapter.output.pdf import create_character_pdf
 from src.adapter.output.repository import CharacterVectorStore
-from src.application.domain.character_domain import CharacterCreateDomain, CharacterDomain
+from src.application.domain.character_domain import CharacterCreation, Character
 from src.application.prompts import get_world_theme, get_universe, get_story_tone, create_appearance_prompt, \
     get_character_image_prompt
 
@@ -22,36 +22,37 @@ class CharacterGenerator:
         self.parser = StrOutputParser()
         self.vector_db = vector_db
 
-    def generate(self, character_creation_info: CharacterCreateDomain) -> CharacterDomain:
-        character_creation_info['world_theme'] = get_world_theme(character_creation_info['world_theme'])
-        character_creation_info['universe'] = get_universe(character_creation_info['universe'])
-        character_creation_info['tone'] = get_story_tone(character_creation_info['tone'])
+    def generate(self, character_creation: CharacterCreation) -> Character:
+        character_creation.world_theme = get_world_theme(character_creation.world_theme)
+        character_creation.universe = get_universe(character_creation.universe)
+        character_creation.tone = get_story_tone(character_creation.tone)
 
-        appearance_chain = create_appearance_prompt(character_creation_info['appearance'])
-        generated_appearance = (appearance_chain | self.llm | self.parser).invoke(character_creation_info)
+        appearance_chain = create_appearance_prompt(character_creation.appearance)
+        generated_appearance = (appearance_chain | self.llm | self.parser).invoke(character_creation.__dict__)
 
-        personality_chain = create_appearance_prompt(character_creation_info['personality'])
-        generated_personality = (personality_chain | self.llm | self.parser).invoke(character_creation_info)
+        personality_chain = create_appearance_prompt(character_creation.personality)
+        generated_personality = (personality_chain | self.llm | self.parser).invoke(character_creation.__dict__)
 
-        backstory_chain = create_appearance_prompt(character_creation_info['backstory'])
-        generated_backstory = (backstory_chain | self.llm | self.parser).invoke(character_creation_info)
+        backstory_chain = create_appearance_prompt(character_creation.backstory)
+        generated_backstory = (backstory_chain | self.llm | self.parser).invoke(character_creation.__dict__)
+        
         image_filename = self.__generate_image(generated_appearance)
 
-        character_domain = CharacterDomain(
+        character_domain = Character(
             id=uuid4(),
-            name=character_creation_info['name'],
-            race=character_creation_info['race'],
-            gender=character_creation_info['gender'],
+            name=character_creation.name,
+            race=character_creation.race,
+            gender=character_creation.gender,
 
             appearance=generated_appearance,
             personality=generated_personality,
             backstory=generated_backstory,
 
-            world_theme=character_creation_info['world_theme'],
-            universe=character_creation_info['universe'],
-            tone=character_creation_info['tone'],
+            world_theme=character_creation.world_theme,
+            universe=character_creation.universe,
+            tone=character_creation.tone,
 
-            linked_world_id=character_creation_info['linked_world_id'],
+            linked_world_id=character_creation.linked_world_id,
             image_filename=image_filename,
         )
 

@@ -6,7 +6,7 @@ from langchain_chroma import Chroma
 
 from src.adapter.output.llm import LLMFactory
 from src.adapter.output.utils import UUIDEncoder
-from src.application.domain.character_domain import CharacterDomain
+from src.application.domain.character_domain import Character
 
 
 class CharacterVectorStore:
@@ -24,13 +24,13 @@ class CharacterVectorStore:
         )
         self.retriever = self.vectorstore.as_retriever()
 
-    def store(self, character: CharacterDomain) -> None:
+    def store(self, character: Character) -> None:
         doc = Document(
-            page_content=json.dumps(character, cls=UUIDEncoder),
+            page_content=json.dumps(character.__dict__, cls=UUIDEncoder),
             metadata={
-                "id": str(character['id']),
-                "name": character.get("name") or "unknown",
-                "world_linked": character.get("linked_world_id") or "unknown",
+                "id": str(character.id),
+                "name": character.name or "unknown",
+                "world_linked": character.linked_world_id or "unknown",
             }
         )
         

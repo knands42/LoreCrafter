@@ -1,6 +1,7 @@
 import markdown
 
-from src.application.domain.word_domain import WorldDomain
+from src.application.domain.character_domain import Character
+from src.application.domain.word_domain import World
 
 
 class TemplateManager:
@@ -247,9 +248,9 @@ class TemplateManager:
             }}
         """
 
-    def __get_character_image_html(self, character_info: dict) -> str:
+    def __get_character_image_html(self, character_info: Character) -> str:
         """Get the HTML for the character image."""
-        image_filename = character_info.get('image_filename', 'https://via.placeholder.com/180')
+        image_filename = character_info.image_filename
 
         if image_filename.startswith(('http://', 'https://')):
             return f'<img src="{image_filename}" alt="Character Portrait"/>'
@@ -258,9 +259,9 @@ class TemplateManager:
             absolute_path = os.path.abspath(os.path.join('assets', image_filename))
             return f'<img src="file:///{absolute_path}" alt="Character Portrait"/>'
 
-    def __get_universe_template(self, character_info: dict) -> str:
+    def __get_universe_template(self, character_info: Character) -> str:
         """Get HTML template based on world theme."""
-        universe = character_info.get('universe', '').lower() if character_info.get('universe') else ''
+        universe = character_info.universe.lower()
 
         # Default D&D template
         if 'd&d' in universe or 'pathfinder' in universe or 'fantasy' in universe:
@@ -268,18 +269,18 @@ class TemplateManager:
 <html>
 <head>
     <style>
-        {self.__get_theme_css(character_info.get('world_theme', 'fantasy'))}
+        {self.__get_theme_css(character_info.world_theme)}
     </style>
 </head>
 <body>
     <div class="container">
         <header>
             <div class="character-title">
-                <h1>{character_info.get('name', 'Unknown Name')}</h1>
-                <div class="character-subtitle">{character_info.get('race', 'Unknown Race')} • {character_info.get('gender', 'Unknown Gender')}</div>
+                <h1>{character_info.name}</h1>
+                <div class="character-subtitle">{character_info.race} • {character_info.gender}</div>
                 <div class="character-meta">
-                    <div class="meta-item">Universe: {character_info.get('universe', 'Unknown')}</div>
-                    <div class="meta-item">Alignment: {character_info.get('alignment', 'Neutral')}</div>
+                    <div class="meta-item">Universe: {character_info.universe}</div>
+                    <div class="meta-item">Alignment: {character_info.alignment}</div>
                 </div>
             </div>
             <img src="https://via.placeholder.com/180" alt="Character Portrait"/>
@@ -287,7 +288,7 @@ class TemplateManager:
 
         <div class="section">
             <h2>Appearance</h2>
-            <p>{character_info['appearance']}</p>
+            <p>{character_info.appearance}</p>
 
             <div class="stat-block">
                 <div class="stat">
@@ -299,7 +300,7 @@ class TemplateManager:
 
         <div class="section">
             <h2>Personality</h2>
-            <p>{character_info['personality']}</p>
+            <p>{character_info.personality}</p>
 
             <div class="stat-block">
                 <div class="stat">
@@ -311,16 +312,16 @@ class TemplateManager:
 
         <div class="section">
             <h2>Backstory</h2>
-            <div>{self.__markdown_to_html(character_info['backstory'])}</div>
+            <div>{self.__markdown_to_html(character_info.backstory)}</div>
 
             <div class="highlight">
-                Key moments from {character_info['name']}'s past have shaped who they are today.
+                Key moments from {character_info.name}'s past have shaped who they are today.
             </div>
         </div>
 
         <div class="section">
             <h2>Universe</h2>
-            <p>{character_info['universe']}</p>
+            <p>{character_info.universe}</p>
 
             <div class="stat-block">
                 <div class="stat">
@@ -332,16 +333,16 @@ class TemplateManager:
 {'''
         <div class="section">
             <h2>World Theme</h2>
-            <p>{character_info['world_theme']}</p>
+            <p>{character_info.world_theme}</p>
 
             <div class="highlight">
                 TODO.
             </div>
         </div>
-''' if 'world_theme_prompt' in character_info and character_info['world_theme_prompt'] else ''}
+''' if 'world_theme_prompt' in character_info and character_info.world_theme_prompt else ''}
 
         <div class="footer">
-            Character created with LoreCrafter • ID: {character_info.get('id', 'Unknown')}
+            Character created with LoreCrafter • ID: {character_info.id}
         </div>
     </div>
 </body>
@@ -353,17 +354,17 @@ class TemplateManager:
 <html>
 <head>
     <style>
-        {self.__get_theme_css(character_info.get('world_theme', 'cyberpunk'))}
+        {self.__get_theme_css(character_info.world_theme)}
     </style>
 </head>
 <body>
     <div class="container">
         <header>
             <div class="character-title">
-                <h1>{character_info.get('name', 'Unknown Name')}</h1>
-                <div class="character-subtitle">{character_info.get('race', 'Unknown Race')} • {character_info.get('gender', 'Unknown Gender')}</div>
+                <h1>{character_info.name}</h1>
+                <div class="character-subtitle">{character_info.race} • {character_info.gender}</div>
                 <div class="character-meta">
-                    <div class="meta-item">Universe: {character_info.get('universe', 'Unknown')}</div>
+                    <div class="meta-item">Universe: {character_info.universe}</div>
                     <div class="meta-item">Street Cred: High</div>
                 </div>
             </div>
@@ -372,7 +373,7 @@ class TemplateManager:
 
         <div class="section">
             <h2>Appearance</h2>
-            <p>{character_info['appearance']}</p>
+            <p>{character_info.appearance}</p>
 
             <div class="stat-block">
                 <div class="stat">
@@ -384,7 +385,7 @@ class TemplateManager:
 
         <div class="section">
             <h2>Personality</h2>
-            <p>{character_info['personality']}</p>
+            <p>{character_info.personality}</p>
 
             <div class="stat-block">
                 <div class="stat">
@@ -396,7 +397,7 @@ class TemplateManager:
 
         <div class="section">
             <h2>Backstory</h2>
-            <div>{self.__markdown_to_html(character_info['backstory'])}</div>
+            <div>{self.__markdown_to_html(character_info.backstory)}</div>
 
             <div class="highlight">
                 TODO
@@ -405,7 +406,7 @@ class TemplateManager:
 
         <div class="section">
             <h2>Universe</h2>
-            <p>{character_info['universe']}</p>
+            <p>{character_info.universe}</p>
 
             <div class="stat-block">
                 <div class="stat">
@@ -417,16 +418,16 @@ class TemplateManager:
 {'''
         <div class="section">
             <h2>World Theme</h2>
-            <p>{character_info['world_theme_prompt']}</p>
+            <p>{character_info.world_theme_prompt}</p>
 
             <div class="highlight">
                 TODO
             </div>
         </div>
-''' if 'world_theme' in character_info and character_info['world_theme'] else ''}
+''' if 'world_theme' in character_info and character_info.world_theme else ''}
 
         <div class="footer">
-            Character created with LoreCrafter • ID: {character_info.get('id', 'Unknown')}
+            Character created with LoreCrafter • ID: {character_info.id}
         </div>
     </div>
 </body>
@@ -438,18 +439,18 @@ class TemplateManager:
 <html>
 <head>
     <style>
-        {self.__get_theme_css(character_info.get('world_theme', 'default'))}
+        {self.__get_theme_css(character_info.world_theme)}
     </style>
 </head>
 <body>
     <div class="container">
         <header>
             <div class="character-title">
-                <h1>{character_info.get('name', 'Unknown Name')}</h1>
-                <div class="character-subtitle">{character_info.get('race', 'Unknown Race')} • {character_info.get('gender', 'Unknown Gender')}</div>
+                <h1>{character_info.name}</h1>
+                <div class="character-subtitle">{character_info.race} • {character_info.gender}</div>
                 <div class="character-meta">
-                    <div class="meta-item">Universe: {character_info.get('universe', 'Unknown')}</div>
-                    <div class="meta-item">Alignment: {character_info.get('alignment', 'Neutral')}</div>
+                    <div class="meta-item">Universe: {character_info.universe}</div>
+                    <div class="meta-item">Alignment: {character_info.alignment}</div>
                 </div>
             </div>
             <img src="https://via.placeholder.com/180" alt="Character Portrait"/>
@@ -457,7 +458,7 @@ class TemplateManager:
 
         <div class="section">
             <h2>Appearance</h2>
-            <p>{character_info['appearance']}</p>
+            <p>{character_info.appearance}</p>
 
             <div class="stat-block">
                 <div class="stat">
@@ -469,7 +470,7 @@ class TemplateManager:
 
         <div class="section">
             <h2>Personality</h2>
-            <p>{character_info['personality']}</p>
+            <p>{character_info.personality}</p>
 
             <div class="stat-block">
                 <div class="stat">
@@ -481,16 +482,16 @@ class TemplateManager:
 
         <div class="section">
             <h2>Backstory</h2>
-            <div>{self.__markdown_to_html(character_info['backstory'])}</div>
+            <div>{self.__markdown_to_html(character_info.backstory)}</div>
 
             <div class="highlight">
-                Key moments from {character_info['name']}'s here: TODO.
+                Key moments from {character_info.name}'s here: TODO.
             </div>
         </div>
 
         <div class="section">
             <h2>Universe</h2>
-            <p>{character_info['universe']}</p>
+            <p>{character_info.universe}</p>
 
             <div class="stat-block">
                 <div class="stat">
@@ -502,23 +503,23 @@ class TemplateManager:
 {f'''
         <div class="section">
             <h2>World Theme</h2>
-            <p>{character_info['world_theme']}</p>
+            <p>{character_info.world_theme}</p>
 
             <div class="highlight">
                 TODO
             </div>
         </div>
-''' if 'world_theme_prompt' in character_info and character_info['world_theme_prompt'] else ''}
+''' if 'world_theme_prompt' in character_info and character_info.world_theme_prompt else ''}
 
         <div class="footer">
-            Character created with LoreCrafter • ID: {character_info.get('id', 'Unknown')}
+            Character created with LoreCrafter • ID: {character_info.id}
         </div>
     </div>
 </body>
 </html>
 """
 
-    def get_template(self, character_info: dict) -> str:
+    def get_template(self, character_info: Character) -> str:
         """Get the appropriate template based on character info."""
         template = self.__get_universe_template(character_info)
 
@@ -535,9 +536,9 @@ class TemplateManager:
             return ""
         return markdown.markdown(md_text)
 
-    def __get_world_image_html(self, world_info: WorldDomain) -> str:
+    def __get_world_image_html(self, world_info: World) -> str:
         """Get the HTML for the world image."""
-        image_filename = world_info.get('image_filename')
+        image_filename = world_info.image_filename
 
         if not image_filename:
             return '<img src="https://via.placeholder.com/800x400" alt="World Landscape"/>'
@@ -549,10 +550,10 @@ class TemplateManager:
             absolute_path = os.path.abspath(os.path.join('assets', image_filename))
             return f'<img src="file:///{absolute_path}" alt="Character Portrait"/>'
 
-    def get_world_template(self, world_info: WorldDomain) -> str:
+    def get_world_template(self, world_info: World) -> str:
         """Get the template for world lore."""
         # Get the CSS based on the world theme
-        theme_css = self.__get_theme_css(world_info.get('world_theme', 'default'))
+        theme_css = self.__get_theme_css(world_info.world_theme)
 
         # Get the image HTML
         image_html = self.__get_world_image_html(world_info)
@@ -597,10 +598,10 @@ class TemplateManager:
     <div class="container">
         <header>
             <div class="character-title">
-                <h1>{world_info.get('name', 'Unknown World')}</h1>
-                <div class="character-subtitle">{world_info.get('universe', 'Unknown Universe')} • {world_info.get('world_theme', 'Unknown Theme')}</div>
+                <h1>{world_info.name}</h1>
+                <div class="character-subtitle">{world_info.universe} • {world_info.world_theme}</div>
                 <div class="character-meta">
-                    <div class="meta-item">Tone: {world_info.get('tone', 'Unknown')}</div>
+                    <div class="meta-item">Tone: {world_info.tone}</div>
                 </div>
             </div>
         </header>
@@ -609,19 +610,19 @@ class TemplateManager:
 
         <div class="section">
             <h2>World History</h2>
-            <div>{self.__markdown_to_html(world_info.get('backstory', 'No history available.'))}</div>
+            <div>{self.__markdown_to_html(world_info.backstory)}</div>
         </div>
 
         <div class="section">
             <h2>Timeline</h2>
             <div class="timeline">
-                {self.__markdown_to_html(world_info.get('timeline', 'No timeline available.'))}
+                {self.__markdown_to_html(world_info.timeline)}
             </div>
         </div>
 
 
         <div class="footer">
-            World created with LoreCrafter • ID: {world_info.get('id', 'Unknown')}
+            World created with LoreCrafter • ID: {world_info.id}
         </div>
     </div>
 </body>

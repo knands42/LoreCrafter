@@ -18,3 +18,4 @@ chroma_db/
 # Others
 .TODO
 assets/
+*.egg-info/

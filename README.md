@@ -105,6 +105,27 @@ make test-cov
 
 For more details about the testing approach, see the [Tests README](tests/README.md).
 
+## API Documentation
+
+LoreCrafter provides a RESTful API with comprehensive documentation using Swagger UI and ReDoc.
+
+### Accessing the API Documentation
+
+Once the application is running, you can access the API documentation at:
+
+- **Swagger UI**: [http://localhost:8000/docs](http://localhost:8000/docs)
+- **ReDoc**: [http://localhost:8000/redoc](http://localhost:8000/redoc)
+
+### API Endpoints
+
+The API is organized into the following categories:
+
+- **Characters**: Create, retrieve, and search for characters with AI-generated backstories
+- **Worlds**: Create, retrieve, and search for worlds with AI-generated histories and timelines
+- **Campaigns**: Create and retrieve campaigns with AI-generated settings and hidden elements
+- **Assets**: Retrieve character and world images
+- **PDF**: Generate PDF documents for characters and worlds
+
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.

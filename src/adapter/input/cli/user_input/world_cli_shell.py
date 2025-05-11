@@ -4,7 +4,7 @@ from rich.prompt import Prompt, Confirm
 
 from src.adapter.input.cli.user_input.ShellUtils import ShellUtils
 from src.adapter.output.repository import WorldVectorStore
-from src.application.domain.word_domain import WorldCreateDomain
+from src.application.domain.word_domain import WorldCreation
 
 
 class WorldCLIShell(ShellUtils):
@@ -12,7 +12,7 @@ class WorldCLIShell(ShellUtils):
         super().__init__(console, vector_store)
         self.console = Console()
 
-    def get_world_info(self, get_default: bool = False) -> WorldCreateDomain:
+    def get_world_info(self, get_default: bool = False) -> WorldCreation:
         if get_default:
             return {
                 "name": "Eldoria",

@@ -9,9 +9,6 @@ import pytest
 from typer.testing import CliRunner
 
 from main import app
-from src.application.domain.character_domain import CharacterDomain
-from src.application.domain.word_domain import WorldDomain
-from src.application.domain.campaign_domain import CampaignDomain
 
 
 @pytest.fixture

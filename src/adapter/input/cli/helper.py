@@ -3,9 +3,9 @@ from rich.text import Text
 from rich.markdown import Markdown
 from rich import print
 
-from src.application.domain.campaign_domain import CampaignDomain
-from src.application.domain.character_domain import CharacterDomain
-from src.application.domain.word_domain import WorldDomain
+from src.application.domain.campaign_domain import Campaign
+from src.application.domain.character_domain import Character
+from src.application.domain.word_domain import World
 
 
 def format_section(title: str, content: str, use_markdown: bool = False) -> Panel:
@@ -29,7 +29,7 @@ def format_section(title: str, content: str, use_markdown: bool = False) -> Pane
     )
 
 
-def print_character(character: CharacterDomain):
+def print_character(character: Character):
     print("[bold magenta]✨ Character Overview ✨[/bold magenta]\n")
 
     print(f"[bold]Name:[/bold] {character.get('name') or '[dim]Unknown[/dim]'}")
@@ -49,7 +49,7 @@ def print_character(character: CharacterDomain):
         print(format_section("Backstory", character["backstory"], use_markdown=True))
 
 
-def print_world(world: WorldDomain):
+def print_world(world: World):
     print("[bold magenta]✨ World Overview ✨[/bold magenta]\n")
 
     print(f"[bold]Name:[/bold] {world.get('name') or '[dim]Unknown[/dim]'}")
@@ -65,7 +65,7 @@ def print_world(world: WorldDomain):
         print(format_section("Timeline", world["timeline"], use_markdown=True))
 
 
-def print_campaign(campaign: CampaignDomain):
+def print_campaign(campaign: Campaign):
     print("[bold magenta]✨ Campaign Overview ✨[/bold magenta]\n")
 
     print(f"[bold]Name:[/bold] {campaign.get('name') or '[dim]Unknown[/dim]'}")
