@@ -6,11 +6,23 @@ CHAR=Kirk
 ifeq ($(OS),Windows_NT)
     PYTHON_PATH := .venv\Scripts\python
     PYTEST_PATH := .venv\Scripts\pytest
+    PYTHON_ACTIVATE := .venv\Scripts\activate
 else
     PYTHON_PATH := .venv/bin/python
     PYTEST_PATH := .venv/bin/pytest
+    PYTHON_ACTIVATE := .venv/bin/activate
 endif
 
+# Setup commands
+create-env:
+	uv venv
+	
+install-deps:
+	source $(PYTHON_ACTIVATE) | . $(PYTHON_ACTIVATE)
+	uv pip install .
+	uv pip install .[test]
+
+# App commands
 create-character:
 	$(PYTHON_PATH) .\main.py create-character
 

@@ -5,6 +5,9 @@ __pycache__/*
 venv/*
 build/
 
+# IDEs
+.idea/  
+
 # Env files
 .env*
 !.env.example

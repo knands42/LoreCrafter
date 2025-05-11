@@ -49,7 +49,8 @@ cd LoreCrafter
 
 2. Install the required dependencies:
 ```bash
-uv pip install -r pyproject.toml
+uv pip install .
+uv pip install .[test]
 ```
 
 3. Set up environment variables:
