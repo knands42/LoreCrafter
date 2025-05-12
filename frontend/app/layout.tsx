@@ -1,9 +1,11 @@
 import type {Metadata} from "next";
 import {Geist, Geist_Mono} from "next/font/google";
 import "./globals.css";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import React from "react";
+import {ThemeProvider} from "next-themes";
+import {Navbar} from "@/components/Navbar";
+import {Footer} from "@/components/Footer";
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,20 +27,21 @@ export default function RootLayout(
   {children}: Readonly<{ children: React.ReactNode }>
 ) {
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+    // TODO: what suppressHydrationWarning is?
+    <html lang="en" suppressHydrationWarning>
+    <body
+      className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+    >
+    <ThemeProvider attribute="class" enableSystem defaultTheme="system">
       <div className="flex flex-col min-h-screen">
-          <Navbar />
-          <main className="flex-grow bg-gray-50 dark:bg-gray-800">
-              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                  {children}
-              </div>
-          </main>
-          <Footer />
+        <Navbar/>
+        <main className="flex-grow bg-gray-50 dark:bg-gray-800">
+          {children}
+        </main>
+        <Footer/>
       </div>
-      </body>
+    </ThemeProvider>
+    </body>
     </html>
   );
 }
