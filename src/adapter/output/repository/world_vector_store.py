@@ -35,7 +35,7 @@ class WorldVectorStore:
             page_content=world_json,
             metadata={
                 "id": str(world_info.id),
-                "name": world_info.get("name") or "unknown"
+                "name": world_info.name
             }
         )
 

@@ -30,7 +30,7 @@ class CharacterVectorStore:
             metadata={
                 "id": str(character.id),
                 "name": character.name or "unknown",
-                "world_linked": character.linked_world_id or "unknown",
+                "world_linked": str(character.linked_world_id) or "unknown",
             }
         )
         

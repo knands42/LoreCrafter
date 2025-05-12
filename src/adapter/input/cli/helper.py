@@ -32,50 +32,50 @@ def format_section(title: str, content: str, use_markdown: bool = False) -> Pane
 def print_character(character: Character):
     print("[bold magenta]✨ Character Overview ✨[/bold magenta]\n")
 
-    print(f"[bold]Name:[/bold] {character.get('name') or '[dim]Unknown[/dim]'}")
-    print(f"[bold]Race:[/bold] {character.get('race') or '[dim]Unknown[/dim]'}")
-    print(f"[bold]Universe:[/bold] {character.get('universe') or '[dim]Unknown[/dim]'}")
-    print(f"[bold]Theme:[/bold] {character.get('world_theme') or '[dim]Unknown[/dim]'}")
-    print(f"[bold]Tone:[/bold] {character.get('tone') or '[dim]Unknown[/dim]'}")
+    print(f"[bold]Name:[/bold] {character.name or '[dim]Unknown[/dim]'}")
+    print(f"[bold]Race:[/bold] {character.race or '[dim]Unknown[/dim]'}")
+    print(f"[bold]Universe:[/bold] {character.universe or '[dim]Unknown[/dim]'}")
+    print(f"[bold]Theme:[/bold] {character.world_theme or '[dim]Unknown[/dim]'}")
+    print(f"[bold]Tone:[/bold] {character.tone or '[dim]Unknown[/dim]'}")
     print()
 
-    if character.get("appearance"):
+    if character.appearance:
         print(format_section("Appearance", character["appearance"]))
 
-    if character.get("personality"):
+    if character.personality:
         print(format_section("Personality", character["personality"]))
 
-    if character.get("backstory"):
+    if character.backstory:
         print(format_section("Backstory", character["backstory"], use_markdown=True))
 
 
 def print_world(world: World):
     print("[bold magenta]✨ World Overview ✨[/bold magenta]\n")
 
-    print(f"[bold]Name:[/bold] {world.get('name') or '[dim]Unknown[/dim]'}")
-    print(f"[bold]Universe:[/bold] {world.get('universe') or '[dim]Unknown[/dim]'}")
-    print(f"[bold]Theme:[/bold] {world.get('world_theme') or '[dim]Unknown[/dim]'}")
-    print(f"[bold]Tone:[/bold] {world.get('tone') or '[dim]Unknown[/dim]'}")
+    print(f"[bold]Name:[/bold] {world.name or '[dim]Unknown[/dim]'}")
+    print(f"[bold]Universe:[/bold] {world.universe or '[dim]Unknown[/dim]'}")
+    print(f"[bold]Theme:[/bold] {world.world_theme or '[dim]Unknown[/dim]'}")
+    print(f"[bold]Tone:[/bold] {world.tone or '[dim]Unknown[/dim]'}")
     print()
 
-    if world.get("backstory"):
-        print(format_section("World History", world["backstory"], use_markdown=True))
+    if world.backstory:
+        print(format_section("World History", world.backstory, use_markdown=True))
 
-    if world.get("timeline"):
-        print(format_section("Timeline", world["timeline"], use_markdown=True))
+    if world.timeline:
+        print(format_section("Timeline", world.timeline, use_markdown=True))
 
 
 def print_campaign(campaign: Campaign):
     print("[bold magenta]✨ Campaign Overview ✨[/bold magenta]\n")
 
-    print(f"[bold]Name:[/bold] {campaign.get('name') or '[dim]Unknown[/dim]'}")
-    print(f"[bold]Universe:[/bold] {campaign.get('universe') or '[dim]Unknown[/dim]'}")
-    print(f"[bold]Theme:[/bold] {campaign.get('world_theme') or '[dim]Unknown[/dim]'}")
-    print(f"[bold]Tone:[/bold] {campaign.get('tone') or '[dim]Unknown[/dim]'}")
+    print(f"[bold]Name:[/bold] {campaign.name or '[dim]Unknown[/dim]'}")
+    print(f"[bold]Universe:[/bold] {campaign.universe or '[dim]Unknown[/dim]'}")
+    print(f"[bold]Theme:[/bold] {campaign.world_theme or '[dim]Unknown[/dim]'}")
+    print(f"[bold]Tone:[/bold] {campaign.tone or '[dim]Unknown[/dim]'}")
     print()
 
-    if campaign.get("campaign"):
-        print(format_section("Campaign Setting", campaign["campaign"], use_markdown=True))
+    if campaign.campaign:
+        print(format_section("Campaign Setting", campaign.campaign, use_markdown=True))
 
-    if campaign.get("hidden_elements"):
-        print(format_section("Hidden Elements", campaign["hidden_elements"], use_markdown=True))
+    if campaign.hidden_elements:
+        print(format_section("Hidden Elements", campaign.hidden_elements, use_markdown=True))

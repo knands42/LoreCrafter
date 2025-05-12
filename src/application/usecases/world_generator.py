@@ -28,10 +28,10 @@ class WorldGenerator:
         world_create_domain.tone = get_story_tone(world_create_domain.tone)
 
         history_chain = create_world_history_prompt(world_create_domain.backstory)
-        created_history = (history_chain | self.llm | self.parser).invoke(world_create_domain)
+        created_history = (history_chain | self.llm | self.parser).invoke(world_create_domain.__dict__)
 
         timeline_chain = create_timeline_prompt(world_create_domain.timeline)
-        timeline_history = (timeline_chain | self.llm | self.parser).invoke(world_create_domain)
+        timeline_history = (timeline_chain | self.llm | self.parser).invoke(world_create_domain.__dict__)
 
         image_filename = self.__generate_image(created_history)
 

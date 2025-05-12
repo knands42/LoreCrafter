@@ -38,7 +38,7 @@ class Campaign(BaseModel):
     universe: str = Field(..., description="The universe the campaign belongs to")
     world_theme: str = Field(..., description="The theme of the campaign's world")
     tone: str = Field(..., description="The tone of the campaign")
-    campaign: Optional[str] = Field(None, description="The campaign's description")
+    campaign: str = Field(None, description="The campaign's description")
     hidden_elements: Optional[str] = Field(None, description="Hidden elements of the campaign")
 
     class Config:
