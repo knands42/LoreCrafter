@@ -1,5 +1,5 @@
 ---
-trigger: always_on
+trigger: manual
 ---
 
 - update existing integration tests with new functionalities (if needed)

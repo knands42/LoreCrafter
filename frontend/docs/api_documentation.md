@@ -16,6 +16,7 @@ This documentation describes the API endpoints for a frontend application that w
 **Method:** `POST`  
 **Description:** Creates a new character with AI-generated backstory, personality, and appearance.
 
+
 **Request Payload:**
 ```json
 {
@@ -27,6 +28,7 @@ This documentation describes the API endpoints for a frontend application that w
   "universe": "D&D",
   "world_theme": "fantasy",
   "tone": "Epic",
+  "alignment": "Chaotic Good",
   "custom_story": "Kirk was born in a small village...",  // Optional
   "linked_world_id": "uuid-of-world"  // Optional
 }
