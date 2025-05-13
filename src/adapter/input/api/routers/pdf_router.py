@@ -1,11 +1,11 @@
 from fastapi import APIRouter, HTTPException, Depends
 from fastapi.responses import FileResponse
-from pathlib import Path
 import json
 from uuid import UUID
 import tempfile
 
-from src.adapter.output.repository import CharacterVectorStore, WorldVectorStore
+from src.adapter.output.vector_db.character_vector_store import CharacterVectorStore
+from src.adapter.output.vector_db.world_vector_store import WorldVectorStore
 from src.adapter.output.pdf import create_character_pdf, create_world_pdf
 
 # Create router

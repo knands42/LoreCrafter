@@ -5,8 +5,7 @@ from uuid import uuid4
 from langchain_core.output_parsers import StrOutputParser
 
 from src.adapter.output.llm.llm_factory import LLMFactory
-from src.adapter.output.pdf import create_world_pdf
-from src.adapter.output.repository import WorldVectorStore
+from src.adapter.output.vector_db.world_vector_store import WorldVectorStore
 from src.application.domain.word_domain import World, WorldCreation
 from src.application.prompts import get_world_theme, get_universe, get_story_tone, create_world_history_prompt, \
     create_timeline_prompt, get_world_image_prompt
@@ -46,7 +45,6 @@ class WorldGenerator:
             image_filename=image_filename
         )
         self.vector_db.store(world_domain)
-        create_world_pdf(world_domain, "world_lore.pdf")
 
         return world_domain
 

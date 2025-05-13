@@ -6,7 +6,7 @@ from unittest.mock import patch
 
 import pytest
 
-from src.adapter.output.repository import CharacterVectorStore
+from src.adapter.output.vector_db.character_vector_store import CharacterVectorStore
 from src.application.usecases import CharacterGenerator
 
 

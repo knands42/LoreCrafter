@@ -17,10 +17,11 @@ git clone https://github.com/yourusername/LoreCrafter.git
 cd LoreCrafter
 ```
 
-2. Install the required dependencies:
+2. Install the required dependencies and set up the environment:
 ```bash
 make create-env
 make install-deps
+make generate-keys
 ```
 
 3. Set up environment variables:

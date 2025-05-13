@@ -6,7 +6,7 @@ from rich.console import Console
 from rich.prompt import Prompt
 from rich.table import Table
 
-from src.adapter.output.repository.world_vector_store import WorldVectorStore
+from src.adapter.output.vector_db.world_vector_store import WorldVectorStore
 
 
 class ShellUtils(ABC):

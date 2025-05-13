@@ -1,9 +1,8 @@
-import json
 from uuid import UUID
 
 from fastapi import APIRouter, HTTPException, Depends
 
-from src.adapter.output.repository import WorldVectorStore
+from src.adapter.output.vector_db.world_vector_store import WorldVectorStore
 from src.application.domain.campaign_domain import CampaignCreation, Campaign
 from src.application.usecases import CampaignGenerator
 

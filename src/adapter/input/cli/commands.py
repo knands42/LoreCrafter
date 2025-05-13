@@ -11,7 +11,8 @@ from src.adapter.input.cli.user_input.campaign_cli_shell import CampaignCLIShell
 from src.adapter.input.cli.user_input.char_cli_shell import CharCLIShell
 from src.adapter.input.cli.user_input.world_cli_shell import WorldCLIShell
 from src.adapter.output.llm import LLMFactory
-from src.adapter.output.repository import CharacterVectorStore, WorldVectorStore
+from src.adapter.output.vector_db.character_vector_store import CharacterVectorStore
+from src.adapter.output.vector_db.world_vector_store import WorldVectorStore
 from src.application.usecases import CharacterGenerator, WorldGenerator, CampaignGenerator
 
 app = typer.Typer()

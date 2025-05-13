@@ -22,6 +22,10 @@ install-deps:
 	uv pip install .
 	uv pip install .[test]
 
+generate-keys:
+	openssl genpkey -algorithm Ed25519 -out private_key.pem
+	openssl pkey -in private_key.pem -pubout -out public_key.pem
+
 # App commands
 create-character:
 	$(PYTHON_PATH) main.py create-character

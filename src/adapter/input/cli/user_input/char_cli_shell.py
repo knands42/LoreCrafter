@@ -1,11 +1,9 @@
-from typing import Optional
-
 from rich import print
 from rich.console import Console
 from rich.prompt import Prompt, Confirm
 
 from src.adapter.input.cli.user_input.ShellUtils import ShellUtils
-from src.adapter.output.repository.world_vector_store import WorldVectorStore
+from src.adapter.output.vector_db.world_vector_store import WorldVectorStore
 from src.application.domain.character_domain import CharacterCreation
 
 

@@ -19,3 +19,4 @@ chroma_db/
 .TODO
 assets/
 *.egg-info/
+*.pem

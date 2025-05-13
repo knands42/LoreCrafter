@@ -1,9 +1,8 @@
 from fastapi import APIRouter, HTTPException, Depends
 from typing import List, Optional
-import json
 from uuid import UUID
 
-from src.adapter.output.repository import WorldVectorStore
+from src.adapter.output.vector_db.world_vector_store import WorldVectorStore
 from src.application.domain.word_domain import WorldCreation, World
 from src.application.usecases import WorldGenerator
 

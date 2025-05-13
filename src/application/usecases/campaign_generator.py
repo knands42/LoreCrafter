@@ -3,7 +3,7 @@ from uuid import uuid4
 from langchain_core.output_parsers import StrOutputParser
 
 from src.adapter.output.llm import LLMFactory
-from src.adapter.output.repository import WorldVectorStore
+from src.adapter.output.vector_db.world_vector_store import WorldVectorStore
 from src.application.domain.campaign_domain import CampaignCreation, Campaign
 from src.application.prompts import create_campaign_setting_prompt, create_hidden_elements_prompt
 

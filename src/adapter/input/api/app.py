@@ -7,10 +7,8 @@ from pathlib import Path
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.openapi.docs import get_swagger_ui_html, get_redoc_html
-from fastapi.openapi.utils import get_openapi
 
-from src.adapter.input.api.routers import character_router, world_router, campaign_router, asset_router, pdf_router
+from src.adapter.input.api.routers import character_router, world_router, campaign_router, asset_router, pdf_router, users_router
 
 APP_TITLE = "LoreCrafter API"
 APP_DESCRIPTION = "API for LoreCrafter, a tool that helps users create rich backstories for tabletop role-playing game characters, worlds, and campaigns using AI."
@@ -21,8 +19,8 @@ app = FastAPI(
     title=APP_TITLE,
     description=APP_DESCRIPTION,
     version=APP_VERSION,
-    docs_url="/docs",  # Custom docs URL
-    redoc_url="/redoc",  # Custom ReDoc URL
+    docs_url="/docs",
+    redoc_url="/redoc",
     openapi_tags=[
         {
             "name": "characters",
@@ -44,6 +42,10 @@ app = FastAPI(
             "name": "pdf",
             "description": "Operations with PDFs. Generate PDF documents for characters and worlds."
         },
+        {
+            "name": "users",
+            "description": "Operations with users. Create users, sign in, and manage authentication."
+        },
     ]
 )
 
@@ -62,6 +64,7 @@ app.include_router(world_router.router, prefix="/api", tags=["worlds"])
 app.include_router(campaign_router.router, prefix="/api", tags=["campaigns"])
 app.include_router(asset_router.router, prefix="/api", tags=["assets"])
 app.include_router(pdf_router.router, prefix="/api", tags=["pdf"])
+app.include_router(users_router.router, prefix="/api", tags=["users"])
 
 # Mount assets directory
 assets_dir = Path("assets")
@@ -86,4 +89,3 @@ async def root():
 @app.get("/healthcheck")
 async def healthcheck():
     return {"message": "API is healthy"}
-

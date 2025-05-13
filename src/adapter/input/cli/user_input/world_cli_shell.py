@@ -3,7 +3,7 @@ from rich.console import Console
 from rich.prompt import Prompt, Confirm
 
 from src.adapter.input.cli.user_input.ShellUtils import ShellUtils
-from src.adapter.output.repository import WorldVectorStore
+from src.adapter.output.vector_db.world_vector_store import WorldVectorStore
 from src.application.domain.word_domain import WorldCreation
 
 
@@ -14,14 +14,14 @@ class WorldCLIShell(ShellUtils):
 
     def get_world_info(self, get_default: bool = False) -> WorldCreation:
         if get_default:
-            return {
-                "name": "Eldoria",
-                "universe": "D&D",
-                "world_theme": "fantasy",
-                "tone": "Epic",
-                "backstory": None,
-                "timeline": None,
-            }
+            return WorldCreation(
+                name="Eldoria",
+                universe="D&D",
+                world_theme="fantasy",
+                tone="Epic",
+                backstory=None,
+                timeline=None,
+            )
 
         print("\n[bold magenta]Let's create your world![/bold magenta]")
 
@@ -62,11 +62,11 @@ class WorldCLIShell(ShellUtils):
         custom_timeline = self.multiline_input(
             "Enter your world's timeline (press Enter twice to finish)") if has_custom_timeline else None
 
-        return {
-            "name": name,
-            "universe": universe,
-            "world_theme": theme,
-            "tone": tone,
-            "backstory": custom_history,
-            "timeline": custom_timeline,
-        }
+        return WorldCreation(
+            name=name,
+            universe=universe,
+            world_theme=theme,
+            tone=tone,
+            backstory=custom_history,
+            timeline=custom_timeline
+        )
