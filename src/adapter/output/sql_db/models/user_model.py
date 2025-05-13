@@ -2,7 +2,7 @@ from datetime import datetime, UTC
 
 from peewee import Model, CharField, BooleanField, DateTimeField
 
-from src.adapter.output.sql_db.config.config import get_db
+from src.adapter.output.sql_db.config.config_db import get_db
 
 
 class UserModel(Model):

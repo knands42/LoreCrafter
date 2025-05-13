@@ -90,24 +90,3 @@ def create_campaign(
     campaign_result = campaign_generator.generate(campaign_info)
 
     print_campaign(campaign_result)
-
-
-@app.command()
-def api(
-    host: str = "127.0.0.1",
-    port: int = 8000,
-    reload: bool = False
-):
-    """
-    Run the FastAPI server for the LoreCrafter API.
-    """
-    print("[bold cyan]🚀 Starting LoreCrafter API server...[/bold cyan]")
-
-    # Import here to avoid circular imports
-
-    uvicorn.run(
-        "src.adapter.input.api.app:app",
-        host=host,
-        port=port,
-        reload=reload
-    )

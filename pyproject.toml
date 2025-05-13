@@ -3,7 +3,7 @@ name = "lorecrafter"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.11"
 dependencies = [
     "dotenv>=0.9.9",
     "langchain>=0.3.23",
@@ -17,9 +17,10 @@ dependencies = [
     "peewee>=3.17.9",
     "psycopg2>=2.9.10",
     "pyargon2>=1.1.0",
-    "pydantic>=2.11.3",
+    "pydantic[email]>=2.11.3",
     "pyseto>=1.8.3",
     "python-dotenv>=1.1.0",
+    "python-multipart>=0.0.20",
     "rich>=14.0.0",
     "typer>=0.15.2",
     "weasyprint>=65.1",

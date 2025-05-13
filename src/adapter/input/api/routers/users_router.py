@@ -3,7 +3,8 @@ from fastapi import APIRouter, Depends, HTTPException, Response, Cookie
 from fastapi.security import OAuth2PasswordRequestForm
 from typing import Optional
 
-from src.adapter.output.sql_db.config import get_db, init_database
+from src.adapter.output.sql_db.config.config_db import get_db, init_database
+from src.adapter.output.sql_db.models.user_model import UserModel
 from src.application.domain.user_domain import UserCreation as UserCreationSchema, User, UserToken
 from src.application.usecases.user_creation import UserCreation
 
@@ -12,7 +13,7 @@ router = APIRouter()
 
 def get_sql_db():
     db = get_db()
-    init_database(db)
+    init_database(db, [UserModel])
     return db
 
 
