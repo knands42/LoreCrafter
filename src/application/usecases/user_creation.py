@@ -28,18 +28,24 @@ class UserCreation:
         self.__private_key = Key.new(version=4, purpose="public", key=private_key_pem)
         self.__public_key = Key.new(version=4, purpose="public", key=public_key_pem)
 
-    def create_user(self, user_data: UserCreationSchema) -> User:
+    def create_user(self, user_data: UserCreationSchema) -> Optional[User]:
         """Create a new user with hashed password."""
+        existing_user = self.get_user_by_username(user_data.username)
+        if existing_user:
+            return None
+
         password_hash = hash(user_data.password, self.salt)
 
-        user = UserModel.create(
-            username=user_data.username,
-            email=user_data.email,
-            password_hash=password_hash,
-            is_active=True,
-            created_at=datetime.now(UTC),
-            updated_at=datetime.now(UTC)
-        )
+        try:
+            user = UserModel.create(
+                username=user_data.username,
+                email=user_data.email,
+                password_hash=password_hash,
+                is_active=True,
+            )
+        except Exception as e:
+            print(f"Error creating user: {str(e)}")
+            return None
 
         return User(
             id=user.id,

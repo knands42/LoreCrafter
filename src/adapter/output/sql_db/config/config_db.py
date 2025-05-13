@@ -1,12 +1,21 @@
-from psycopg2 import connect
 import os
+
+from peewee import PostgresqlDatabase
 
 
 def get_db():
-    db_url = os.getenv('DATABASE_URL', 'postgresql://localhost/lorecrafter')
-    return connect(db_url)
+    db = PostgresqlDatabase(
+        os.getenv("DATABASE_NAME", "lorecrafter"),
+        user=os.getenv("DATABASE_USER", "postgres"),
+        password=os.getenv("DATABASE_PASSWORD", "postgres"),
+        host=os.getenv("DATABASE_HOST", "localhost"),
+        port=os.getenv("DATABASE_PORT", "5432"),
+    )
 
-def init_database(db, models):
     db.connect()
+    return db
+
+
+def initialize_db(models):
+    db = get_db()
     db.create_tables(models)
-    db.close()

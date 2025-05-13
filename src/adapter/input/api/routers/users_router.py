@@ -1,23 +1,25 @@
 # Dependencies
-from fastapi import APIRouter, Depends, HTTPException, Response, Cookie
-from fastapi.security import OAuth2PasswordRequestForm
 from typing import Optional
 
-from src.adapter.output.sql_db.config.config_db import get_db, init_database
-from src.adapter.output.sql_db.models.user_model import UserModel
+from adapter.output.sql_db.models.user_model import UserModel
+from fastapi import APIRouter, Depends, HTTPException, Response, Cookie
+from fastapi.security import OAuth2PasswordRequestForm
+
+from src.adapter.output.sql_db.config.config_db import get_db, initialize_db
 from src.application.domain.user_domain import UserCreation as UserCreationSchema, User, UserToken
 from src.application.usecases.user_creation import UserCreation
 
 # Create router
 router = APIRouter()
 
+
 def get_sql_db():
     db = get_db()
-    init_database(db, [UserModel])
+    initialize_db(UserModel)
     return db
 
 
-def get_user_creation(db = Depends(get_sql_db)):
+def get_user_creation(db=Depends(get_sql_db)):
     return UserCreation(db)
 
 
@@ -34,13 +36,11 @@ async def create_user(
     The password is hashed using argon2 before being stored in the database.
     """
     try:
-        # Check if username already exists
-        existing_user = user_creation.get_user_by_username(user_data.username)
-        if existing_user:
-            raise HTTPException(status_code=400, detail="Username already exists")
+        result = user_creation.create_user(user_data)
+        if not result:
+            raise HTTPException(status_code=400, detail="User already exists")
 
-        # Create the user
-        return user_creation.create_user(user_data)
+        return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error creating user: {str(e)}")
 
