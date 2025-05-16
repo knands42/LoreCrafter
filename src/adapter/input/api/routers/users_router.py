@@ -1,7 +1,6 @@
 # Dependencies
 from typing import Optional
 
-from adapter.output.sql_db.models.user_model import UserModel
 from fastapi import APIRouter, Depends, HTTPException, Response, Cookie
 from fastapi.security import OAuth2PasswordRequestForm
 
@@ -15,7 +14,6 @@ router = APIRouter()
 
 def get_sql_db():
     db = get_db()
-    initialize_db(UserModel)
     return db
 
 

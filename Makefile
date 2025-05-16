@@ -26,6 +26,13 @@ generate-keys:
 	openssl genpkey -algorithm Ed25519 -out private_key.pem
 	openssl pkey -in private_key.pem -pubout -out public_key.pem
 
+# Migration commands
+new_migration:
+	$(PYTHON_PATH) -m yoyo new --sql src/adapter/output/sql_db/migrations
+
+migrate:
+	$(PYTHON_PATH) -m yoyo apply src/adapter/output/sql_db/migrations
+
 # App commands
 create-character:
 	$(PYTHON_PATH) main.py create-character

@@ -15,7 +15,7 @@ dependencies = [
     "markdown>=3.5.1",
     "openai>=1.75.0",
     "peewee==3.17.0",
-    "psycopg2-binary==2.9.9",
+    "psycopg2==2.9.10",
     "pyargon2>=1.1.0",
     "pydantic[email]>=2.11.3",
     "pyseto>=1.8.3",
@@ -24,6 +24,7 @@ dependencies = [
     "rich>=14.0.0",
     "typer>=0.15.2",
     "weasyprint>=65.1",
+    "yoyo-migrations>=9.0.0",
 ]
 
 [project.optional-dependencies]

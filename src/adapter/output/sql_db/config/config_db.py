@@ -14,8 +14,3 @@ def get_db():
 
     db.connect()
     return db
-
-
-def initialize_db(models):
-    db = get_db()
-    db.create_tables(models)
