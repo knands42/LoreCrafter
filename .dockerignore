@@ -1,5 +1,7 @@
 # Python
 __pycache__/
+*.pyo
+*.pyd
 *.py[cod]
 *$py.class
 *.so
@@ -60,3 +62,16 @@ data/
 .pytest_cache/
 .coverage
 htmlcov/
+
+# Others
+.git
+.github
+.Python
+.DS_Store
+.coverage
+htmlcov/
+.pytest_cache/
+.coverage.*
+*.log
+chroma_db/
+
