@@ -1,8 +1,12 @@
+include .env.example
+
+####### setup commands
 # Generate Ed25519 key pair for PASETO tokens
-generate-keys:
+generate-paseto-keys:
 	openssl genpkey -algorithm Ed25519 -out private_key.pem
 	openssl pkey -in private_key.pem -pubout -out public_key.pem
 
+####### application commands #######
 # Build the application
 build:
 	go build -o bin/lorecrafter .
@@ -19,7 +23,7 @@ test:
 clean:
 	rm -rf bin/
 
-# Docker commands
+####### docker commands #######
 docker-build:
 	docker build -t lorecrafter:latest .
 
@@ -35,32 +39,25 @@ docker-compose-down:
 docker-compose-logs:
 	docker-compose logs -f
 
-# Database migration commands
-migrate-create:
-	@read -p "Enter migration name: " name; \
-	mkdir -p migrations; \
-	touch migrations/$(shell date +%Y%m%d%H%M%S)_$$name.up.sql; \
-	touch migrations/$(shell date +%Y%m%d%H%M%S)_$$name.down.sql
+####### migration commands #######
+# e.g., make migration-create NAME=create-users
+migration-create:
+	migrate create -ext sql -dir internal/adapter/database/migrations -seq $(NAME)
 
-migrate-up:
-	@echo "Running migrations up..."
-	@echo "This is a placeholder. Replace with your actual migration command."
-	# Example: migrate -path=./migrations -database=postgres://postgres:postgres@localhost:5432/lorecrafter?sslmode=disable up
+migration-up:
+	migrate -path internal/adapter/database/migrations -database "$(POSTGRES_URL)" up
+
+migrate-up1:
+	migrate -path internal/adapter/database/migrations -database "$(POSTGRES_URL)" -verbose up 1
 
 migrate-down:
-	@echo "Running migrations down..."
-	@echo "This is a placeholder. Replace with your actual migration command."
-	# Example: migrate -path=./migrations -database=postgres://postgres:postgres@localhost:5432/lorecrafter?sslmode=disable down 1
+	migrate -path internal/adapter/database/migrations -database "$(POSTGRES_URL)" -verbose down
+
+migrate-down1:
+	migrate -path internal/adapter/database/migrations -database "$(POSTGRES_URL)" -verbose down 1
 
 # Generate SQLC code
 sqlc-generate:
 	sqlc generate
 
-# Setup development environment
-setup: generate-keys
-	@echo "Setting up development environment..."
-	go mod download
-	@echo "Development environment setup complete."
-
-
-.PHONY: generate-keys build run test clean docker-build docker-run docker-compose-up docker-compose-down docker-compose-logs migrate-create migrate-up migrate-down sqlc-generate setup help
+.PHONY: sqlc-generate, migrate-down, migrate-down1, migrate-up1, migration-up, migration-create, docker-build

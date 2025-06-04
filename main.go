@@ -45,7 +45,7 @@ func main() {
 
 	// Set up HTTP server
 	server := api.NewServer(ServerPort)
-	api.SetupRoutes(server, authHandler)
+	api.SetupRoutes(server, authHandler, authUseCase)
 
 	// Start the server in a goroutine
 	go func() {

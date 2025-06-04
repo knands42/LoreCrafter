@@ -2,7 +2,7 @@ version: "2"
 sql:
   - engine: "postgresql"
     queries: "internal/adapter/database/queries/"
-    schema: "internal/adapter/database/schema/"
+    schema: "internal/adapter/database/migrations/"
     gen:
       go:
         package: "sqlc"
