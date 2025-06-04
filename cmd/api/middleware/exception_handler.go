@@ -2,8 +2,8 @@ package middleware
 
 import (
 	"errors"
-	httputils "github.com/knands42/lorecrafter/cmd/api/utils"
-	"github.com/knands42/lorecrafter/internal/utils"
+	"github.com/knands42/lorecrafter/cmd/api/utils"
+	utils2 "github.com/knands42/lorecrafter/internal/utils"
 	"net/http"
 )
 
@@ -16,14 +16,14 @@ func ErrorHandlerMiddleware(next HandlerFuncWithError) http.HandlerFunc {
 			return
 		}
 
-		var valErr *utils.ValidationError
+		var valErr *utils2.ValidationError
 		switch {
 		case errors.As(err, &valErr):
-			httputils.WriteJSONValidationError(w, valErr.Errors)
+			utils.WriteJSONValidationError(w, valErr.Errors)
 			return
 
 		default:
-			httputils.WriteJSONError(w, http.StatusInternalServerError, "Failed to register user")
+			utils.WriteJSONError(w, http.StatusInternalServerError, "Failed to register user")
 			return
 		}
 	}

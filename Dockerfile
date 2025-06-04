@@ -26,12 +26,10 @@ RUN apk --no-cache add ca-certificates
 # Copy the binary from the builder stage
 COPY --from=builder /app/lorecrafter .
 
-# Copy the key files
-COPY --from=builder /app/private_key.pem .
-COPY --from=builder /app/public_key.pem .
+RUN chmod +x /app/lorecrafter
 
 # Expose the application port
 EXPOSE 8080
 
 # Run the application
-CMD ["./lorecrafter"]
+CMD ["/app/lorecrafter"]

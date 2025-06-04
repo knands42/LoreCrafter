@@ -5,12 +5,15 @@ import (
 	"fmt"
 	middleware2 "github.com/knands42/lorecrafter/cmd/api/middleware"
 	"github.com/knands42/lorecrafter/cmd/api/routes"
+	_ "github.com/knands42/lorecrafter/cmd/api/docs" // Import the docs package
 	"github.com/knands42/lorecrafter/internal/usecases"
 	"net/http"
 	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	httpSwagger "github.com/swaggo/http-swagger"
+	_ "github.com/swaggo/swag"
 )
 
 // Server represents the HTTP server
@@ -57,6 +60,11 @@ func (s *Server) Shutdown(ctx context.Context) error {
 
 // SetupRoutes sets up the routes for the server
 func SetupRoutes(server *Server, authHandler *routes.AuthHandler, authUseCase *usecases.AuthUseCase) {
+	// Swagger UI
+	server.router.Get("/swagger/*", httpSwagger.Handler(
+		httpSwagger.URL("/swagger/doc.json"), // The URL pointing to API definition
+	))
+
 	// API routes
 	server.router.Route("/api", func(r chi.Router) {
 		// Auth routes

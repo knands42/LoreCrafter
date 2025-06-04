@@ -30,13 +30,13 @@ docker-build:
 docker-run:
 	docker run -p 8080:8080 --env-file .env lorecrafter:latest
 
-docker-compose-up:
-	docker-compose up -d
+docker-up:
+	docker-compose up
 
-docker-compose-down:
+docker-down:
 	docker-compose down
 
-docker-compose-logs:
+docker-logs:
 	docker-compose logs -f
 
 ####### migration commands #######
@@ -60,4 +60,8 @@ migrate-down1:
 sqlc-generate:
 	sqlc generate
 
-.PHONY: sqlc-generate, migrate-down, migrate-down1, migrate-up1, migration-up, migration-create, docker-build
+# Generate Swagger documentation
+swagger-generate:
+	swag init -g cmd/api/docs.go -o cmd/api/docs
+
+.PHONY: sqlc-generate, swagger-generate, migrate-down, migrate-down1, migrate-up1, migration-up, migration-create, docker-build

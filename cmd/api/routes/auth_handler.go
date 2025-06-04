@@ -32,6 +32,17 @@ func (h *AuthHandler) RegisterRoutes(r chi.Router) {
 }
 
 // Register handles user registration
+// @Summary Register a new user
+// @Description Register a new user with the provided credentials
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param input body domain.UserCreationInput true "User registration details"
+// @Success 201 {object} domain.AuthOutput "User registered successfully"
+// @Failure 400 {object} utils.ErrorResponse "Invalid request body"
+// @Failure 409 {object} utils.ErrorResponse "User already exists"
+// @Failure 500 {object} utils.ErrorResponse "Internal server error"
+// @Router /auth/register [post]
 func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) error {
 	var input domain.UserCreationInput
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
@@ -58,6 +69,17 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) error {
 }
 
 // Login handles user login
+// @Summary Login a user
+// @Description Login a user with the provided credentials
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param input body domain.LoginInput true "User login details"
+// @Success 200 {object} domain.AuthOutput "User logged in successfully"
+// @Failure 400 {object} utils.ErrorResponse "Invalid request body"
+// @Failure 401 {object} utils.ErrorResponse "Invalid credentials"
+// @Failure 500 {object} utils.ErrorResponse "Internal server error"
+// @Router /auth/login [post]
 func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) error {
 	var input domain.LoginInput
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
