@@ -1,6 +1,9 @@
 package utils
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
 
 type ValidationError struct {
 	Errors []string
@@ -11,6 +14,7 @@ func (e *ValidationError) Error() string {
 }
 
 func (e *ValidationError) Is(target error) bool {
-	_, ok := target.(*ValidationError)
+	var validationError *ValidationError
+	ok := errors.As(target, &validationError)
 	return ok
 }

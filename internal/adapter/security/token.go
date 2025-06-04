@@ -2,6 +2,7 @@ package security
 
 import (
 	"crypto/ed25519"
+	"crypto/x509"
 	"encoding/base64"
 	"encoding/pem"
 	"errors"
@@ -126,27 +127,29 @@ func loadPublicKey(key string) (ed25519.PublicKey, error) {
 }
 
 func parsePrivateKey(der []byte) (ed25519.PrivateKey, error) {
-	// TODO: In a production environment, you might want to use x509.ParsePKCS8PrivateKey
-	if len(der) < ed25519.PrivateKeySize {
+	key, err := x509.ParsePKCS8PrivateKey(der)
+	if err != nil {
+		return nil, err
+	}
+
+	ed25519Key := key.(ed25519.PrivateKey)
+	if len(ed25519Key) < ed25519.PrivateKeySize {
 		return nil, ErrInvalidKey
 	}
 
-	// Extract the private key from the DER-encoded data
-	// This is a simplified approach and might need adjustment based on the actual key format
-	privateKey := ed25519.PrivateKey(der[len(der)-ed25519.PrivateKeySize:])
-
-	return privateKey, nil
+	return ed25519Key, nil
 }
 
 func parsePublicKey(der []byte) (ed25519.PublicKey, error) {
-	// TODO: In a production environment, you might want to use x509.ParsePKIXPublicKey
-	if len(der) < ed25519.PublicKeySize {
+	key, err := x509.ParsePKIXPublicKey(der)
+	if err != nil {
+		return nil, err
+	}
+
+	ed25519Key := key.(ed25519.PublicKey)
+	if len(ed25519Key) < ed25519.PublicKeySize {
 		return nil, ErrInvalidKey
 	}
 
-	// Extract the public key from the DER-encoded data
-	// This is a simplified approach and might need adjustment based on the actual key format
-	publicKey := ed25519.PublicKey(der[len(der)-ed25519.PublicKeySize:])
-
-	return publicKey, nil
+	return ed25519Key, nil
 }

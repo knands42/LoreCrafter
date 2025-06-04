@@ -1,8 +1,8 @@
-package auth_middleware
+package middleware
 
 import (
 	"context"
-	"github.com/knands42/lorecrafter/cmd/api"
+	httputils "github.com/knands42/lorecrafter/cmd/api/utils"
 	"github.com/knands42/lorecrafter/internal/usecases"
 	"net/http"
 	"strings"
@@ -15,19 +15,19 @@ func AuthMiddleware(authUseCase *usecases.AuthUseCase) func(next http.Handler) h
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			authHeader := r.Header.Get("Authorization")
 			if authHeader == "" {
-				api.WriteJSONError(w, http.StatusUnauthorized, "missing authorization header")
+				httputils.WriteJSONError(w, http.StatusUnauthorized, "missing authorization header")
 				return
 			}
 
 			tokenStr := strings.TrimPrefix(authHeader, "Bearer ")
 			if tokenStr == authHeader {
-				api.WriteJSONError(w, http.StatusUnauthorized, "malformed token")
+				httputils.WriteJSONError(w, http.StatusUnauthorized, "malformed token")
 				return
 			}
 
 			token, err := authUseCase.VerifyToken(tokenStr)
 			if err != nil {
-				api.WriteJSONError(w, http.StatusUnauthorized, "invalid token")
+				httputils.WriteJSONError(w, http.StatusUnauthorized, "invalid token")
 				return
 			}
 

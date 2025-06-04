@@ -3,8 +3,8 @@ package routes
 import (
 	"encoding/json"
 	"errors"
-	"github.com/knands42/lorecrafter/cmd/api"
 	"github.com/knands42/lorecrafter/cmd/api/middleware"
+	"github.com/knands42/lorecrafter/cmd/api/utils"
 	"net/http"
 	"strings"
 
@@ -35,20 +35,17 @@ func (h *AuthHandler) RegisterRoutes(r chi.Router) {
 func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) error {
 	var input domain.UserCreationInput
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
-		api.WriteJSONError(w, http.StatusBadRequest, "Invalid request body")
-		return nil
+		return utils.WriteJSONError(w, http.StatusBadRequest, "Invalid request body")
 	}
 
 	response, err := h.authUseCase.Register(input)
 	if err != nil {
 		switch {
 		case errors.Is(err, usecases.ErrUserAlreadyExists):
-			api.WriteJSONError(w, http.StatusConflict, "UserCreation already exists")
-			return nil
+			return utils.WriteJSONError(w, http.StatusConflict, "UserCreation already exists")
 
 		case errors.Is(err, usecases.ErrInvalidCredentials):
-			api.WriteJSONError(w, http.StatusUnauthorized, "Invalid credentials")
-			return nil
+			return utils.WriteJSONError(w, http.StatusUnauthorized, "Invalid credentials")
 		}
 
 		return err
@@ -57,33 +54,27 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) error {
 	// Send response
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(response)
-
-	return nil
+	return json.NewEncoder(w).Encode(response)
 }
 
 // Login handles user login
 func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) error {
 	var input domain.LoginInput
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
-		api.WriteJSONError(w, http.StatusBadRequest, "Invalid request body")
-		return nil
+		return utils.WriteJSONError(w, http.StatusBadRequest, "Invalid request body")
 	}
 
 	response, err := h.authUseCase.Login(input)
 	if err != nil {
 		if errors.Is(err, usecases.ErrInvalidCredentials) {
-			api.WriteJSONError(w, http.StatusUnauthorized, "Invalid credentials")
-			return nil
+			return utils.WriteJSONError(w, http.StatusUnauthorized, "Invalid credentials")
 		}
 
 		return err
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
-
-	return nil
+	return json.NewEncoder(w).Encode(response)
 }
 
 // GetAuthorizationPayload extracts the token payload from the Authorization header
