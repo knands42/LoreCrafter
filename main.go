@@ -5,6 +5,7 @@ import (
 	"github.com/knands42/lorecrafter/cmd/api"
 	"github.com/knands42/lorecrafter/cmd/api/routes"
 	"github.com/knands42/lorecrafter/internal/adapter/database"
+	"github.com/knands42/lorecrafter/internal/config"
 	sqlc "github.com/knands42/lorecrafter/pkg/sqlc/generated"
 	"log"
 	"os"
@@ -16,40 +17,40 @@ import (
 	"github.com/knands42/lorecrafter/internal/usecases"
 )
 
-// Configuration constants
-const (
-	ServerPort     = "8080"
-	TokenExpiry    = 24 * time.Hour
-	PrivateKeyPath = "private_key.pem"
-	PublicKeyPath  = "public_key.pem"
-)
-
 func main() {
+	// Load configuration
+	cfg, err := config.LoadConfig(".")
+	if err != nil {
+		log.Fatalf("Failed to load configuration: %v", err)
+	}
+
 	// Set up repository
-	// TODO: Get from env using viper
-	pgConn, err := database.NewPostgresConnection()
+	pgConn, err := database.NewPostgresConnection(&cfg.DBConfig)
+	if err != nil {
+		log.Fatalf("Failed to connect to database: %v", err)
+	}
 	repo := sqlc.New(pgConn)
 
 	// Set up token maker
-	tokenMaker, err := security.NewTokenMaker(PrivateKeyPath, PublicKeyPath)
+	tokenMaker, err := security.NewTokenMaker(cfg.PrivateKey, cfg.PublicKey)
 	if err != nil {
 		log.Fatalf("Failed to create token maker: %v", err)
 	}
 
 	// Set up use cases
 	ctx := context.Background()
-	authUseCase := usecases.NewAuthUseCase(ctx, repo, tokenMaker, TokenExpiry)
+	authUseCase := usecases.NewAuthUseCase(ctx, repo, tokenMaker, cfg.TokenExpiry)
 
 	// Set up HTTP handlers
 	authHandler := routes.NewAuthHandler(authUseCase)
 
 	// Set up HTTP server
-	server := api.NewServer(ServerPort)
+	server := api.NewServer(cfg.ServerPort)
 	api.SetupRoutes(server, authHandler, authUseCase)
 
 	// Start the server in a goroutine
 	go func() {
-		log.Printf("Starting server on port %s", ServerPort)
+		log.Printf("Starting server on port %s", cfg.ServerPort)
 		if err := server.Start(); err != nil {
 			log.Fatalf("Failed to start server: %v", err)
 		}

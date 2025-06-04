@@ -2,10 +2,10 @@ package security
 
 import (
 	"crypto/ed25519"
+	"encoding/base64"
 	"encoding/pem"
 	"errors"
 	"fmt"
-	"os"
 	"time"
 
 	"github.com/google/uuid"
@@ -25,13 +25,13 @@ type TokenMaker struct {
 	publicKey  ed25519.PublicKey
 }
 
-func NewTokenMaker(privateKeyPath, publicKeyPath string) (*TokenMaker, error) {
-	privateKey, err := loadPrivateKey(privateKeyPath)
+func NewTokenMaker(privateKeyContent, publicKeyContent string) (*TokenMaker, error) {
+	privateKey, err := loadPrivateKey(privateKeyContent)
 	if err != nil {
 		return nil, fmt.Errorf("failed to load private key: %w", err)
 	}
 
-	publicKey, err := loadPublicKey(publicKeyPath)
+	publicKey, err := loadPublicKey(publicKeyContent)
 	if err != nil {
 		return nil, fmt.Errorf("failed to load public key: %w", err)
 	}
@@ -87,13 +87,13 @@ func ParseUserID(payload *domain.TokenPayload) (uuid.UUID, error) {
 	return userID, nil
 }
 
-func loadPrivateKey(path string) (ed25519.PrivateKey, error) {
-	keyBytes, err := os.ReadFile(path)
+func loadPrivateKey(key string) (ed25519.PrivateKey, error) {
+	decode, err := base64.StdEncoding.DecodeString(key)
 	if err != nil {
 		return nil, err
 	}
 
-	block, _ := pem.Decode(keyBytes)
+	block, _ := pem.Decode(decode)
 	if block == nil || block.Type != "PRIVATE KEY" {
 		return nil, ErrInvalidKey
 	}
@@ -106,13 +106,13 @@ func loadPrivateKey(path string) (ed25519.PrivateKey, error) {
 	return privateKey, nil
 }
 
-func loadPublicKey(path string) (ed25519.PublicKey, error) {
-	keyBytes, err := os.ReadFile(path)
+func loadPublicKey(key string) (ed25519.PublicKey, error) {
+	decode, err := base64.StdEncoding.DecodeString(key)
 	if err != nil {
 		return nil, err
 	}
 
-	block, _ := pem.Decode(keyBytes)
+	block, _ := pem.Decode(decode)
 	if block == nil || block.Type != "PUBLIC KEY" {
 		return nil, ErrInvalidKey
 	}
