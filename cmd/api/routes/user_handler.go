@@ -18,8 +18,9 @@ func NewUserHandler() *UserHandler {
 // @Tags user
 // @Accept json
 // @Produce json
-// @Success 201 {object} domain.AuthOutput "User registered successfully"
-// @Failure 401 {object} utils.ErrorResponse "missing authorization header"
+// @Security BearerAuth
+// @Success 200 {object} string "User information"
+// @Failure 401 {object} utils.ErrorResponse "Missing or invalid authorization header"
 // @Router /api/me [get]
 func (h *UserHandler) Me(w http.ResponseWriter, r *http.Request) error {
 	userID := r.Context().Value(middleware2.UserIDContextKey)

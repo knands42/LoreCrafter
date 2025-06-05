@@ -63,6 +63,28 @@ func SetupRoutes(server *Server, authHandler *routes.AuthHandler, userHandler *r
 	// Swagger UI
 	server.router.Get("/swagger/*", httpSwagger.Handler(
 		httpSwagger.URL("/swagger/doc.json"), // The URL pointing to API definition
+		httpSwagger.DocExpansion("none"),
+		httpSwagger.UIConfig(map[string]string{
+			"defaultModelsExpandDepth": "-1",
+		}),
+		httpSwagger.BeforeScript(`
+			window.onload = function() {
+				const ui = window.ui;
+				const token = localStorage.getItem('jwt_token');
+				if (token) {
+					ui.authActions.preauthorizeApiKey('BearerAuth', token);
+				}
+
+				// Listen for login success event from the login response
+				window.addEventListener('message', function(event) {
+					if (event.data.type === 'login-success' && event.data.token) {
+						const token = event.data.token;
+						localStorage.setItem('jwt_token', token);
+						ui.authActions.preauthorizeApiKey('BearerAuth', token);
+					}
+				});
+			};
+		`),
 	))
 
 	// API routes

@@ -132,17 +132,25 @@ paths:
       produces:
       - application/json
       responses:
-        "201":
-          description: User registered successfully
+        "200":
+          description: User information
           schema:
-            $ref: '#/definitions/domain.AuthOutput'
+            type: string
         "401":
-          description: missing authorization header
+          description: Missing or invalid authorization header
           schema:
             $ref: '#/definitions/utils.ErrorResponse'
+      security:
+      - BearerAuth: []
       summary: Get info about the logged user
       tags:
       - user
 schemes:
 - http
+securityDefinitions:
+  BearerAuth:
+    description: Type "Bearer" followed by a space and JWT token.
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

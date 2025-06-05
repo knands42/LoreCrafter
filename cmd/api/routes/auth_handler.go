@@ -3,10 +3,11 @@ package routes
 import (
 	"encoding/json"
 	"errors"
-	"github.com/knands42/lorecrafter/cmd/api/middleware"
-	"github.com/knands42/lorecrafter/cmd/api/utils"
 	"net/http"
 	"strings"
+
+	"github.com/knands42/lorecrafter/cmd/api/middleware"
+	"github.com/knands42/lorecrafter/cmd/api/utils"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/knands42/lorecrafter/internal/domain"

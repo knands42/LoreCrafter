@@ -130,6 +130,11 @@ const docTemplate = `{
         },
         "/api/me": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Based on the logged user, get information from the token",
                 "consumes": [
                     "application/json"
@@ -142,14 +147,14 @@ const docTemplate = `{
                 ],
                 "summary": "Get info about the logged user",
                 "responses": {
-                    "201": {
-                        "description": "User registered successfully",
+                    "200": {
+                        "description": "User information",
                         "schema": {
-                            "$ref": "#/definitions/domain.AuthOutput"
+                            "type": "string"
                         }
                     },
                     "401": {
-                        "description": "missing authorization header",
+                        "description": "Missing or invalid authorization header",
                         "schema": {
                             "$ref": "#/definitions/utils.ErrorResponse"
                         }
@@ -223,6 +228,14 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "description": "Type \"Bearer\" followed by a space and JWT token.",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }`
