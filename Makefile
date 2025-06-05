@@ -25,12 +25,14 @@ clean:
 
 ####### docker commands #######
 docker-build:
+	docker rmi lorecrafter || true
 	docker build -t lorecrafter:latest .
 
 docker-run:
 	docker run -p 8000:8000 --env-file .env lorecrafter:latest
 
 docker-up:
+	docker rmi lorecrafter || true
 	docker-compose up --build --force-recreate
 
 docker-down:

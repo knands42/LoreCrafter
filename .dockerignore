@@ -6,3 +6,5 @@ bin/
 *.md
 *.exe
 Makefile
+!go.mod
+!go.sum
