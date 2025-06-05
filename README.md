@@ -1,4 +1,4 @@
-# LoreCrafter API Documentation
+# LoreCrafter
 ## 📘 Project Overview
 LoreCrafter is an AI-powered platform designed to assist RPG players in creating rich, immersive content for their games — including characters, worlds, and campaigns. Each element is generated with deep narrative structure and thematic consistency to support long-term storytelling.
 

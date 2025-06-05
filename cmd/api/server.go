@@ -3,9 +3,9 @@ package api
 import (
 	"context"
 	"fmt"
+	_ "github.com/knands42/lorecrafter/cmd/api/docs" // Import the docs package
 	middleware2 "github.com/knands42/lorecrafter/cmd/api/middleware"
 	"github.com/knands42/lorecrafter/cmd/api/routes"
-	_ "github.com/knands42/lorecrafter/cmd/api/docs" // Import the docs package
 	"github.com/knands42/lorecrafter/internal/usecases"
 	"net/http"
 	"time"
@@ -59,7 +59,7 @@ func (s *Server) Shutdown(ctx context.Context) error {
 }
 
 // SetupRoutes sets up the routes for the server
-func SetupRoutes(server *Server, authHandler *routes.AuthHandler, authUseCase *usecases.AuthUseCase) {
+func SetupRoutes(server *Server, authHandler *routes.AuthHandler, userHandler *routes.UserHandler, authUseCase *usecases.AuthUseCase) {
 	// Swagger UI
 	server.router.Get("/swagger/*", httpSwagger.Handler(
 		httpSwagger.URL("/swagger/doc.json"), // The URL pointing to API definition
@@ -75,11 +75,7 @@ func SetupRoutes(server *Server, authHandler *routes.AuthHandler, authUseCase *u
 		// Protected routes (require authentication)
 		r.Group(func(r chi.Router) {
 			r.Use(middleware2.AuthMiddleware(authUseCase))
-
-			r.Get("/me", func(w http.ResponseWriter, r *http.Request) {
-				userID := r.Context().Value(middleware2.UserIDContextKey)
-				w.Write([]byte(fmt.Sprintf("Authenticated! User ID: %v", userID)))
-			})
+			r.Get("/me", middleware2.ErrorHandlerMiddleware(userHandler.Me))
 		})
 	})
 }

@@ -43,10 +43,11 @@ func main() {
 
 	// Set up HTTP handlers
 	authHandler := routes.NewAuthHandler(authUseCase)
+	userHandler := routes.NewUserHandler()
 
 	// Set up HTTP server
 	server := api.NewServer(cfg.ServerPort)
-	api.SetupRoutes(server, authHandler, authUseCase)
+	api.SetupRoutes(server, authHandler, userHandler, authUseCase)
 
 	// Start the server in a goroutine
 	go func() {
