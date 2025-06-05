@@ -31,7 +31,7 @@ docker-run:
 	docker run -p 8000:8000 --env-file .env lorecrafter:latest
 
 docker-up:
-	docker-compose up
+	docker-compose up --build --force-recreate
 
 docker-down:
 	docker-compose down

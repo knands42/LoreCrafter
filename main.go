@@ -26,7 +26,7 @@ func main() {
 	}
 
 	// Set up repository
-	pgConn, err := database.NewPostgresConnection(&cfg.DBConfig)
+	pgConn, err := database.NewPostgresConnection(&cfg)
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}

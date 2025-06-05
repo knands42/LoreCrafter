@@ -21,54 +21,46 @@ type Config struct {
 	OpenAIAPIKey string `mapstructure:"OPENAI_API_KEY"`
 
 	// Database configuration
-	DBConfig DBConfig
-}
-
-// DBConfig holds the database configuration
-type DBConfig struct {
-	Host     string `mapstructure:"POSTGRES_HOST"`
-	Port     string `mapstructure:"POSTGRES_PORT"`
-	User     string `mapstructure:"POSTGRES_USER"`
-	Password string `mapstructure:"POSTGRES_PASSWORD"`
-	DBName   string `mapstructure:"POSTGRES_DBNAME"`
-	SSLMode  string `mapstructure:"POSTGRES_SSLMODE"`
-	URL      string `mapstructure:"POSTGRES_URL"`
+	PostgresURL string `mapstructure:"POSTGRES_URL"`
 }
 
 // LoadConfig loads the configuration from .env file and environment variables
 func LoadConfig(path string) (config Config, err error) {
-	viper.AddConfigPath(path)
-	viper.SetConfigName(".env")
-	viper.SetConfigType("env")
+	v := viper.New()
+	v.AddConfigPath(path)
+	v.SetConfigName(".env")
+	v.SetConfigType("env")
 
-	// Read from the .env file
-	viper.AutomaticEnv()
+	v.AutomaticEnv()
 
-	// Try to read the config file, but don't return an error if it doesn't exist
-	if err := viper.ReadInConfig(); err != nil {
+	if err := v.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); !ok {
 			log.Printf("error reading config file: %v", err)
 		}
 	}
 
+	keys := []string{
+		"ENVIRONMENT",
+		"SERVER_PORT",
+		"TOKEN_EXPIRY",
+		"PASETO_PRIVATE_KEY",
+		"PASETO_PUBLIC_KEY",
+		"GOOGLE_API_KEY",
+		"OPENAI_API_KEY",
+		"POSTGRES_URL",
+	}
+	for _, key := range keys {
+		err := v.BindEnv(key)
+		if err != nil {
+			return config, fmt.Errorf("error binding env var %s: %w", key, err)
+		}
+	}
+
 	// Unmarshal the configuration
-	err = viper.Unmarshal(&config)
+	err = v.Unmarshal(&config)
 	if err != nil {
 		return config, fmt.Errorf("unable to decode into config struct: %w", err)
 	}
 
-	// Unmarshal the database configuration
-	dbConfig := DBConfig{}
-	err = viper.Unmarshal(&dbConfig)
-	if err != nil {
-		return config, fmt.Errorf("unable to decode into db config struct: %w", err)
-	}
-	config.DBConfig = dbConfig
-
 	return config, nil
-}
-
-// GetDBConfig returns the database configuration in the format expected by the database package
-func (c *Config) GetDBConfig() DBConfig {
-	return c.DBConfig
 }

@@ -10,11 +10,11 @@ import (
 )
 
 // NewPostgresConnection creates a new PostgresQL connection pool
-func NewPostgresConnection(cfg *config.DBConfig) (*pgxpool.Pool, error) {
+func NewPostgresConnection(cfg *config.Config) (*pgxpool.Pool, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	pool, err := pgxpool.New(ctx, cfg.URL)
+	pool, err := pgxpool.New(ctx, cfg.PostgresURL)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create connection pool: %w", err)
 	}

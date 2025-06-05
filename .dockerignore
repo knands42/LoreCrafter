@@ -1,0 +1,8 @@
+.env*
+bin/
+.github/
+.git/
+.gitignore
+*.md
+*.exe
+Makefile

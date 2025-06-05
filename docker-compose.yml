@@ -6,15 +6,9 @@ services:
     container_name: lorecrafter
     ports:
       - '8000:8000'
+    env_file:
+      - .env
     environment:
-      - SERVER_PORT=8000
-      - TOKEN_EXPIRY=24h
-      - ENVIRONMENT=development
-      - GOOGLE_API_KEY=123
-      - OPENAI_API_KEY=123
-      - ANTROPIC_API_KEY=123
-      - PASETO_PRIVATE_KEY=123
-      - PASETO_PUBLIC_KEY=123
       - POSTGRES_URL=postgresql://postgres:postgres@db:5432/lorecrafter?sslmode=disable
     depends_on:
       db:
