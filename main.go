@@ -2,16 +2,17 @@ package main
 
 import (
 	"context"
-	"github.com/knands42/lorecrafter/cmd/api"
-	"github.com/knands42/lorecrafter/cmd/api/routes"
-	"github.com/knands42/lorecrafter/internal/adapter/database"
-	"github.com/knands42/lorecrafter/internal/config"
-	sqlc "github.com/knands42/lorecrafter/pkg/sqlc/generated"
 	"log"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/knands42/lorecrafter/cmd/api"
+	"github.com/knands42/lorecrafter/cmd/api/routes"
+	"github.com/knands42/lorecrafter/internal/adapter/database"
+	"github.com/knands42/lorecrafter/internal/config"
+	sqlc "github.com/knands42/lorecrafter/pkg/sqlc/generated"
 
 	"github.com/knands42/lorecrafter/internal/adapter/security"
 	"github.com/knands42/lorecrafter/internal/usecases"

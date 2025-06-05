@@ -13,7 +13,7 @@ RUN go mod download
 COPY . .
 
 # Build the application
-RUN CGO_ENABLED=0 GOOS=linux go build -o lorecrafter .
+RUN CGO_ENABLED=0 GOOS=linux go build -o /bin/lorecrafter .
 
 # Final stage
 FROM alpine:latest
@@ -24,12 +24,13 @@ WORKDIR /app
 RUN apk --no-cache add ca-certificates
 
 # Copy the binary from the builder stage
-COPY --from=builder /app/lorecrafter .
+COPY --from=builder /bin/lorecrafter /app/lorecrafter
 
+# Make sure the binary is executable
 RUN chmod +x /app/lorecrafter
 
 # Expose the application port
-EXPOSE 8080
+EXPOSE 8000
 
 # Run the application
 CMD ["/app/lorecrafter"]

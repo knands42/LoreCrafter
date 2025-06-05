@@ -30,12 +30,6 @@ jobs:
             OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
             PASETO_PRIVATE_KEY=${{ secrets.PASETO_PRIVATE_KEY }}
             PASETO_PUBLIC_KEY=${{ secrets.PASETO_PUBLIC_KEY }}
-            POSTGRES_HOST=${{ secrets.POSTGRES_HOST }}
-            POSTGRES_PORT=${{ secrets.POSTGRES_PORT }}
-            POSTGRES_USER=${{ secrets.POSTGRES_USER }}
-            POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
-            POSTGRES_DBNAME=${{ secrets.POSTGRES_DBNAME }}
-            POSTGRES_SSLMODE=${{ secrets.POSTGRES_SSLMODE }}
             POSTGRES_URL=${{ secrets.POSTGRES_URL }}
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/lorecrafter:latest

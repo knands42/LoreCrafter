@@ -10,6 +10,7 @@ import (
 
 // Config holds all configuration for the application
 type Config struct {
+	Environment string        `mapstructure:"ENVIRONMENT"`
 	ServerPort  string        `mapstructure:"SERVER_PORT"`
 	TokenExpiry time.Duration `mapstructure:"TOKEN_EXPIRY"`
 	PrivateKey  string        `mapstructure:"PASETO_PRIVATE_KEY"`
@@ -47,7 +48,6 @@ func LoadConfig(path string) (config Config, err error) {
 	if err := viper.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); !ok {
 			log.Printf("error reading config file: %v", err)
-			return config, nil
 		}
 	}
 
