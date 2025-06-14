@@ -31,7 +31,7 @@ func NewServer(cfg config.Config) *Server {
 
 	// Set up CORS
 	corsMiddleware := cors.Handler(cors.Options{
-		AllowedOrigins:   []string{cfg.Hostname},
+		AllowedOrigins:   []string{cfg.Hostname, cfg.Hostname + "/swagger"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 		ExposedHeaders:   []string{"Link"},
