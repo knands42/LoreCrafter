@@ -9,9 +9,6 @@ COPY go.mod go.sum ./
 # Download dependencies
 RUN go mod download
 
-RUN wget https://github.com/golang-migrate/migrate/releases/download/v4.18.3/migrate.linux-arm64.tar.gz \
-        && tar -xvf migrate.linux-arm64.tar.gz
-
 # Copy the source code
 COPY . .
 
@@ -28,14 +25,12 @@ RUN apk --no-cache add ca-certificates
 
 # Copy the binary from the builder stage
 COPY --from=builder /app/lorecrafter /app/lorecrafter
-COPY --from=builder /app/migrate /app/migrate
-COPY --from=builder /app/internal/adapter/database/migrations /app/migrations
 
-# Make sure the binary is executable
+# Make sure the binaries are executable
 RUN chmod +x /app/lorecrafter
 
 # Expose the application port
 EXPOSE 8000
 
 # Run the application
-CMD ["/bin/sh", "-c", "/app/migrate -path /app/migrations -database \"$POSTGRES_URL\" up && /app/lorecrafter"]
+CMD ["/app/lorecrafter"]

@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"github.com/knands42/lorecrafter/internal/adapter/database/migrations"
 	"log"
 	"os"
 	"os/signal"
@@ -16,6 +17,9 @@ import (
 
 	"github.com/knands42/lorecrafter/internal/adapter/security"
 	"github.com/knands42/lorecrafter/internal/usecases"
+
+	// Import PostgresQL driver
+	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
 func main() {
@@ -25,14 +29,15 @@ func main() {
 		log.Fatalf("Failed to load configuration: %v", err)
 	}
 
-	// Set up repository
+	// Set up the repository
 	pgConn, err := database.NewPostgresConnection(&cfg)
+	migrations.Up(cfg)
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
 	repo := sqlc.New(pgConn)
 
-	// Set up token maker
+	// Set up the token maker
 	tokenMaker, err := security.NewTokenMaker(cfg.PrivateKey, cfg.PublicKey)
 	if err != nil {
 		log.Fatalf("Failed to create token maker: %v", err)
@@ -47,7 +52,7 @@ func main() {
 	userHandler := routes.NewUserHandler()
 
 	// Set up HTTP server
-	server := api.NewServer(cfg.ServerPort)
+	server := api.NewServer(cfg)
 	api.SetupRoutes(server, authHandler, userHandler, authUseCase)
 
 	// Start the server in a goroutine

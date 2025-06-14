@@ -3,15 +3,18 @@ package api
 import (
 	"context"
 	"fmt"
-	_ "github.com/knands42/lorecrafter/cmd/api/docs" // Import the docs package
-	middleware2 "github.com/knands42/lorecrafter/cmd/api/middleware"
-	"github.com/knands42/lorecrafter/cmd/api/routes"
-	"github.com/knands42/lorecrafter/internal/usecases"
 	"net/http"
 	"time"
 
+	_ "github.com/knands42/lorecrafter/cmd/api/docs" // Import the docs package
+	middleware2 "github.com/knands42/lorecrafter/cmd/api/middleware"
+	"github.com/knands42/lorecrafter/cmd/api/routes"
+	"github.com/knands42/lorecrafter/internal/config"
+	"github.com/knands42/lorecrafter/internal/usecases"
+
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/cors"
 	httpSwagger "github.com/swaggo/http-swagger"
 	_ "github.com/swaggo/swag"
 )
@@ -23,17 +26,35 @@ type Server struct {
 }
 
 // NewServer creates a new HTTP server
-func NewServer(port string) *Server {
+func NewServer(cfg config.Config) *Server {
 	router := chi.NewRouter()
 
+	// Set up CORS
+	var allowedOrigins []string
+	if cfg.Profile == "dev" {
+		allowedOrigins = []string{"https://lorecrafter.fly.dev", "http://localhost:8000"}
+	} else {
+		allowedOrigins = []string{"https://lorecrafter.fly.dev"}
+	}
+
+	corsMiddleware := cors.Handler(cors.Options{
+		AllowedOrigins:   allowedOrigins,
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+		ExposedHeaders:   []string{"Link"},
+		AllowCredentials: true,
+		MaxAge:           300, // Maximum value not ignored by any of major browsers
+	})
+
 	// Set up middleware
+	router.Use(corsMiddleware)
 	router.Use(middleware.Logger)
 	router.Use(middleware.Recoverer)
 	router.Use(middleware.Timeout(10 * time.Second))
 
 	// Create the HTTP server
 	httpServer := &http.Server{
-		Addr:    fmt.Sprintf(":%s", port),
+		Addr:    fmt.Sprintf(":%s", cfg.ServerPort),
 		Handler: router,
 	}
 
