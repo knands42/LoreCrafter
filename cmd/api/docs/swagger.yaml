@@ -42,6 +42,7 @@ definitions:
       error:
         type: string
     type: object
+host: http://localhost:8080
 info:
   contact:
     email: support@swagger.io
