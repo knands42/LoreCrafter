@@ -70,9 +70,9 @@ jobs:
           go test -v -coverprofile=coverage.out ./...
           go tool cover -func=coverage.out
 
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
-        with:
-          file: ./coverage.out
-          fail_ci_if_error: false
+#      - name: Upload coverage to Codecov
+#        uses: codecov/codecov-action@v3
+#        with:
+#          file: ./coverage.out
+#          fail_ci_if_error: false
 
