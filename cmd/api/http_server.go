@@ -30,15 +30,8 @@ func NewServer(cfg config.Config) *Server {
 	router := chi.NewRouter()
 
 	// Set up CORS
-	var allowedOrigins []string
-	if cfg.Profile == "dev" {
-		allowedOrigins = []string{"https://lorecrafter.fly.dev", "http://localhost:8000"}
-	} else {
-		allowedOrigins = []string{"https://lorecrafter.fly.dev"}
-	}
-
 	corsMiddleware := cors.Handler(cors.Options{
-		AllowedOrigins:   allowedOrigins,
+		AllowedOrigins:   []string{cfg.Hostname},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 		ExposedHeaders:   []string{"Link"},

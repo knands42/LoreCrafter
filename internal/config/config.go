@@ -11,6 +11,7 @@ import (
 // Config holds all configuration for the application
 type Config struct {
 	Profile     string        `mapstructure:"PROFILE"`
+	Hostname    string        `mapstructure:"APP_HOSTNAME"`
 	ServerPort  string        `mapstructure:"SERVER_PORT"`
 	TokenExpiry time.Duration `mapstructure:"TOKEN_EXPIRY"`
 	PrivateKey  string        `mapstructure:"PASETO_PRIVATE_KEY"`
@@ -40,7 +41,8 @@ func LoadConfig(path string) (config Config, err error) {
 	}
 
 	keys := []string{
-		"ENVIRONMENT",
+		"PROFILE",
+		"APP_HOSTNAME",
 		"SERVER_PORT",
 		"TOKEN_EXPIRY",
 		"PASETO_PRIVATE_KEY",
