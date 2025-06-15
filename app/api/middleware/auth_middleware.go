@@ -2,7 +2,7 @@ package middleware
 
 import (
 	"context"
-	"github.com/knands42/lorecrafter/cmd/api/utils"
+	"github.com/knands42/lorecrafter/app/api/utils"
 	"github.com/knands42/lorecrafter/internal/usecases"
 	"net/http"
 	"strings"

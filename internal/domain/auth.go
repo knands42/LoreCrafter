@@ -1,6 +1,7 @@
 package domain
 
 import (
+	sqlc "github.com/knands42/lorecrafter/pkg/sqlc/generated"
 	"time"
 )
 
@@ -12,7 +13,7 @@ type LoginInput struct {
 
 // AuthOutput represents the response after successful authentication
 type AuthOutput struct {
-	User      User
+	User      sqlc.User
 	Token     string
 	ExpiresAt time.Time
 }

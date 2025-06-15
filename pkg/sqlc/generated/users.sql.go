@@ -19,7 +19,7 @@ INSERT INTO users (
     hashed_password
 ) VALUES (
     $1, $2, $3, $4
-) RETURNING id, username, email, hashed_password, is_active, created_at, updated_at
+) RETURNING id, username, email, hashed_password, is_active, avatar_url, last_login_at, created_at, updated_at
 `
 
 type CreateUserParams struct {
@@ -43,6 +43,8 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		&i.Email,
 		&i.HashedPassword,
 		&i.IsActive,
+		&i.AvatarUrl,
+		&i.LastLoginAt,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -50,7 +52,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one
-SELECT id, username, email, hashed_password, is_active, created_at, updated_at FROM users
+SELECT id, username, email, hashed_password, is_active, avatar_url, last_login_at, created_at, updated_at FROM users
 WHERE email = $1
 LIMIT 1
 `
@@ -64,6 +66,8 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 		&i.Email,
 		&i.HashedPassword,
 		&i.IsActive,
+		&i.AvatarUrl,
+		&i.LastLoginAt,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -71,7 +75,7 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 }
 
 const getUserByID = `-- name: GetUserByID :one
-SELECT id, username, email, hashed_password, is_active, created_at, updated_at FROM users
+SELECT id, username, email, hashed_password, is_active, avatar_url, last_login_at, created_at, updated_at FROM users
 WHERE id = $1
 LIMIT 1
 `
@@ -85,6 +89,8 @@ func (q *Queries) GetUserByID(ctx context.Context, id pgtype.UUID) (User, error)
 		&i.Email,
 		&i.HashedPassword,
 		&i.IsActive,
+		&i.AvatarUrl,
+		&i.LastLoginAt,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -92,7 +98,7 @@ func (q *Queries) GetUserByID(ctx context.Context, id pgtype.UUID) (User, error)
 }
 
 const getUserByUsername = `-- name: GetUserByUsername :one
-SELECT id, username, email, hashed_password, is_active, created_at, updated_at FROM users
+SELECT id, username, email, hashed_password, is_active, avatar_url, last_login_at, created_at, updated_at FROM users
 WHERE username = $1
 LIMIT 1
 `
@@ -106,6 +112,8 @@ func (q *Queries) GetUserByUsername(ctx context.Context, username string) (User,
 		&i.Email,
 		&i.HashedPassword,
 		&i.IsActive,
+		&i.AvatarUrl,
+		&i.LastLoginAt,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -113,7 +121,7 @@ func (q *Queries) GetUserByUsername(ctx context.Context, username string) (User,
 }
 
 const getUserByUsernameOrEmail = `-- name: GetUserByUsernameOrEmail :one
-SELECT id, username, email, hashed_password, is_active, created_at, updated_at FROM users
+SELECT id, username, email, hashed_password, is_active, avatar_url, last_login_at, created_at, updated_at FROM users
 WHERE username = $1 OR email = $2
 LIMIT 1
 `
@@ -132,6 +140,8 @@ func (q *Queries) GetUserByUsernameOrEmail(ctx context.Context, arg GetUserByUse
 		&i.Email,
 		&i.HashedPassword,
 		&i.IsActive,
+		&i.AvatarUrl,
+		&i.LastLoginAt,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)

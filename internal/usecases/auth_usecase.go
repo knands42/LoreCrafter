@@ -4,12 +4,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/knands42/lorecrafter/internal/interfaces"
 	sqlc "github.com/knands42/lorecrafter/pkg/sqlc/generated"
 	"log"
 	"time"
 
-	"github.com/knands42/lorecrafter/internal/adapter/security"
 	"github.com/knands42/lorecrafter/internal/domain"
 )
 
@@ -25,20 +24,23 @@ var (
 type AuthUseCase struct {
 	ctx         context.Context
 	userRepo    sqlc.Querier
-	tokenMaker  *security.TokenMaker
+	tokenMaker  interfaces.TokenMaker
+	argon2Hash  interfaces.Argon2Hash
 	tokenExpiry time.Duration
 }
 
 func NewAuthUseCase(
 	ctx context.Context,
 	userRepo sqlc.Querier,
-	tokenMaker *security.TokenMaker,
+	tokenMaker interfaces.TokenMaker,
+	argon2Hash interfaces.Argon2Hash,
 	tokenExpiry time.Duration,
 ) *AuthUseCase {
 	return &AuthUseCase{
 		ctx:         ctx,
 		userRepo:    userRepo,
 		tokenMaker:  tokenMaker,
+		argon2Hash:  argon2Hash,
 		tokenExpiry: tokenExpiry,
 	}
 }
@@ -60,40 +62,32 @@ func (uc *AuthUseCase) Register(input domain.UserCreationInput) (*domain.AuthOut
 		return nil, ErrUserAlreadyExists
 	}
 
-	hashedPassword, err := security.HashPassword(input.Password, nil)
+	hashedPassword, err := uc.argon2Hash.HashPassword(input.Password)
 	if err != nil {
 		log.Printf("Error hashing password: %v", err)
 		return nil, ErrHashPassword
 	}
 
-	newUser, err := domain.NewUser(input.Username, input.Email, hashedPassword)
+	// Save the user
+	createUserParams, err := input.ToSqlcParams(hashedPassword)
 	if err != nil {
 		return nil, err
 	}
 
-	// Save the user
-	createUserParams := sqlc.CreateUserParams{
-		ID: pgtype.UUID{
-			Bytes: newUser.ID,
-			Valid: true,
-		},
-		Username:       newUser.Username,
-		Email:          newUser.Email,
-		HashedPassword: hashedPassword,
-	}
-	if _, err := uc.userRepo.CreateUser(uc.ctx, createUserParams); err != nil {
+	createdUser, err := uc.userRepo.CreateUser(uc.ctx, createUserParams)
+	if err != nil {
 		log.Printf("Error creating user: %v", err)
 		return nil, ErrCreateUser
 	}
 
 	// Generate a token
-	token, expiresAt, err := uc.tokenMaker.CreateToken(newUser, uc.tokenExpiry)
+	token, expiresAt, err := uc.tokenMaker.CreateToken(createdUser, uc.tokenExpiry)
 	if err != nil {
 		return nil, fmt.Errorf("error generating token: %w", err)
 	}
 
 	return &domain.AuthOutput{
-		User:      *newUser,
+		User:      createdUser,
 		Token:     token,
 		ExpiresAt: expiresAt,
 	}, nil
@@ -102,14 +96,14 @@ func (uc *AuthUseCase) Register(input domain.UserCreationInput) (*domain.AuthOut
 // Login authenticates a user and generates a token for them
 func (uc *AuthUseCase) Login(req domain.LoginInput) (*domain.AuthOutput, error) {
 	// Get the user by username
-	dbUser, err := uc.userRepo.GetUserByUsername(uc.ctx, req.Username)
+	user, err := uc.userRepo.GetUserByUsername(uc.ctx, req.Username)
 	if err != nil {
 		log.Printf("error getting user: %v", err)
 		return nil, ErrCheckingIfUserExists
 	}
 
 	// Verify the password
-	match, err := security.VerifyPassword(req.Password, dbUser.HashedPassword)
+	match, err := uc.argon2Hash.VerifyPassword(req.Password, user.HashedPassword)
 	if err != nil {
 		log.Printf("error verifying password: %v", err)
 		return nil, ErrCheckingPassword
@@ -120,17 +114,13 @@ func (uc *AuthUseCase) Login(req domain.LoginInput) (*domain.AuthOutput, error) 
 	}
 
 	// Generate a token
-	userDomain, err := domain.ToDomainUser(dbUser)
-	if err != nil {
-		return nil, err
-	}
-	token, expiresAt, err := uc.tokenMaker.CreateToken(&userDomain, uc.tokenExpiry)
+	token, expiresAt, err := uc.tokenMaker.CreateToken(user, uc.tokenExpiry)
 	if err != nil {
 		return nil, fmt.Errorf("error generating token: %w", err)
 	}
 
 	return &domain.AuthOutput{
-		User:      userDomain,
+		User:      user,
 		Token:     token,
 		ExpiresAt: expiresAt,
 	}, nil

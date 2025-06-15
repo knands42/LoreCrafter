@@ -5,8 +5,161 @@
 package sqlc
 
 import (
+	"database/sql/driver"
+	"fmt"
+
 	"github.com/jackc/pgx/v5/pgtype"
 )
+
+type InvitationStatus string
+
+const (
+	InvitationStatusPending  InvitationStatus = "pending"
+	InvitationStatusAccepted InvitationStatus = "accepted"
+	InvitationStatusRejected InvitationStatus = "rejected"
+	InvitationStatusExpired  InvitationStatus = "expired"
+)
+
+func (e *InvitationStatus) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = InvitationStatus(s)
+	case string:
+		*e = InvitationStatus(s)
+	default:
+		return fmt.Errorf("unsupported scan type for InvitationStatus: %T", src)
+	}
+	return nil
+}
+
+type NullInvitationStatus struct {
+	InvitationStatus InvitationStatus `json:"invitation_status"`
+	Valid            bool             `json:"valid"` // Valid is true if InvitationStatus is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullInvitationStatus) Scan(value interface{}) error {
+	if value == nil {
+		ns.InvitationStatus, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.InvitationStatus.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullInvitationStatus) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.InvitationStatus), nil
+}
+
+type MemberRole string
+
+const (
+	MemberRoleGm     MemberRole = "gm"
+	MemberRolePlayer MemberRole = "player"
+)
+
+func (e *MemberRole) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = MemberRole(s)
+	case string:
+		*e = MemberRole(s)
+	default:
+		return fmt.Errorf("unsupported scan type for MemberRole: %T", src)
+	}
+	return nil
+}
+
+type NullMemberRole struct {
+	MemberRole MemberRole `json:"member_role"`
+	Valid      bool       `json:"valid"` // Valid is true if MemberRole is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullMemberRole) Scan(value interface{}) error {
+	if value == nil {
+		ns.MemberRole, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.MemberRole.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullMemberRole) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.MemberRole), nil
+}
+
+type Campaign struct {
+	ID             pgtype.UUID        `json:"id"`
+	Title          string             `json:"title"`
+	SettingSummary pgtype.Text        `json:"setting_summary"`
+	Setting        pgtype.Text        `json:"setting"`
+	ImageUrl       pgtype.Text        `json:"image_url"`
+	IsPublic       bool               `json:"is_public"`
+	InviteCode     pgtype.Text        `json:"invite_code"`
+	CreatedBy      pgtype.UUID        `json:"created_by"`
+	CreatedAt      pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt      pgtype.Timestamptz `json:"updated_at"`
+}
+
+type CampaignMember struct {
+	ID           pgtype.UUID        `json:"id"`
+	CampaignID   pgtype.UUID        `json:"campaign_id"`
+	UserID       pgtype.UUID        `json:"user_id"`
+	Role         MemberRole         `json:"role"`
+	JoinedAt     pgtype.Timestamptz `json:"joined_at"`
+	LastAccessed pgtype.Timestamptz `json:"last_accessed"`
+}
+
+type Character struct {
+	ID          pgtype.UUID        `json:"id"`
+	Name        string             `json:"name"`
+	Race        pgtype.Text        `json:"race"`
+	Class       pgtype.Text        `json:"class"`
+	Level       int32              `json:"level"`
+	Appearance  pgtype.Text        `json:"appearance"`
+	Personality pgtype.Text        `json:"personality"`
+	Backstory   pgtype.Text        `json:"backstory"`
+	ImageUrl    pgtype.Text        `json:"image_url"`
+	CampaignID  pgtype.UUID        `json:"campaign_id"`
+	UserID      pgtype.UUID        `json:"user_id"`
+	IsNpc       bool               `json:"is_npc"`
+	Metadata    []byte             `json:"metadata"`
+	CreatedAt   pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt   pgtype.Timestamptz `json:"updated_at"`
+}
+
+type Invitation struct {
+	ID         pgtype.UUID        `json:"id"`
+	CampaignID pgtype.UUID        `json:"campaign_id"`
+	Email      string             `json:"email"`
+	InvitedBy  pgtype.UUID        `json:"invited_by"`
+	Token      string             `json:"token"`
+	Status     InvitationStatus   `json:"status"`
+	ExpiresAt  pgtype.Timestamptz `json:"expires_at"`
+	CreatedAt  pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt  pgtype.Timestamptz `json:"updated_at"`
+}
+
+type TimelineEvent struct {
+	ID          pgtype.UUID        `json:"id"`
+	CampaignID  pgtype.UUID        `json:"campaign_id"`
+	Title       string             `json:"title"`
+	Description pgtype.Text        `json:"description"`
+	EventDate   pgtype.Timestamptz `json:"event_date"`
+	IsPublic    bool               `json:"is_public"`
+	CreatedBy   pgtype.UUID        `json:"created_by"`
+	CreatedAt   pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt   pgtype.Timestamptz `json:"updated_at"`
+}
 
 type User struct {
 	ID             pgtype.UUID        `json:"id"`
@@ -14,6 +167,8 @@ type User struct {
 	Email          string             `json:"email"`
 	HashedPassword string             `json:"hashed_password"`
 	IsActive       bool               `json:"is_active"`
+	AvatarUrl      pgtype.Text        `json:"avatar_url"`
+	LastLoginAt    pgtype.Timestamptz `json:"last_login_at"`
 	CreatedAt      pgtype.Timestamptz `json:"created_at"`
 	UpdatedAt      pgtype.Timestamptz `json:"updated_at"`
 }

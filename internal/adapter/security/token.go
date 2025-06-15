@@ -7,6 +7,8 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
+	"github.com/knands42/lorecrafter/internal/utils"
+	sqlc "github.com/knands42/lorecrafter/pkg/sqlc/generated"
 	"time"
 
 	"github.com/google/uuid"
@@ -20,36 +22,40 @@ var (
 	ErrInvalidKey   = errors.New("invalid key format")
 )
 
-type TokenMaker struct {
+type TokenMakerAdapter struct {
 	paseto     *paseto.V2
 	privateKey ed25519.PrivateKey
 	publicKey  ed25519.PublicKey
 }
 
-func NewTokenMaker(privateKeyContent, publicKeyContent string) (*TokenMaker, error) {
-	privateKey, err := loadPrivateKey(privateKeyContent)
+func NewTokenMakerAdapter(privateKeyContent, publicKeyContent string) (*TokenMakerAdapter, error) {
+	maker := &TokenMakerAdapter{}
+
+	privateKey, err := maker.loadPrivateKey(privateKeyContent)
 	if err != nil {
 		return nil, fmt.Errorf("failed to load private key: %w", err)
 	}
 
-	publicKey, err := loadPublicKey(publicKeyContent)
+	publicKey, err := maker.loadPublicKey(publicKeyContent)
 	if err != nil {
 		return nil, fmt.Errorf("failed to load public key: %w", err)
 	}
 
-	maker := &TokenMaker{
-		paseto:     paseto.NewV2(),
-		privateKey: privateKey,
-		publicKey:  publicKey,
-	}
+	maker.paseto = paseto.NewV2()
+	maker.privateKey = privateKey
+	maker.publicKey = publicKey
 
 	return maker, nil
 }
 
 // CreateToken creates a new token for a specific user and duration
-func (maker *TokenMaker) CreateToken(user *domain.User, duration time.Duration) (string, time.Time, error) {
+func (maker *TokenMakerAdapter) CreateToken(user sqlc.User, duration time.Duration) (string, time.Time, error) {
+	convertedUUID, err := utils.FromPGTypeUUID(user.ID)
+	if err != nil {
+		return "", time.Time{}, utils.ErrInvalidUUID
+	}
 	payload := domain.TokenPayload{
-		UserID:    user.ID.String(),
+		UserID:    convertedUUID.String(),
 		Username:  user.Username,
 		IssuedAt:  time.Now(),
 		ExpiresAt: time.Now().Add(duration),
@@ -64,7 +70,7 @@ func (maker *TokenMaker) CreateToken(user *domain.User, duration time.Duration) 
 }
 
 // VerifyToken checks if the token is valid and returns the payload
-func (maker *TokenMaker) VerifyToken(token string) (*domain.TokenPayload, error) {
+func (maker *TokenMakerAdapter) VerifyToken(token string) (*domain.TokenPayload, error) {
 	payload := &domain.TokenPayload{}
 
 	err := maker.paseto.Verify(token, maker.publicKey, payload, nil)
@@ -80,7 +86,7 @@ func (maker *TokenMaker) VerifyToken(token string) (*domain.TokenPayload, error)
 }
 
 // ParseUserID parses the user ID from the token payload
-func ParseUserID(payload *domain.TokenPayload) (uuid.UUID, error) {
+func (maker *TokenMakerAdapter) ParseUserID(payload *domain.TokenPayload) (uuid.UUID, error) {
 	userID, err := uuid.Parse(payload.UserID)
 	if err != nil {
 		return uuid.Nil, fmt.Errorf("invalid user ID: %w", err)
@@ -88,7 +94,7 @@ func ParseUserID(payload *domain.TokenPayload) (uuid.UUID, error) {
 	return userID, nil
 }
 
-func loadPrivateKey(key string) (ed25519.PrivateKey, error) {
+func (maker *TokenMakerAdapter) loadPrivateKey(key string) (ed25519.PrivateKey, error) {
 	decode, err := base64.StdEncoding.DecodeString(key)
 	if err != nil {
 		return nil, err
@@ -99,7 +105,7 @@ func loadPrivateKey(key string) (ed25519.PrivateKey, error) {
 		return nil, ErrInvalidKey
 	}
 
-	privateKey, err := parsePrivateKey(block.Bytes)
+	privateKey, err := maker.parsePrivateKey(block.Bytes)
 	if err != nil {
 		return nil, err
 	}
@@ -107,7 +113,7 @@ func loadPrivateKey(key string) (ed25519.PrivateKey, error) {
 	return privateKey, nil
 }
 
-func loadPublicKey(key string) (ed25519.PublicKey, error) {
+func (maker *TokenMakerAdapter) loadPublicKey(key string) (ed25519.PublicKey, error) {
 	decode, err := base64.StdEncoding.DecodeString(key)
 	if err != nil {
 		return nil, err
@@ -118,7 +124,7 @@ func loadPublicKey(key string) (ed25519.PublicKey, error) {
 		return nil, ErrInvalidKey
 	}
 
-	publicKey, err := parsePublicKey(block.Bytes)
+	publicKey, err := maker.parsePublicKey(block.Bytes)
 	if err != nil {
 		return nil, err
 	}
@@ -126,7 +132,7 @@ func loadPublicKey(key string) (ed25519.PublicKey, error) {
 	return publicKey, nil
 }
 
-func parsePrivateKey(der []byte) (ed25519.PrivateKey, error) {
+func (maker *TokenMakerAdapter) parsePrivateKey(der []byte) (ed25519.PrivateKey, error) {
 	key, err := x509.ParsePKCS8PrivateKey(der)
 	if err != nil {
 		return nil, err
@@ -140,7 +146,7 @@ func parsePrivateKey(der []byte) (ed25519.PrivateKey, error) {
 	return ed25519Key, nil
 }
 
-func parsePublicKey(der []byte) (ed25519.PublicKey, error) {
+func (maker *TokenMakerAdapter) parsePublicKey(der []byte) (ed25519.PublicKey, error) {
 	key, err := x509.ParsePKIXPublicKey(der)
 	if err != nil {
 		return nil, err

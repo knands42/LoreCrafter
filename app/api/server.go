@@ -3,9 +3,9 @@ package api
 import (
 	"context"
 	"fmt"
-	_ "github.com/knands42/lorecrafter/cmd/api/docs" // Import the docs package
-	middleware2 "github.com/knands42/lorecrafter/cmd/api/middleware"
-	"github.com/knands42/lorecrafter/cmd/api/routes"
+	_ "github.com/knands42/lorecrafter/app/api/docs" // Import the docs package
+	middleware2 "github.com/knands42/lorecrafter/app/api/middleware"
+	"github.com/knands42/lorecrafter/app/api/routes"
 	"github.com/knands42/lorecrafter/internal/usecases"
 	"net/http"
 	"time"
@@ -59,7 +59,13 @@ func (s *Server) Shutdown(ctx context.Context) error {
 }
 
 // SetupRoutes sets up the routes for the server
-func SetupRoutes(server *Server, authHandler *routes.AuthHandler, userHandler *routes.UserHandler, authUseCase *usecases.AuthUseCase) {
+func SetupRoutes(
+	server *Server,
+	authHandler *routes.AuthHandler,
+	userHandler *routes.UserHandler,
+	campaignHandler *routes.CampaignHandler,
+	authUseCase *usecases.AuthUseCase,
+) {
 	// Swagger UI
 	server.router.Get("/swagger/*", httpSwagger.Handler(
 		httpSwagger.URL("/swagger/doc.json"), // The URL pointing to API definition
@@ -98,6 +104,9 @@ func SetupRoutes(server *Server, authHandler *routes.AuthHandler, userHandler *r
 		r.Group(func(r chi.Router) {
 			r.Use(middleware2.AuthMiddleware(authUseCase))
 			r.Get("/me", middleware2.ErrorHandlerMiddleware(userHandler.Me))
+
+			// Campaign routes
+			campaignHandler.RegisterRoutes(r)
 		})
 	})
 }

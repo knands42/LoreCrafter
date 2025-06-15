@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/knands42/lorecrafter/cmd/api/middleware"
-	"github.com/knands42/lorecrafter/cmd/api/utils"
+	"github.com/knands42/lorecrafter/app/api/middleware"
+	"github.com/knands42/lorecrafter/app/api/utils"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/knands42/lorecrafter/internal/domain"

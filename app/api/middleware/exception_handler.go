@@ -2,7 +2,7 @@ package middleware
 
 import (
 	"errors"
-	"github.com/knands42/lorecrafter/cmd/api/utils"
+	"github.com/knands42/lorecrafter/app/api/utils"
 	utils2 "github.com/knands42/lorecrafter/internal/utils"
 	"net/http"
 )

@@ -2,7 +2,7 @@ package routes
 
 import (
 	"fmt"
-	middleware2 "github.com/knands42/lorecrafter/cmd/api/middleware"
+	middleware2 "github.com/knands42/lorecrafter/app/api/middleware"
 	"net/http"
 )
 

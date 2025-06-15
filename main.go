@@ -8,8 +8,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/knands42/lorecrafter/cmd/api"
-	"github.com/knands42/lorecrafter/cmd/api/routes"
+	"github.com/knands42/lorecrafter/app/api"
+	"github.com/knands42/lorecrafter/app/api/routes"
 	"github.com/knands42/lorecrafter/internal/adapter/database"
 	"github.com/knands42/lorecrafter/internal/config"
 	sqlc "github.com/knands42/lorecrafter/pkg/sqlc/generated"
@@ -32,23 +32,26 @@ func main() {
 	}
 	repo := sqlc.New(pgConn)
 
-	// Set up token maker
-	tokenMaker, err := security.NewTokenMaker(cfg.PrivateKey, cfg.PublicKey)
+	// Set up adapters
+	tokenMakerAdapter, err := security.NewTokenMakerAdapter(cfg.PrivateKey, cfg.PublicKey)
 	if err != nil {
 		log.Fatalf("Failed to create token maker: %v", err)
 	}
+	argon2Adapter := security.NewArgon2Adapter()
 
 	// Set up use cases
 	ctx := context.Background()
-	authUseCase := usecases.NewAuthUseCase(ctx, repo, tokenMaker, cfg.TokenExpiry)
+	authUseCase := usecases.NewAuthUseCase(ctx, repo, tokenMakerAdapter, argon2Adapter, cfg.TokenExpiry)
+	campaignUseCase := usecases.NewCampaignUseCase(ctx, repo)
 
 	// Set up HTTP handlers
 	authHandler := routes.NewAuthHandler(authUseCase)
 	userHandler := routes.NewUserHandler()
+	campaignHandler := routes.NewCampaignHandler(campaignUseCase)
 
 	// Set up HTTP server
 	server := api.NewServer(cfg.ServerPort)
-	api.SetupRoutes(server, authHandler, userHandler, authUseCase)
+	api.SetupRoutes(server, authHandler, userHandler, campaignHandler, authUseCase)
 
 	// Start the server in a goroutine
 	go func() {

@@ -5,9 +5,6 @@ import (
 	"github.com/knands42/lorecrafter/internal/utils"
 	sqlc "github.com/knands42/lorecrafter/pkg/sqlc/generated"
 	"strings"
-	"time"
-
-	"github.com/google/uuid"
 )
 
 var (
@@ -44,52 +41,16 @@ func (user *UserCreationInput) Validate() error {
 	return nil
 }
 
-// User represents a user domain
-type User struct {
-	ID             uuid.UUID `json:"id"`
-	Username       string    `json:"username"`
-	Email          string    `json:"email"`
-	HashedPassword string    `json:"-"`
-	Active         bool      `json:"active"`
-	CreatedAt      time.Time `json:"-"`
-	UpdatedAt      time.Time `json:"-"`
-}
-
-// NewUser creates a new user with the given details
-func NewUser(username, email, hashedPassword string) (*User, error) {
-	now := time.Now()
-	uuidV7, err := uuid.NewV7()
+func (user *UserCreationInput) ToSqlcParams(hashedPassword string) (sqlc.CreateUserParams, error) {
+	newUUUIDV7, err := utils.GeneratePGUUID()
 	if err != nil {
-		return nil, ErrUUIDGeneration
+		return sqlc.CreateUserParams{}, err
 	}
 
-	return &User{
-		ID:             uuidV7,
-		Username:       username,
-		Email:          email,
+	return sqlc.CreateUserParams{
+		ID:             newUUUIDV7,
+		Username:       user.Username,
+		Email:          user.Email,
 		HashedPassword: hashedPassword,
-		Active:         false,
-		CreatedAt:      now,
-		UpdatedAt:      now,
-	}, nil
-}
-
-func ToDomainUser(dbUser sqlc.User) (User, error) {
-	id, err := utils.FromPGTypeUUID(dbUser.ID)
-	if err != nil {
-		return User{}, err
-	}
-
-	createdAt := dbUser.CreatedAt.Time
-	updatedAt := dbUser.UpdatedAt.Time
-
-	return User{
-		ID:             id,
-		Username:       dbUser.Username,
-		Email:          dbUser.Email,
-		HashedPassword: dbUser.HashedPassword,
-		Active:         dbUser.IsActive,
-		CreatedAt:      createdAt,
-		UpdatedAt:      updatedAt,
 	}, nil
 }
