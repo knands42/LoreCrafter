@@ -7,7 +7,20 @@ definitions:
       token:
         type: string
       user:
-        $ref: '#/definitions/domain.User'
+        $ref: '#/definitions/sqlc.User'
+    type: object
+  domain.CampaignCreationInput:
+    properties:
+      image_url:
+        type: string
+      is_public:
+        type: boolean
+      setting:
+        type: string
+      setting_summary:
+        type: string
+      title:
+        type: string
     type: object
   domain.LoginInput:
     properties:
@@ -16,23 +29,108 @@ definitions:
       username:
         type: string
     type: object
-  domain.User:
-    properties:
-      active:
-        type: boolean
-      email:
-        type: string
-      id:
-        type: string
-      username:
-        type: string
-    type: object
   domain.UserCreationInput:
     properties:
       email:
+        example: john@mail.com
         type: string
       password:
+        example: "12345678"
         type: string
+      username:
+        example: johndoe
+        type: string
+    type: object
+  pgtype.InfinityModifier:
+    enum:
+    - 1
+    - 0
+    - -1
+    type: integer
+    x-enum-varnames:
+    - Infinity
+    - Finite
+    - NegativeInfinity
+  pgtype.Text:
+    properties:
+      string:
+        type: string
+      valid:
+        type: boolean
+    type: object
+  pgtype.Timestamptz:
+    properties:
+      infinityModifier:
+        $ref: '#/definitions/pgtype.InfinityModifier'
+      time:
+        type: string
+      valid:
+        type: boolean
+    type: object
+  sqlc.Campaign:
+    properties:
+      created_at:
+        $ref: '#/definitions/pgtype.Timestamptz'
+      created_by:
+        type: string
+      id:
+        type: string
+      image_url:
+        $ref: '#/definitions/pgtype.Text'
+      invite_code:
+        $ref: '#/definitions/pgtype.Text'
+      is_public:
+        type: boolean
+      setting:
+        $ref: '#/definitions/pgtype.Text'
+      setting_summary:
+        $ref: '#/definitions/pgtype.Text'
+      title:
+        type: string
+      updated_at:
+        $ref: '#/definitions/pgtype.Timestamptz'
+    type: object
+  sqlc.CampaignMember:
+    properties:
+      campaign_id:
+        type: string
+      id:
+        type: string
+      joined_at:
+        $ref: '#/definitions/pgtype.Timestamptz'
+      last_accessed:
+        $ref: '#/definitions/pgtype.Timestamptz'
+      role:
+        $ref: '#/definitions/sqlc.MemberRole'
+      user_id:
+        type: string
+    type: object
+  sqlc.MemberRole:
+    enum:
+    - gm
+    - player
+    type: string
+    x-enum-varnames:
+    - MemberRoleGm
+    - MemberRolePlayer
+  sqlc.User:
+    properties:
+      avatar_url:
+        $ref: '#/definitions/pgtype.Text'
+      created_at:
+        $ref: '#/definitions/pgtype.Timestamptz'
+      email:
+        type: string
+      hashed_password:
+        type: string
+      id:
+        type: string
+      is_active:
+        type: boolean
+      last_login_at:
+        $ref: '#/definitions/pgtype.Timestamptz'
+      updated_at:
+        $ref: '#/definitions/pgtype.Timestamptz'
       username:
         type: string
     type: object
@@ -124,6 +222,371 @@ paths:
       summary: Register a new user
       tags:
       - auth
+  /api/campaigns:
+    get:
+      consumes:
+      - application/json
+      description: List all campaigns a user is a member of
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Campaigns retrieved successfully
+          schema:
+            items:
+              $ref: '#/definitions/sqlc.Campaign'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: List user campaigns
+      tags:
+      - campaigns
+    post:
+      consumes:
+      - application/json
+      description: Create a new campaign with the provided details
+      parameters:
+      - description: Campaign creation details
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/domain.CampaignCreationInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Campaign created successfully
+          schema:
+            $ref: '#/definitions/sqlc.Campaign'
+        "400":
+          description: Invalid request body
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a new campaign
+      tags:
+      - campaigns
+  /api/campaigns/{campaignID}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a campaign if the user has GM permissions
+      parameters:
+      - description: Campaign ID
+        in: path
+        name: campaignID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Campaign deleted successfully
+        "400":
+          description: Invalid campaign ID
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "403":
+          description: Insufficient permissions
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "404":
+          description: Campaign not found
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete a campaign
+      tags:
+      - campaigns
+    get:
+      consumes:
+      - application/json
+      description: Get a campaign by ID if the user has access
+      parameters:
+      - description: Campaign ID
+        in: path
+        name: campaignID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Campaign retrieved successfully
+          schema:
+            $ref: '#/definitions/sqlc.Campaign'
+        "400":
+          description: Invalid campaign ID
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "403":
+          description: Insufficient permissions
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "404":
+          description: Campaign not found
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get a campaign by ID
+      tags:
+      - campaigns
+    put:
+      consumes:
+      - application/json
+      description: Update a campaign if the user has GM permissions
+      parameters:
+      - description: Campaign ID
+        in: path
+        name: campaignID
+        required: true
+        type: string
+      - description: Campaign update details
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/sqlc.Campaign'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Campaign updated successfully
+          schema:
+            $ref: '#/definitions/sqlc.Campaign'
+        "400":
+          description: Invalid request body or campaign ID
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "403":
+          description: Insufficient permissions
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "404":
+          description: Campaign not found
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update a campaign
+      tags:
+      - campaigns
+  /api/campaigns/{campaignID}/members:
+    get:
+      consumes:
+      - application/json
+      description: List all members of a campaign if the user has access
+      parameters:
+      - description: Campaign ID
+        in: path
+        name: campaignID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Campaign members retrieved successfully
+          schema:
+            items:
+              $ref: '#/definitions/sqlc.CampaignMember'
+            type: array
+        "400":
+          description: Invalid campaign ID
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "403":
+          description: Insufficient permissions
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: List campaign members
+      tags:
+      - campaigns
+    post:
+      consumes:
+      - application/json
+      description: Add a user to a campaign if the requester has GM permissions
+      parameters:
+      - description: Campaign ID
+        in: path
+        name: campaignID
+        required: true
+        type: string
+      - description: User ID and role
+        in: body
+        name: input
+        required: true
+        schema:
+          additionalProperties:
+            type: string
+          type: object
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: User added to campaign successfully
+        "400":
+          description: Invalid request body or campaign ID
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "403":
+          description: Insufficient permissions
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "404":
+          description: Campaign not found
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Add a user to a campaign
+      tags:
+      - campaigns
+  /api/campaigns/{campaignID}/members/{userID}:
+    delete:
+      consumes:
+      - application/json
+      description: Remove a user from a campaign if the requester has GM permissions
+      parameters:
+      - description: Campaign ID
+        in: path
+        name: campaignID
+        required: true
+        type: string
+      - description: User ID
+        in: path
+        name: userID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: User removed from campaign successfully
+        "400":
+          description: Invalid campaign ID or user ID
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "403":
+          description: Insufficient permissions
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "404":
+          description: Campaign not found
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Remove a user from a campaign
+      tags:
+      - campaigns
+  /api/campaigns/leave/{campaignID}:
+    delete:
+      consumes:
+      - application/json
+      description: Allow a user to leave a campaign
+      parameters:
+      - description: Campaign ID
+        in: path
+        name: campaignID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Left campaign successfully
+        "400":
+          description: Invalid campaign ID
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "404":
+          description: Campaign not found
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Leave a campaign
+      tags:
+      - campaigns
   /api/me:
     get:
       consumes:

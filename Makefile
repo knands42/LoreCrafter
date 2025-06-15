@@ -64,6 +64,6 @@ sqlc-generate:
 
 # Generate Swagger documentation
 swagger-generate:
-	swag init -g app/api/docs.go -o app/api/docs
+	swag init -g app/api/docs.go -o app/api/docs --parseDependency
 
 .PHONY: sqlc-generate, swagger-generate, migrate-down, migrate-down1, migrate-up1, migration-up, migration-create, docker-build

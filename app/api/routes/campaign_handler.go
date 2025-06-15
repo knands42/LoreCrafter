@@ -56,7 +56,7 @@ func (h *CampaignHandler) RegisterRoutes(r chi.Router) {
 // @Produce json
 // @Security BearerAuth
 // @Param input body domain.CampaignCreationInput true "Campaign creation details"
-// @Success 201 {object} domain.Campaign "Campaign created successfully"
+// @Success 201 {object} sqlc.Campaign "Campaign created successfully"
 // @Failure 400 {object} utils.ErrorResponse "Invalid request body"
 // @Failure 401 {object} utils.ErrorResponse "Unauthorized"
 // @Failure 500 {object} utils.ErrorResponse "Internal server error"
@@ -96,7 +96,7 @@ func (h *CampaignHandler) CreateCampaign(w http.ResponseWriter, r *http.Request)
 // @Produce json
 // @Security BearerAuth
 // @Param campaignID path string true "Campaign ID"
-// @Success 200 {object} domain.Campaign "Campaign retrieved successfully"
+// @Success 200 {object} sqlc.Campaign "Campaign retrieved successfully"
 // @Failure 400 {object} utils.ErrorResponse "Invalid campaign ID"
 // @Failure 401 {object} utils.ErrorResponse "Unauthorized"
 // @Failure 403 {object} utils.ErrorResponse "Insufficient permissions"
@@ -148,8 +148,8 @@ func (h *CampaignHandler) GetCampaign(w http.ResponseWriter, r *http.Request) er
 // @Produce json
 // @Security BearerAuth
 // @Param campaignID path string true "Campaign ID"
-// @Param input body domain.Campaign true "Campaign update details"
-// @Success 200 {object} domain.Campaign "Campaign updated successfully"
+// @Param input body sqlc.Campaign true "Campaign update details"
+// @Success 200 {object} sqlc.Campaign "Campaign updated successfully"
 // @Failure 400 {object} utils.ErrorResponse "Invalid request body or campaign ID"
 // @Failure 401 {object} utils.ErrorResponse "Unauthorized"
 // @Failure 403 {object} utils.ErrorResponse "Insufficient permissions"
@@ -252,7 +252,7 @@ func (h *CampaignHandler) DeleteCampaign(w http.ResponseWriter, r *http.Request)
 // @Accept json
 // @Produce json
 // @Security BearerAuth
-// @Success 200 {array} domain.Campaign "Campaigns retrieved successfully"
+// @Success 200 {array} sqlc.Campaign "Campaigns retrieved successfully"
 // @Failure 401 {object} utils.ErrorResponse "Unauthorized"
 // @Failure 500 {object} utils.ErrorResponse "Internal server error"
 // @Router /api/campaigns [get]
@@ -440,7 +440,7 @@ func (h *CampaignHandler) LeaveCampaign(w http.ResponseWriter, r *http.Request) 
 // @Produce json
 // @Security BearerAuth
 // @Param campaignID path string true "Campaign ID"
-// @Success 200 {array} domain.CampaignMember "Campaign members retrieved successfully"
+// @Success 200 {array} sqlc.CampaignMember "Campaign members retrieved successfully"
 // @Failure 400 {object} utils.ErrorResponse "Invalid campaign ID"
 // @Failure 401 {object} utils.ErrorResponse "Unauthorized"
 // @Failure 403 {object} utils.ErrorResponse "Insufficient permissions"

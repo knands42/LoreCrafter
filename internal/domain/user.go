@@ -12,9 +12,9 @@ var (
 )
 
 type UserCreationInput struct {
-	Username string `json:"username"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	Username string `json:"username" example:"johndoe"`
+	Email    string `json:"email" example:"john@mail.com"`
+	Password string `json:"password" example:"12345678"`
 }
 
 func (user *UserCreationInput) Validate() error {
