@@ -31,9 +31,9 @@ func NewServer(cfg config.Config) *Server {
 
 	// Set up CORS
 	corsMiddleware := cors.Handler(cors.Options{
-		AllowedOrigins:   []string{cfg.Hostname, cfg.Hostname + "/swagger"},
+		AllowedOrigins:   []string{cfg.Hostname},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token", "Origin"},
 		ExposedHeaders:   []string{"Link"},
 		AllowCredentials: true,
 		MaxAge:           300, // Maximum value not ignored by any of major browsers
