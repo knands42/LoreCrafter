@@ -1,4 +1,5 @@
-import axios, { AxiosError, AxiosInstance, AxiosResponse } from "axios";
+import axios, {AxiosError, AxiosInstance, AxiosResponse} from "axios";
+import {AuthResponse, Campaign, CampaignCreationRequest, LoginRequest, RegisterRequest} from "@/lib/types";
 
 const API_BASE_URL =
     process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000/api";
@@ -11,6 +12,14 @@ const apiClient: AxiosInstance = axios.create({
     timeout: 10000, // 10 seconds
     withCredentials: true, // Enable sending cookies with cross-origin requests
 });
+
+// Interceptor to add token dynamically
+export const setApiClientToken= (token: string) => {
+    apiClient.interceptors.request.use(async (config) => {
+        config.headers.Authorization = `Bearer ${token}`;
+        return config;
+    });
+}
 
 // Response interceptor
 apiClient.interceptors.response.use(
@@ -54,9 +63,25 @@ apiClient.interceptors.response.use(
     }
 );
 
-export const fetcher = (url: string) =>
-    apiClient.get(url).then((res) => res.data);
-export const mutator = (url: string, data: any) =>
-    apiClient.post(url, data).then((res) => res.data);
+export const authApi = {
+    register: (data: RegisterRequest): Promise<AxiosResponse<AuthResponse>> => 
+        apiClient.post("/api/auth/register", data),
+
+    login: (data: LoginRequest): Promise<AxiosResponse<AuthResponse>> => 
+        apiClient.post("/api/auth/login", data),
+};
+
+export const campaignApi = {
+    getAll: (): Promise<AxiosResponse<Campaign>> => apiClient.get("/api/campaigns"),
+
+    getById: (campaignId: string): Promise<AxiosResponse<Array<Campaign>>> =>
+        apiClient.get(`/api/campaigns/${campaignId}`),
+
+    create: (data: CampaignCreationRequest): Promise<AxiosResponse<Campaign>> => apiClient.post("/api/campaigns", data),
+
+    update: () => {},
+
+    delete: () => {},
+};
 
 export default apiClient;
