@@ -2,6 +2,7 @@ package integration
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -9,11 +10,30 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/knands42/lorecrafter/internal/domain"
+	sqlc "github.com/knands42/lorecrafter/pkg/sqlc/generated"
 	"github.com/stretchr/testify/require"
 )
 
+// DeleteUser deletes a user from the database by username
+func DeleteUser(t *testing.T, username string) {
+	// Use the TestDB connection to delete the user
+	_, err := TestDB.Exec(context.Background(), "DELETE FROM users WHERE username = $1", username)
+	if err != nil {
+		t.Logf("Error deleting user %s: %v", username, err)
+	}
+}
+
+// TestUser represents a test user
+type TestUser struct {
+	User     sqlc.User
+	Token    string
+	Username string
+	Email    string
+	Password string
+}
+
 // CreateTestUser creates a test user with random credentials
-func CreateTestUser(t *testing.T) domain.AuthOutput {
+func CreateTestUser(t *testing.T) TestUser {
 	// Generate random username and email
 	username := fmt.Sprintf("testuser_%s", uuid.New().String()[:8])
 	email := fmt.Sprintf("%s@example.com", username)
@@ -37,13 +57,19 @@ func CreateTestUser(t *testing.T) domain.AuthOutput {
 	require.Equal(t, username, authOutput.User.Username)
 	require.Equal(t, email, authOutput.User.Email)
 
-	// Convert pgtype.UUID to uuid.UUID
-	var userID uuid.UUID
-	err := userID.Scan(authOutput.User.ID.Bytes)
-	require.NoError(t, err)
+	// Register cleanup function to delete the user after the test
+	t.Cleanup(func() {
+		DeleteUser(t, username)
+	})
 
 	// Return the test user
-	return authOutput
+	return TestUser{
+		User:     authOutput.User,
+		Token:    authOutput.Token,
+		Username: username,
+		Email:    email,
+		Password: password,
+	}
 }
 
 // RegisterUser registers a new user

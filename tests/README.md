@@ -10,6 +10,19 @@ The tests follow the "Given, When, Then" pattern to make them more readable and 
 - **When**: The action being tested
 - **Then**: The expected outcome
 
+### Test Cleanup
+
+Each test automatically cleans up after itself using Go's `t.Cleanup()` mechanism. This ensures that:
+
+- Data created during a test is removed after the test completes
+- Tests are isolated from each other
+- The database remains clean between test runs
+
+The cleanup process:
+1. Tracks users created during tests
+2. Automatically deletes these users after each test
+3. Cascades deletions to related data (campaigns, campaign members, etc.) through database constraints
+
 ## Test Coverage
 
 The integration tests cover the following features:
@@ -32,16 +45,8 @@ The integration tests cover the following features:
 
 To run the integration tests, you need to have a PostgreSQL database running. The tests will use the following environment variables to connect to the database:
 
-- `TEST_DB_HOST`: The database host (default: localhost)
-- `TEST_DB_PORT`: The database port (default: 5432)
-- `TEST_DB_USER`: The database user (default: postgres)
-- `TEST_DB_PASSWORD`: The database password (default: postgres)
-- `TEST_DB_NAME`: The database name (default: lorecrafter_test)
-
-You can run the tests using the following command:
-
 ```bash
-go test -v ./tests/integration
+make test
 ```
 
 ## Test Coverage Report

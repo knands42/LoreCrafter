@@ -21,6 +21,11 @@ func TestRegister_Success(t *testing.T) {
 		Password: password,
 	}
 
+	// Register cleanup to delete the user after the test
+	t.Cleanup(func() {
+		DeleteUser(t, username)
+	})
+
 	// When registering the user
 	var authOutput domain.AuthOutput
 	statusCode := RegisterUser(t, input, &authOutput)
@@ -44,6 +49,11 @@ func TestRegister_Failure_UserAlreadyExists(t *testing.T) {
 		Email:    email,
 		Password: password,
 	}
+
+	// Register cleanup to delete the user after the test
+	t.Cleanup(func() {
+		DeleteUser(t, username)
+	})
 
 	// Register the user first
 	var authOutput domain.AuthOutput
@@ -128,6 +138,11 @@ func TestLogin_Success(t *testing.T) {
 	email := "testuser_login_success@example.com"
 	password := "Password123!"
 
+	// Register cleanup to delete the user after the test
+	t.Cleanup(func() {
+		DeleteUser(t, username)
+	})
+
 	// Create the user
 	input := domain.UserCreationInput{
 		Username: username,
@@ -161,6 +176,11 @@ func TestLogin_Failure_InvalidCredentials(t *testing.T) {
 	username := "testuser_login_failure"
 	email := "testuser_login_failure@example.com"
 	password := "Password123!"
+
+	// Register cleanup to delete the user after the test
+	t.Cleanup(func() {
+		DeleteUser(t, username)
+	})
 
 	// Create the user
 	input := domain.UserCreationInput{
@@ -227,7 +247,7 @@ func TestMe_Success(t *testing.T) {
 	user := CreateTestUser(t)
 
 	// When getting the user's profile
-	var responseBody string
+	var responseBody interface{}
 	statusCode := SendAuthenticatedRequest(t, "GET", "/api/me", user.Token, nil, &responseBody)
 
 	// Then the profile should be retrieved successfully
