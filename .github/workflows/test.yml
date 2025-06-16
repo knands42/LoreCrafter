@@ -2,21 +2,20 @@ name: Test Pipeline
 
 on:
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
+      - develop
 
 env:
-  POSTGRES_USER: postgres
-  POSTGRES_PASSWORD: postgres
-  POSTGRES_DB: lorecrafter
-  POSTGRES_HOST: localhost
-  POSTGRES_PORT: 5432
-  POSTGRES_SSLMODE: disable
+  POSTGRES_USER: "postgres"
+  POSTGRES_PASSWORD: "postgres"
+  POSTGRES_URL: "postgresql://postgres:postgres@localhost:5432/lorecrafter_test?sslmode=disable"
 
 jobs:
   test:
     name: Run Tests
     runs-on: ubuntu-latest
-    
+
     services:
       postgres:
         image: postgres:17-alpine
@@ -54,7 +53,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-go-
 
-
       - name: Install dependencies
         run: go mod download
 
@@ -71,14 +69,15 @@ jobs:
 
       - name: Run tests
         env:
-          POSTGRES_URL: "postgres://${{ env.POSTGRES_USER }}:${{ env.POSTGRES_PASSWORD }}@${{ env.POSTGRES_HOST }}:${{ env.POSTGRES_PORT }}/${{ env.POSTGRES_DB }}?sslmode=${{ env.POSTGRES_SSLMODE }}"
+          POSTGRES_URL: ${{ env.POSTGRES_URL }}
         run: |
-          go test -v -coverprofile=coverage.out ./...
+          go test -v -coverprofile=coverage.out -covermode=atomic $(shell go list ./... | grep -v "docs\|pkg")
+          go tool cover -html=coverage.out -o coverage.html
           go tool cover -func=coverage.out
+        
 
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
-        with:
-          file: ./coverage.out
-          fail_ci_if_error: false
-
+#      - name: Upload coverage to Codecov
+#        uses: codecov/codecov-action@v3
+#        with:
+#          file: ./coverage.out
+#          fail_ci_if_error: false

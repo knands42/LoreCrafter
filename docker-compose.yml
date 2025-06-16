@@ -35,6 +35,24 @@ services:
       retries: 5
       start_period: 10s
 
+  db-test:
+    image: postgres:17-alpine
+    container_name: db_test
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=lorecrafter_test
+    ports:
+      - '5432:5432'
+    networks:
+      - app-network
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
 networks:
   app-network:
     driver: bridge

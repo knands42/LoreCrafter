@@ -36,6 +36,7 @@ func NewArgon2Adapter() *Argon2Adapter {
 }
 
 // HashPassword hashes a password using Argon2id
+// TODO: dont store hash params in the db
 func (arg *Argon2Adapter) HashPassword(password string) (string, error) {
 	// Generate a random salt
 	salt := make([]byte, arg.SaltLength)

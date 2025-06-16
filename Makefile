@@ -1,10 +1,21 @@
 include .env.example
 
+SHELL := /bin/bash
+
 ####### setup commands
 # Generate Ed25519 key pair for PASETO tokens
-generate-paseto-keys:
+setup:
 	openssl genpkey -algorithm Ed25519 -out private_key.pem
 	openssl pkey -in private_key.pem -pubout -out public_key.pem
+	@echo "Base64 encoding keys and updating .env file..."
+	@if [ ! -f .env ]; then cp .env.example .env; fi
+	@PRIVATE_KEY_BASE64=$$(cat private_key.pem | base64 -w 0) && \
+	PUBLIC_KEY_BASE64=$$(cat public_key.pem | base64 -w 0) && \
+	sed -i "s|PASETO_PRIVATE_KEY=.*|PASETO_PRIVATE_KEY=$$PRIVATE_KEY_BASE64|" .env && \
+	sed -i "s|PASETO_PUBLIC_KEY=.*|PASETO_PUBLIC_KEY=$$PUBLIC_KEY_BASE64|" .env
+	@echo "Keys generated, encoded, and set in .env file"
+	@echo "Cleaning up temporary PEM files..."
+	@rm private_key.pem public_key.pem
 
 ####### application commands #######
 # Build the application
@@ -18,6 +29,12 @@ run: build
 # Run tests
 test:
 	go test -v ./...
+
+# Run tests with coverage
+test-coverage:
+	go test -v -coverprofile=coverage.out -covermode=atomic $(shell go list ./... | grep -v "docs\|pkg")
+	go tool cover -html=coverage.out -o coverage.html
+	go tool cover -func=coverage.out
 
 # Clean build artifacts
 clean:
