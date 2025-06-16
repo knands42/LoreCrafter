@@ -140,7 +140,6 @@ definitions:
       error:
         type: string
     type: object
-host: localhost:8000
 info:
   contact:
     email: support@swagger.io
