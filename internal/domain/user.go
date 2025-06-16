@@ -1,14 +1,11 @@
 package domain
 
 import (
-	"errors"
+	"github.com/google/uuid"
 	"github.com/knands42/lorecrafter/internal/utils"
 	sqlc "github.com/knands42/lorecrafter/pkg/sqlc/generated"
 	"strings"
-)
-
-var (
-	ErrUUIDGeneration = errors.New("failed to generate UUID")
+	"time"
 )
 
 type UserCreationInput struct {
@@ -53,4 +50,16 @@ func (user *UserCreationInput) ToSqlcParams(hashedPassword string) (sqlc.CreateU
 		Email:          user.Email,
 		HashedPassword: hashedPassword,
 	}, nil
+}
+
+type User struct {
+	ID          uuid.UUID `json:"id"`
+	Username    string    `json:"username"`
+	Email       string    `json:"email"`
+	AvatarUrl   string    `json:"avatar_url"`
+	LastLoginAt time.Time `json:"last_login_at"`
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
+	IssuedAt    time.Time `json:"issued_at"`
+	ExpiresAt   time.Time `json:"expires_at"`
 }

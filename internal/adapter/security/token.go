@@ -11,7 +11,6 @@ import (
 	sqlc "github.com/knands42/lorecrafter/pkg/sqlc/generated"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/knands42/lorecrafter/internal/domain"
 	"github.com/o1egl/paseto"
 )
@@ -55,11 +54,16 @@ func (maker *TokenMakerAdapter) CreateToken(user sqlc.User, duration time.Durati
 		return "", time.Time{}, utils.ErrInvalidUUID
 	}
 	payload := domain.TokenPayload{
-		UserID:    convertedUUID.String(),
-		Username:  user.Username,
 		IssuedAt:  time.Now(),
 		ExpiresAt: time.Now().Add(duration),
 	}
+	payload.ID = convertedUUID
+	payload.Email = user.Email
+	payload.Username = user.Username
+	payload.AvatarUrl = user.AvatarUrl.String
+	payload.LastLoginAt = user.LastLoginAt.Time
+	payload.CreatedAt = user.CreatedAt.Time
+	payload.UpdatedAt = user.UpdatedAt.Time
 
 	token, err := maker.paseto.Sign(maker.privateKey, payload, nil)
 	if err != nil {
@@ -83,15 +87,6 @@ func (maker *TokenMakerAdapter) VerifyToken(token string) (*domain.TokenPayload,
 	}
 
 	return payload, nil
-}
-
-// ParseUserID parses the user ID from the token payload
-func (maker *TokenMakerAdapter) ParseUserID(payload *domain.TokenPayload) (uuid.UUID, error) {
-	userID, err := uuid.Parse(payload.UserID)
-	if err != nil {
-		return uuid.Nil, fmt.Errorf("invalid user ID: %w", err)
-	}
-	return userID, nil
 }
 
 func (maker *TokenMakerAdapter) loadPrivateKey(key string) (ed25519.PrivateKey, error) {

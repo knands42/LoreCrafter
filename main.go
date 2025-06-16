@@ -24,6 +24,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to get cur directory: %v", err)
 	}
+
 	migrationPath := filepath.Join(cwd, "./internal/adapter/database/migrations")
 	migrationsDir := os.DirFS(migrationPath)
 	migrations.Up(cfg, migrationsDir)

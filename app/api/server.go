@@ -19,6 +19,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/cors"
 	httpSwagger "github.com/swaggo/http-swagger"
 	_ "github.com/swaggo/swag"
 )
@@ -45,6 +46,17 @@ func NewServer(cfg config.Config, repo sqlc.Querier) *Server {
 	router.Use(middleware.Logger)
 	router.Use(middleware.Recoverer)
 	router.Use(middleware.Timeout(10 * time.Second))
+
+	// Set up CORS middleware
+	router.Use(cors.Handler(cors.Options{
+		AllowedOrigins: cfg.AppHostnames,
+		// AllowOriginFunc:  func(r *http.Request, origin string) bool { return true },
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+		ExposedHeaders:   []string{"Link"},
+		AllowCredentials: true,
+		MaxAge:           300, // Maximum value not ignored by any of major browsers
+	}))
 
 	// Create the HTTP server
 	httpServer := &http.Server{

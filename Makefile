@@ -50,6 +50,7 @@ docker-run:
 
 docker-up:
 	docker rmi lorecrafter || true
+	$(MAKE) docker-build
 	docker-compose up --build --force-recreate
 
 docker-down:
