@@ -14,7 +14,6 @@ var (
 	ErrCampaignCreation        = errors.New("error creating campaign")
 	ErrCampaignNotFound        = errors.New("campaign not found")
 	ErrCampaignMemberCreation  = errors.New("error creating campaign member")
-	ErrUserNotFound            = errors.New("user not found")
 	ErrInsufficientPermissions = errors.New("insufficient permissions")
 )
 
@@ -37,6 +36,12 @@ func NewCampaignUseCase(
 
 // CreateCampaign creates a new campaign and adds the creator as a GM
 func (uc *CampaignUseCase) CreateCampaign(input domain.CampaignCreationInput, creatorID uuid.UUID) (sqlc.Campaign, error) {
+	// Validate the input
+	err := input.Validate()
+	if err != nil {
+		return sqlc.Campaign{}, err
+	}
+
 	// Save the campaign
 	createCampaignParams, err := input.ToSqlcParams(creatorID)
 	if err != nil {
@@ -86,11 +91,14 @@ func (uc *CampaignUseCase) GetCampaign(input domain.GetCampaignInput) (sqlc.Camp
 func (uc *CampaignUseCase) UpdateCampaign(campaign domain.UpdateCampaignInput) error {
 	updateCampaignParams, err := campaign.ToSqlcParams()
 	_, err = uc.repo.UpdateCampaign(uc.ctx, updateCampaignParams)
+	if err != nil && err.Error() == "no rows in result set" {
+		return ErrCampaignNotFound
+	}
+
 	return err
 }
 
 // DeleteCampaign deletes a campaign if the user has GM permissions
-// TODO: check if throws error if user is not allowed to delete so I can return the proper error message
 func (uc *CampaignUseCase) DeleteCampaign(input domain.DeleteCampaignInput) error {
 	// Delete the campaign
 	deleteCampaignParams, err := input.ToSqlcParams()

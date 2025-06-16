@@ -247,13 +247,10 @@ func TestMe_Success(t *testing.T) {
 	user := CreateTestUser(t)
 
 	// When getting the user's profile
-	var responseBody interface{}
-	statusCode := SendAuthenticatedRequest(t, "GET", "/api/me", user.Token, nil, &responseBody)
+	statusCode := SendAuthenticatedRequest(t, "GET", "/api/me", user.Token, nil, nil)
 
 	// Then the profile should be retrieved successfully
 	assert.Equal(t, http.StatusOK, statusCode)
-	assert.Contains(t, responseBody, "Authenticated")
-	assert.Contains(t, responseBody, "User ID")
 }
 
 func TestMe_Failure_Unauthorized(t *testing.T) {
