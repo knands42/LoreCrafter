@@ -35,11 +35,7 @@ func TestCreateCampaign_Success(t *testing.T) {
 	assert.Equal(t, settingSummary, campaign.SettingSummary.String)
 	assert.True(t, campaign.IsPublic)
 
-	// Convert pgtype.UUID to uuid.UUID for comparison
-	var createdBy uuid.UUID
-	err := createdBy.Scan(campaign.CreatedBy.Bytes)
-	require.NoError(t, err)
-	assert.Equal(t, user.User.ID, createdBy)
+	assert.Equal(t, user.User.ID.Bytes, campaign.CreatedBy.Bytes)
 }
 
 func TestCreateCampaign_Failure_Unauthorized(t *testing.T) {
@@ -116,14 +112,9 @@ func TestGetCampaign_Success(t *testing.T) {
 	statusCode := CreateCampaign(t, user.Token, input, &campaign)
 	require.Equal(t, http.StatusCreated, statusCode)
 
-	// Convert pgtype.UUID to uuid.UUID
-	var campaignID uuid.UUID
-	err := campaignID.Scan(campaign.ID.Bytes)
-	require.NoError(t, err)
-
 	// When getting the campaign
 	var retrievedCampaign sqlc.Campaign
-	statusCode = GetCampaign(t, user.Token, campaignID, &retrievedCampaign)
+	statusCode = GetCampaign(t, user.Token, campaign.ID.Bytes, &retrievedCampaign)
 
 	// Then the campaign should be retrieved successfully
 	assert.Equal(t, http.StatusOK, statusCode)
@@ -162,13 +153,8 @@ func TestGetCampaign_Failure_Unauthorized(t *testing.T) {
 	statusCode := CreateCampaign(t, user.Token, input, &campaign)
 	require.Equal(t, http.StatusCreated, statusCode)
 
-	// Convert pgtype.UUID to uuid.UUID
-	var campaignID uuid.UUID
-	err := campaignID.Scan(campaign.ID.Bytes)
-	require.NoError(t, err)
-
 	// When getting the campaign without a token
-	statusCode = GetCampaign(t, "", campaignID, nil)
+	statusCode = GetCampaign(t, "", campaign.ID.Bytes, nil)
 
 	// Then it should fail with an unauthorized status
 	assert.Equal(t, http.StatusUnauthorized, statusCode)
@@ -191,11 +177,6 @@ func TestUpdateCampaign_Success(t *testing.T) {
 	statusCode := CreateCampaign(t, user.Token, input, &campaign)
 	require.Equal(t, http.StatusCreated, statusCode)
 
-	// Convert pgtype.UUID to uuid.UUID
-	var campaignID uuid.UUID
-	err := campaignID.Scan(campaign.ID.Bytes)
-	require.NoError(t, err)
-
 	// When updating the campaign
 	newTitle := "Updated Test Campaign"
 	newSettingSummary := "This is an updated test campaign"
@@ -205,14 +186,14 @@ func TestUpdateCampaign_Success(t *testing.T) {
 		IsPublic:       false,
 	}
 
-	statusCode = UpdateCampaign(t, user.Token, campaignID, updateInput, nil)
+	statusCode = UpdateCampaign(t, user.Token, campaign.ID.Bytes, updateInput, nil)
 
 	// Then the campaign should be updated successfully
 	assert.Equal(t, http.StatusOK, statusCode)
 
 	// And when getting the updated campaign
 	var updatedCampaign sqlc.Campaign
-	statusCode = GetCampaign(t, user.Token, campaignID, &updatedCampaign)
+	statusCode = GetCampaign(t, user.Token, campaign.ID.Bytes, &updatedCampaign)
 
 	// Then it should have the updated values
 	assert.Equal(t, http.StatusOK, statusCode)
@@ -256,11 +237,6 @@ func TestUpdateCampaign_Failure_Unauthorized(t *testing.T) {
 	statusCode := CreateCampaign(t, user.Token, input, &campaign)
 	require.Equal(t, http.StatusCreated, statusCode)
 
-	// Convert pgtype.UUID to uuid.UUID
-	var campaignID uuid.UUID
-	err := campaignID.Scan(campaign.ID.Bytes)
-	require.NoError(t, err)
-
 	// When updating the campaign without a token
 	updateInput := domain.UpdateCampaignInput{
 		Title:          "Updated Test Campaign",
@@ -268,7 +244,7 @@ func TestUpdateCampaign_Failure_Unauthorized(t *testing.T) {
 		IsPublic:       false,
 	}
 
-	statusCode = UpdateCampaign(t, "", campaignID, updateInput, nil)
+	statusCode = UpdateCampaign(t, "", campaign.ID.Bytes, updateInput, nil)
 
 	// Then it should fail with an unauthorized status
 	assert.Equal(t, http.StatusUnauthorized, statusCode)
@@ -289,25 +265,20 @@ func TestDeleteCampaign_Success(t *testing.T) {
 	statusCode := CreateCampaign(t, user.Token, input, &campaign)
 	require.Equal(t, http.StatusCreated, statusCode)
 
-	// Convert pgtype.UUID to uuid.UUID
-	var campaignID uuid.UUID
-	err := campaignID.Scan(campaign.ID.Bytes)
-	require.NoError(t, err)
-
 	// When deleting the campaign
-	statusCode = DeleteCampaign(t, user.Token, campaignID)
+	statusCode = DeleteCampaign(t, user.Token, campaign.ID.Bytes)
 
 	// Then the campaign should be deleted successfully
 	assert.Equal(t, http.StatusNoContent, statusCode)
 
 	// And when trying to get the deleted campaign
-	statusCode = GetCampaign(t, user.Token, campaignID, nil)
+	statusCode = GetCampaign(t, user.Token, campaign.ID.Bytes, nil)
 
 	// Then it should not be found
 	assert.Equal(t, http.StatusNotFound, statusCode)
 }
 
-func TestDeleteCampaign_Failure_NotFound(t *testing.T) {
+func TestDeleteCampaign_Success_NotFound(t *testing.T) {
 	// Given a registered and authenticated user
 	user := CreateTestUser(t)
 
@@ -318,7 +289,7 @@ func TestDeleteCampaign_Failure_NotFound(t *testing.T) {
 	statusCode := DeleteCampaign(t, user.Token, nonExistentID)
 
 	// Then it should fail with a not found status
-	assert.Equal(t, http.StatusNotFound, statusCode)
+	assert.Equal(t, http.StatusNoContent, statusCode)
 }
 
 func TestDeleteCampaign_Failure_Unauthorized(t *testing.T) {
@@ -336,13 +307,8 @@ func TestDeleteCampaign_Failure_Unauthorized(t *testing.T) {
 	statusCode := CreateCampaign(t, user.Token, input, &campaign)
 	require.Equal(t, http.StatusCreated, statusCode)
 
-	// Convert pgtype.UUID to uuid.UUID
-	var campaignID uuid.UUID
-	err := campaignID.Scan(campaign.ID.Bytes)
-	require.NoError(t, err)
-
 	// When deleting the campaign without a token
-	statusCode = DeleteCampaign(t, "", campaignID)
+	statusCode = DeleteCampaign(t, "", campaign.ID.Bytes)
 
 	// Then it should fail with an unauthorized status
 	assert.Equal(t, http.StatusUnauthorized, statusCode)

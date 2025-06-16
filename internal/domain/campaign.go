@@ -31,6 +31,10 @@ func (campaign *CampaignCreationInput) Validate() error {
 		validationErrors = append(validationErrors, "title is required")
 	}
 
+	if len(campaign.Title) > 100 {
+		validationErrors = append(validationErrors, "title must be at most 100 characters")
+	}
+
 	if len(validationErrors) > 0 {
 		return &utils.ValidationError{Errors: validationErrors}
 	}

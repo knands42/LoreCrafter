@@ -13,12 +13,12 @@ import (
 )
 
 var (
-	ErrInvalidCredentials   = errors.New("invalid credentials")
-	ErrCheckingPassword     = errors.New("error checking password")
-	ErrUserAlreadyExists    = errors.New("user already exists")
-	ErrCreateUser           = errors.New("error creating user")
-	ErrCheckingIfUserExists = errors.New("error checking if user exists")
-	ErrHashPassword         = errors.New("error hashing password")
+	ErrInvalidCredentials = errors.New("invalid credentials")
+	ErrCheckingPassword   = errors.New("error checking password")
+	ErrUserAlreadyExists  = errors.New("user already exists")
+	ErrCreateUser         = errors.New("error creating user")
+	ErrUserNotFound       = errors.New("user not found")
+	ErrHashPassword       = errors.New("error hashing password")
 )
 
 type AuthUseCase struct {
@@ -95,11 +95,16 @@ func (uc *AuthUseCase) Register(input domain.UserCreationInput) (*domain.AuthOut
 
 // Login authenticates a user and generates a token for them
 func (uc *AuthUseCase) Login(req domain.LoginInput) (*domain.AuthOutput, error) {
+	// Validate the input
+	if err := req.Validate(); err != nil {
+		return nil, err
+	}
+
 	// Get the user by username
 	user, err := uc.userRepo.GetUserByUsername(uc.ctx, req.Username)
 	if err != nil {
 		log.Printf("error getting user: %v", err)
-		return nil, ErrCheckingIfUserExists
+		return nil, ErrUserNotFound
 	}
 
 	// Verify the password

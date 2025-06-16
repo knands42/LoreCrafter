@@ -9,7 +9,7 @@ on:
 env:
   POSTGRES_USER: "postgres"
   POSTGRES_PASSWORD: "postgres"
-  POSTGRES_URL: "postgresql://postgres:postgres@localhost:5432/lorecrafter_test?sslmode=disable"
+  POSTGRES_URL: "postgresql://postgres:postgres@localhost:5433/lorecrafter_test?sslmode=disable"
 
 jobs:
   test:
@@ -24,7 +24,7 @@ jobs:
           POSTGRES_PASSWORD: ${{ env.POSTGRES_PASSWORD }}
           POSTGRES_DB: ${{ env.POSTGRES_DB }}
         ports:
-          - 5432:5432
+          - 5433:5432
         options: >-
           --health-cmd pg_isready
           --health-interval 10s

@@ -25,7 +25,7 @@ func SetupIntegrationTest() error {
 		log.Fatalf("Failed to load configuration: %v", err)
 	}
 
-	cfg.PostgresURL = "postgres://postgres:postgres@localhost:5432/lorecrafter_test?sslmode=disable"
+	cfg.PostgresURL = "postgres://postgres:postgres@localhost:5433/lorecrafter_test?sslmode=disable"
 
 	// Set up the database
 	pgConn, err := database.NewPostgresConnection(&cfg)

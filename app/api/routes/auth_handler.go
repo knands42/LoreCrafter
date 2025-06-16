@@ -89,7 +89,10 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) error {
 
 	response, err := h.authUseCase.Login(input)
 	if err != nil {
-		if errors.Is(err, usecases.ErrInvalidCredentials) {
+		switch {
+		case errors.Is(err, usecases.ErrInvalidCredentials):
+			return utils.WriteJSONError(w, http.StatusUnauthorized, "Invalid credentials")
+		case errors.Is(err, usecases.ErrUserNotFound):
 			return utils.WriteJSONError(w, http.StatusUnauthorized, "Invalid credentials")
 		}
 
