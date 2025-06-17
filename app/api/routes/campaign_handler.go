@@ -70,7 +70,7 @@ func (h *CampaignHandler) CreateCampaign(w http.ResponseWriter, r *http.Request)
 	// Get user ID from context
 	userIDStr, ok := r.Context().Value(middleware.UserIDContextKey).(string)
 	if !ok {
-		return utils.WriteJSONError(w, http.StatusUnauthorized, "User ID not found in context")
+		return utils.WriteJSONError(w, http.StatusUnauthorized, "User ID not found")
 	}
 
 	userID, err := uuid.Parse(userIDStr)
