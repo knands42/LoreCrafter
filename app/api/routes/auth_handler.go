@@ -30,6 +30,7 @@ func NewAuthHandler(authUseCase *usecases.AuthUseCase) *AuthHandler {
 func (h *AuthHandler) RegisterRoutes(r chi.Router) {
 	r.Post("/register", middleware.ErrorHandlerMiddleware(h.Register))
 	r.Post("/login", middleware.ErrorHandlerMiddleware(h.Login))
+	r.Post("/logout", middleware.ErrorHandlerMiddleware(h.Logout))
 }
 
 // Register handles user registration
@@ -110,6 +111,29 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) error {
 
 	w.Header().Set("Content-Type", "application/json")
 	return json.NewEncoder(w).Encode(response)
+}
+
+// Logout clears the authentication token by setting an empty cookie with the same name.
+// @Summary Logout a user
+// @Description Logout a user by clearing the authentication token
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Success 204 "User logged out successfully"
+// @Failure 401 {object} utils.ErrorResponse "Unauthorized"
+// @Failure 500 {object} utils.ErrorResponse "Internal server error"
+func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) error {
+	http.SetCookie(w, &http.Cookie{
+		Name:     "auth_token",
+		Value:    "",
+		Path:     "/",
+		HttpOnly: true,
+		Secure:   r.TLS != nil,
+		SameSite: http.SameSiteLaxMode,
+	})
+
+	return nil
 }
 
 // GetAuthorizationPayload extracts the token payload from the Authorization header

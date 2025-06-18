@@ -735,14 +735,11 @@ const docTemplate = `{
         "domain.AuthOutput": {
             "type": "object",
             "properties": {
-                "expiresAt": {
-                    "type": "string"
-                },
-                "token": {
+                "expires_at": {
                     "type": "string"
                 },
                 "user": {
-                    "$ref": "#/definitions/sqlc.User"
+                    "$ref": "#/definitions/domain.User"
                 }
             }
         },
@@ -770,6 +767,32 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "password": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "domain.User": {
+            "type": "object",
+            "properties": {
+                "avatar_url": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "last_login_at": {
+                    "type": "string"
+                },
+                "updated_at": {
                     "type": "string"
                 },
                 "username": {
@@ -900,38 +923,6 @@ const docTemplate = `{
                 "MemberRoleGm",
                 "MemberRolePlayer"
             ]
-        },
-        "sqlc.User": {
-            "type": "object",
-            "properties": {
-                "avatar_url": {
-                    "$ref": "#/definitions/pgtype.Text"
-                },
-                "created_at": {
-                    "$ref": "#/definitions/pgtype.Timestamptz"
-                },
-                "email": {
-                    "type": "string"
-                },
-                "hashed_password": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "is_active": {
-                    "type": "boolean"
-                },
-                "last_login_at": {
-                    "$ref": "#/definitions/pgtype.Timestamptz"
-                },
-                "updated_at": {
-                    "$ref": "#/definitions/pgtype.Timestamptz"
-                },
-                "username": {
-                    "type": "string"
-                }
-            }
         },
         "utils.ErrorResponse": {
             "type": "object",
