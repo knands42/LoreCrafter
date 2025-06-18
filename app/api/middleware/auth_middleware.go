@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/knands42/lorecrafter/app/api/utils"
 	"github.com/knands42/lorecrafter/internal/usecases"
+	"log"
 	"net/http"
 	"strings"
 )
@@ -26,6 +27,7 @@ func AuthMiddleware(authUseCase *usecases.AuthUseCase) func(next http.Handler) h
 			} else {
 				// Check for auth_token cookie if header is not present
 				cookie, err := r.Cookie("auth_token")
+				log.Printf("Cookies: %s", r.Cookies())
 				if err != nil || cookie.Value == "" {
 					utils.WriteJSONError(w, http.StatusUnauthorized, "missing authentication credentials")
 					return

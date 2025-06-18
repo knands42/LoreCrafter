@@ -2,7 +2,6 @@ package domain
 
 import (
 	"github.com/knands42/lorecrafter/internal/utils"
-	sqlc "github.com/knands42/lorecrafter/pkg/sqlc/generated"
 	"time"
 )
 
@@ -32,8 +31,7 @@ func (input *LoginInput) Validate() error {
 
 // AuthOutput represents the response after successful authentication
 type AuthOutput struct {
-	User      sqlc.User `json:"user"`
-	Token     string    `json:"token"`
+	User      User      `json:"user"`
 	ExpiresAt time.Time `json:"expires_at"`
 }
 

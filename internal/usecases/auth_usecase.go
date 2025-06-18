@@ -46,11 +46,11 @@ func NewAuthUseCase(
 }
 
 // Register creates a new user and generates a token for them
-func (uc *AuthUseCase) Register(input domain.UserCreationInput) (*domain.AuthOutput, error) {
+func (uc *AuthUseCase) Register(input domain.UserCreationInput) (domain.User, error) {
 	validationErrors := input.Validate()
 	if validationErrors != nil {
 		log.Printf("validation errors: %v", validationErrors)
-		return nil, validationErrors
+		return domain.User{}, validationErrors
 	}
 
 	getUserByUsernameOrEmailParams := sqlc.GetUserByUsernameOrEmailParams{
@@ -59,76 +59,65 @@ func (uc *AuthUseCase) Register(input domain.UserCreationInput) (*domain.AuthOut
 	}
 	_, err := uc.userRepo.GetUserByUsernameOrEmail(uc.ctx, getUserByUsernameOrEmailParams)
 	if err == nil {
-		return nil, ErrUserAlreadyExists
+		return domain.User{}, ErrUserAlreadyExists
 	}
 
 	hashedPassword, err := uc.argon2Hash.HashPassword(input.Password)
 	if err != nil {
 		log.Printf("Error hashing password: %v", err)
-		return nil, ErrHashPassword
+		return domain.User{}, ErrHashPassword
 	}
 
 	// Save the user
 	createUserParams, err := input.ToSqlcParams(hashedPassword)
 	if err != nil {
-		return nil, err
+		return domain.User{}, err
 	}
 
 	createdUser, err := uc.userRepo.CreateUser(uc.ctx, createUserParams)
 	if err != nil {
 		log.Printf("Error creating user: %v", err)
-		return nil, ErrCreateUser
+		return domain.User{}, ErrCreateUser
 	}
 
-	// Generate a token
-	token, expiresAt, err := uc.tokenMaker.CreateToken(createdUser, uc.tokenExpiry)
-	if err != nil {
-		return nil, fmt.Errorf("error generating token: %w", err)
-	}
-
-	return &domain.AuthOutput{
-		User:      createdUser,
-		Token:     token,
-		ExpiresAt: expiresAt,
-	}, nil
+	return domain.FromSqlcUserToDomain(createdUser), nil
 }
 
 // Login authenticates a user and generates a token for them
-func (uc *AuthUseCase) Login(req domain.LoginInput) (*domain.AuthOutput, error) {
+func (uc *AuthUseCase) Login(req domain.LoginInput) (domain.AuthOutput, string, error) {
 	// Validate the input
 	if err := req.Validate(); err != nil {
-		return nil, err
+		return domain.AuthOutput{}, "", err
 	}
 
 	// Get the user by username
 	user, err := uc.userRepo.GetUserByUsername(uc.ctx, req.Username)
 	if err != nil {
 		log.Printf("error getting user: %v", err)
-		return nil, ErrUserNotFound
+		return domain.AuthOutput{}, "", ErrUserNotFound
 	}
 
 	// Verify the password
 	match, err := uc.argon2Hash.VerifyPassword(req.Password, user.HashedPassword)
 	if err != nil {
 		log.Printf("error verifying password: %v", err)
-		return nil, ErrCheckingPassword
+		return domain.AuthOutput{}, "", ErrCheckingPassword
 	}
 
 	if !match {
-		return nil, ErrInvalidCredentials
+		return domain.AuthOutput{}, "", ErrInvalidCredentials
 	}
 
 	// Generate a token
 	token, expiresAt, err := uc.tokenMaker.CreateToken(user, uc.tokenExpiry)
 	if err != nil {
-		return nil, fmt.Errorf("error generating token: %w", err)
+		return domain.AuthOutput{}, "", fmt.Errorf("error generating token: %w", err)
 	}
 
-	return &domain.AuthOutput{
-		User:      user,
-		Token:     token,
+	return domain.AuthOutput{
+		User:      domain.FromSqlcUserToDomain(user),
 		ExpiresAt: expiresAt,
-	}, nil
+	}, token, nil
 }
 
 // VerifyToken verifies a token and returns the payload

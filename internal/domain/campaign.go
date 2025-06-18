@@ -7,6 +7,7 @@ import (
 	"github.com/knands42/lorecrafter/internal/utils"
 	sqlc "github.com/knands42/lorecrafter/pkg/sqlc/generated"
 	"strings"
+	"time"
 )
 
 // Campaign permission errors
@@ -156,4 +157,32 @@ func (campaign *DeleteCampaignInput) ToSqlcParams() (sqlc.DeleteCampaignParams, 
 		ID:     campaignPGUUID,
 		UserID: userPGUUID,
 	}, nil
+}
+
+type Campaign struct {
+	ID             uuid.UUID `json:"id"`
+	Title          string    `json:"title"`
+	SettingSummary string    `json:"setting_summary"`
+	Setting        string    `json:"setting"`
+	ImageUrl       string    `json:"image_url"`
+	IsPublic       bool      `json:"is_public"`
+	InviteCode     string    `json:"invite_code"`
+	CreatedBy      uuid.UUID `json:"created_by"`
+	CreatedAt      time.Time `json:"created_at"`
+	UpdatedAt      time.Time `json:"updated_at"`
+}
+
+func FromSqlcCampaignToDomain(campaignSqlc sqlc.Campaign) Campaign {
+	return Campaign{
+		ID:             campaignSqlc.ID.Bytes,
+		Title:          campaignSqlc.Title,
+		SettingSummary: campaignSqlc.SettingSummary.String,
+		Setting:        campaignSqlc.Setting.String,
+		ImageUrl:       campaignSqlc.ImageUrl.String,
+		IsPublic:       campaignSqlc.IsPublic,
+		InviteCode:     campaignSqlc.InviteCode.String,
+		CreatedBy:      campaignSqlc.CreatedBy.Bytes,
+		CreatedAt:      campaignSqlc.CreatedAt.Time,
+		UpdatedAt:      campaignSqlc.UpdatedAt.Time,
+	}
 }

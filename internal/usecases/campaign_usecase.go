@@ -35,28 +35,28 @@ func NewCampaignUseCase(
 }
 
 // CreateCampaign creates a new campaign and adds the creator as a GM
-func (uc *CampaignUseCase) CreateCampaign(input domain.CampaignCreationInput, creatorID uuid.UUID) (sqlc.Campaign, error) {
+func (uc *CampaignUseCase) CreateCampaign(input domain.CampaignCreationInput, creatorID uuid.UUID) (domain.Campaign, error) {
 	// Validate the input
 	err := input.Validate()
 	if err != nil {
-		return sqlc.Campaign{}, err
+		return domain.Campaign{}, err
 	}
 
 	// Save the campaign
 	createCampaignParams, err := input.ToSqlcParams(creatorID)
 	if err != nil {
-		return sqlc.Campaign{}, err
+		return domain.Campaign{}, err
 	}
 	createdCampaign, err := uc.repo.CreateCampaign(uc.ctx, createCampaignParams)
 	if err != nil {
 		log.Printf("Error saving campaign: %v", err)
-		return sqlc.Campaign{}, ErrCampaignCreation
+		return domain.Campaign{}, ErrCampaignCreation
 	}
 
 	// Add the creator as a GM
 	newUUUIDV7, err := utils.GeneratePGUUID()
 	if err != nil {
-		return sqlc.Campaign{}, err
+		return domain.Campaign{}, err
 	}
 	createCampaignMemberParams := sqlc.CreateCampaignMemberParams{
 		ID:         newUUUIDV7,
@@ -66,10 +66,10 @@ func (uc *CampaignUseCase) CreateCampaign(input domain.CampaignCreationInput, cr
 	}
 	if _, err := uc.repo.CreateCampaignMember(uc.ctx, createCampaignMemberParams); err != nil {
 		log.Printf("Error saving campaign member: %v", err)
-		return sqlc.Campaign{}, ErrCampaignMemberCreation
+		return domain.Campaign{}, ErrCampaignMemberCreation
 	}
 
-	return createdCampaign, nil
+	return domain.FromSqlcCampaignToDomain(createdCampaign), nil
 }
 
 // GetCampaign retrieves a campaign by ID if the user has access

@@ -87,7 +87,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) error {
 		return utils.WriteJSONError(w, http.StatusBadRequest, "Invalid request body")
 	}
 
-	response, err := h.authUseCase.Login(input)
+	response, token, err := h.authUseCase.Login(input)
 	if err != nil {
 		switch {
 		case errors.Is(err, usecases.ErrInvalidCredentials):
@@ -98,6 +98,15 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) error {
 
 		return err
 	}
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     "auth_token",
+		Value:    token,
+		Path:     "/",
+		HttpOnly: true,
+		Secure:   r.TLS != nil,
+		SameSite: http.SameSiteLaxMode,
+	})
 
 	w.Header().Set("Content-Type", "application/json")
 	return json.NewEncoder(w).Encode(response)

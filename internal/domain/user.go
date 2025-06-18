@@ -60,6 +60,16 @@ type User struct {
 	LastLoginAt time.Time `json:"last_login_at"`
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
-	IssuedAt    time.Time `json:"issued_at"`
-	ExpiresAt   time.Time `json:"expires_at"`
+}
+
+func FromSqlcUserToDomain(userSqlc sqlc.User) User {
+	return User{
+		ID:          userSqlc.ID.Bytes,
+		Username:    userSqlc.Username,
+		Email:       userSqlc.Email,
+		AvatarUrl:   userSqlc.AvatarUrl.String,
+		LastLoginAt: userSqlc.LastLoginAt.Time,
+		CreatedAt:   userSqlc.CreatedAt.Time,
+		UpdatedAt:   userSqlc.UpdatedAt.Time,
+	}
 }
