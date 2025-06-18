@@ -56,7 +56,7 @@ func (h *CampaignHandler) RegisterRoutes(r chi.Router) {
 // @Produce json
 // @Security BearerAuth
 // @Param input body domain.CampaignCreationInput true "Campaign creation details"
-// @Success 201 {object} sqlc.Campaign "Campaign created successfully"
+// @Success 201 {object} domain.Campaign "Campaign created successfully"
 // @Failure 400 {object} utils.ErrorResponse "Invalid request body"
 // @Failure 401 {object} utils.ErrorResponse "Unauthorized"
 // @Failure 500 {object} utils.ErrorResponse "Internal server error"
@@ -137,6 +137,7 @@ func (h *CampaignHandler) GetCampaign(w http.ResponseWriter, r *http.Request) er
 	}
 
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Cache-Control", "private, max-age=300")
 	return json.NewEncoder(w).Encode(campaign)
 }
 
@@ -273,6 +274,7 @@ func (h *CampaignHandler) ListUserCampaigns(w http.ResponseWriter, r *http.Reque
 	}
 
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Cache-Control", "private, max-age=60")
 	return json.NewEncoder(w).Encode(campaigns)
 }
 

@@ -7,8 +7,8 @@ import (
 
 // LoginInput represents a request to authenticate a user
 type LoginInput struct {
-	Username string
-	Password string
+	Username string `json:"username" example:"johndoe"`
+	Password string `json:"password" example:"12345678"`
 }
 
 func (input *LoginInput) Validate() error {

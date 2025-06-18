@@ -15,30 +15,39 @@ const createCampaign = `-- name: CreateCampaign :one
 INSERT INTO campaigns (
     id,
     title,
+    game_system,
+    number_of_players,
+    status,
     setting_summary,
     setting,
     image_url,
     is_public,
     created_by
 ) VALUES (
-    $1, $2, $3, $4, $5, $6, $7
-) RETURNING id, title, setting_summary, setting, image_url, is_public, invite_code, created_by, created_at, updated_at
+    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10
+) RETURNING id, title, setting_summary, setting, game_system, number_of_players, status, image_url, is_public, invite_code, created_by, created_at, updated_at
 `
 
 type CreateCampaignParams struct {
-	ID             pgtype.UUID `json:"id"`
-	Title          string      `json:"title"`
-	SettingSummary pgtype.Text `json:"setting_summary"`
-	Setting        pgtype.Text `json:"setting"`
-	ImageUrl       pgtype.Text `json:"image_url"`
-	IsPublic       bool        `json:"is_public"`
-	CreatedBy      pgtype.UUID `json:"created_by"`
+	ID              pgtype.UUID        `json:"id"`
+	Title           string             `json:"title"`
+	GameSystem      NullGameSystemEnum `json:"game_system"`
+	NumberOfPlayers pgtype.Int2        `json:"number_of_players"`
+	Status          CampaignStatusEnum `json:"status"`
+	SettingSummary  pgtype.Text        `json:"setting_summary"`
+	Setting         pgtype.Text        `json:"setting"`
+	ImageUrl        pgtype.Text        `json:"image_url"`
+	IsPublic        bool               `json:"is_public"`
+	CreatedBy       pgtype.UUID        `json:"created_by"`
 }
 
 func (q *Queries) CreateCampaign(ctx context.Context, arg CreateCampaignParams) (Campaign, error) {
 	row := q.db.QueryRow(ctx, createCampaign,
 		arg.ID,
 		arg.Title,
+		arg.GameSystem,
+		arg.NumberOfPlayers,
+		arg.Status,
 		arg.SettingSummary,
 		arg.Setting,
 		arg.ImageUrl,
@@ -51,6 +60,9 @@ func (q *Queries) CreateCampaign(ctx context.Context, arg CreateCampaignParams) 
 		&i.Title,
 		&i.SettingSummary,
 		&i.Setting,
+		&i.GameSystem,
+		&i.NumberOfPlayers,
+		&i.Status,
 		&i.ImageUrl,
 		&i.IsPublic,
 		&i.InviteCode,
@@ -138,7 +150,7 @@ const generateInviteCode = `-- name: GenerateInviteCode :one
 UPDATE campaigns
 SET invite_code = $2
 WHERE id = $1
-RETURNING id, title, setting_summary, setting, image_url, is_public, invite_code, created_by, created_at, updated_at
+RETURNING id, title, setting_summary, setting, game_system, number_of_players, status, image_url, is_public, invite_code, created_by, created_at, updated_at
 `
 
 type GenerateInviteCodeParams struct {
@@ -154,6 +166,9 @@ func (q *Queries) GenerateInviteCode(ctx context.Context, arg GenerateInviteCode
 		&i.Title,
 		&i.SettingSummary,
 		&i.Setting,
+		&i.GameSystem,
+		&i.NumberOfPlayers,
+		&i.Status,
 		&i.ImageUrl,
 		&i.IsPublic,
 		&i.InviteCode,
@@ -170,6 +185,9 @@ SELECT
     c.title,
     c.setting_summary,
     c.setting,
+    c.game_system,
+    c.number_of_players,
+    c.status,
     c.image_url,
     c.is_public,
     c.invite_code,
@@ -198,6 +216,9 @@ func (q *Queries) GetCampaignByID(ctx context.Context, arg GetCampaignByIDParams
 		&i.Title,
 		&i.SettingSummary,
 		&i.Setting,
+		&i.GameSystem,
+		&i.NumberOfPlayers,
+		&i.Status,
 		&i.ImageUrl,
 		&i.IsPublic,
 		&i.InviteCode,
@@ -209,7 +230,7 @@ func (q *Queries) GetCampaignByID(ctx context.Context, arg GetCampaignByIDParams
 }
 
 const getCampaignByInviteCode = `-- name: GetCampaignByInviteCode :one
-SELECT id, title, setting_summary, setting, image_url, is_public, invite_code, created_by, created_at, updated_at FROM campaigns
+SELECT id, title, setting_summary, setting, game_system, number_of_players, status, image_url, is_public, invite_code, created_by, created_at, updated_at FROM campaigns
 WHERE invite_code = $1
 LIMIT 1
 `
@@ -222,6 +243,9 @@ func (q *Queries) GetCampaignByInviteCode(ctx context.Context, inviteCode pgtype
 		&i.Title,
 		&i.SettingSummary,
 		&i.Setting,
+		&i.GameSystem,
+		&i.NumberOfPlayers,
+		&i.Status,
 		&i.ImageUrl,
 		&i.IsPublic,
 		&i.InviteCode,
@@ -290,7 +314,7 @@ func (q *Queries) ListCampaignMembers(ctx context.Context, campaignID pgtype.UUI
 }
 
 const listCampaignsByUserID = `-- name: ListCampaignsByUserID :many
-SELECT c.id, c.title, c.setting_summary, c.setting, c.image_url, c.is_public, c.invite_code, c.created_by, c.created_at, c.updated_at FROM campaigns c
+SELECT c.id, c.title, c.setting_summary, c.setting, c.game_system, c.number_of_players, c.status, c.image_url, c.is_public, c.invite_code, c.created_by, c.created_at, c.updated_at FROM campaigns c
 JOIN campaign_members cm ON c.id = cm.campaign_id
 WHERE cm.user_id = $1
 `
@@ -309,6 +333,9 @@ func (q *Queries) ListCampaignsByUserID(ctx context.Context, userID pgtype.UUID)
 			&i.Title,
 			&i.SettingSummary,
 			&i.Setting,
+			&i.GameSystem,
+			&i.NumberOfPlayers,
+			&i.Status,
 			&i.ImageUrl,
 			&i.IsPublic,
 			&i.InviteCode,
@@ -334,6 +361,9 @@ SET
     setting = $5,
     image_url = $6,
     is_public = $7,
+    game_system = $8,
+    number_of_players = $9,
+    status = $10,
     updated_at = CURRENT_TIMESTAMP
 FROM campaign_members AS cm
 WHERE cm.campaign_id = c.id
@@ -347,6 +377,9 @@ RETURNING
     c.title,
     c.setting_summary,
     c.setting,
+    c.game_system,
+    c.number_of_players,
+    c.status,
     c.image_url,
     c.is_public,
     c.invite_code,
@@ -356,13 +389,16 @@ RETURNING
 `
 
 type UpdateCampaignParams struct {
-	ID             pgtype.UUID `json:"id"`
-	UserID         pgtype.UUID `json:"user_id"`
-	Title          string      `json:"title"`
-	SettingSummary pgtype.Text `json:"setting_summary"`
-	Setting        pgtype.Text `json:"setting"`
-	ImageUrl       pgtype.Text `json:"image_url"`
-	IsPublic       bool        `json:"is_public"`
+	ID              pgtype.UUID        `json:"id"`
+	UserID          pgtype.UUID        `json:"user_id"`
+	Title           string             `json:"title"`
+	SettingSummary  pgtype.Text        `json:"setting_summary"`
+	Setting         pgtype.Text        `json:"setting"`
+	ImageUrl        pgtype.Text        `json:"image_url"`
+	IsPublic        bool               `json:"is_public"`
+	GameSystem      NullGameSystemEnum `json:"game_system"`
+	NumberOfPlayers pgtype.Int2        `json:"number_of_players"`
+	Status          CampaignStatusEnum `json:"status"`
 }
 
 func (q *Queries) UpdateCampaign(ctx context.Context, arg UpdateCampaignParams) (Campaign, error) {
@@ -374,6 +410,9 @@ func (q *Queries) UpdateCampaign(ctx context.Context, arg UpdateCampaignParams) 
 		arg.Setting,
 		arg.ImageUrl,
 		arg.IsPublic,
+		arg.GameSystem,
+		arg.NumberOfPlayers,
+		arg.Status,
 	)
 	var i Campaign
 	err := row.Scan(
@@ -381,6 +420,9 @@ func (q *Queries) UpdateCampaign(ctx context.Context, arg UpdateCampaignParams) 
 		&i.Title,
 		&i.SettingSummary,
 		&i.Setting,
+		&i.GameSystem,
+		&i.NumberOfPlayers,
+		&i.Status,
 		&i.ImageUrl,
 		&i.IsPublic,
 		&i.InviteCode,

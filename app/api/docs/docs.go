@@ -202,7 +202,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Campaign created successfully",
                         "schema": {
-                            "$ref": "#/definitions/sqlc.Campaign"
+                            "$ref": "#/definitions/domain.Campaign"
                         }
                     },
                     "400": {
@@ -743,14 +743,65 @@ const docTemplate = `{
                 }
             }
         },
+        "domain.Campaign": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "created_by": {
+                    "type": "string"
+                },
+                "game_system": {
+                    "$ref": "#/definitions/sqlc.GameSystemEnum"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "image_url": {
+                    "type": "string"
+                },
+                "invite_code": {
+                    "type": "string"
+                },
+                "is_public": {
+                    "type": "boolean"
+                },
+                "metadata": {},
+                "number_of_players": {
+                    "type": "integer"
+                },
+                "setting": {
+                    "type": "string"
+                },
+                "setting_summary": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/sqlc.CampaignStatusEnum"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
         "domain.CampaignCreationInput": {
             "type": "object",
             "properties": {
+                "game_system": {
+                    "type": "string"
+                },
                 "image_url": {
                     "type": "string"
                 },
                 "is_public": {
                     "type": "boolean"
+                },
+                "number_of_players": {
+                    "type": "integer"
                 },
                 "setting": {
                     "type": "string"
@@ -767,10 +818,12 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "password": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "12345678"
                 },
                 "username": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "johndoe"
                 }
             }
         },
@@ -830,6 +883,17 @@ const docTemplate = `{
                 "NegativeInfinity"
             ]
         },
+        "pgtype.Int2": {
+            "type": "object",
+            "properties": {
+                "int16": {
+                    "type": "integer"
+                },
+                "valid": {
+                    "type": "boolean"
+                }
+            }
+        },
         "pgtype.Text": {
             "type": "object",
             "properties": {
@@ -864,23 +928,63 @@ const docTemplate = `{
                 "created_by": {
                     "type": "string"
                 },
+                "game_system": {
+                    "description": "The game system used for the campaign (e.g., dnd, pathfinder, etc.).",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/sqlc.NullGameSystemEnum"
+                        }
+                    ]
+                },
                 "id": {
                     "type": "string"
                 },
                 "image_url": {
-                    "$ref": "#/definitions/pgtype.Text"
+                    "description": "The URL of the campaign image.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/pgtype.Text"
+                        }
+                    ]
                 },
                 "invite_code": {
-                    "$ref": "#/definitions/pgtype.Text"
+                    "description": "The invite code for the campaign.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/pgtype.Text"
+                        }
+                    ]
                 },
                 "is_public": {
+                    "description": "Whether the campaign is available to players outside the campaign.",
                     "type": "boolean"
                 },
+                "number_of_players": {
+                    "$ref": "#/definitions/pgtype.Int2"
+                },
                 "setting": {
-                    "$ref": "#/definitions/pgtype.Text"
+                    "description": "The detailed setting of the campaign.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/pgtype.Text"
+                        }
+                    ]
                 },
                 "setting_summary": {
-                    "$ref": "#/definitions/pgtype.Text"
+                    "description": "A summary of the campaign setting.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/pgtype.Text"
+                        }
+                    ]
+                },
+                "status": {
+                    "description": "Lifecycle status of the campaign (e.g., planning, active, paused, etc.).",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/sqlc.CampaignStatusEnum"
+                        }
+                    ]
                 },
                 "title": {
                     "type": "string"
@@ -913,6 +1017,38 @@ const docTemplate = `{
                 }
             }
         },
+        "sqlc.CampaignStatusEnum": {
+            "type": "string",
+            "enum": [
+                "PLANNING",
+                "ACTIVE",
+                "PAUSED",
+                "FINISHED",
+                "ARCHIVED"
+            ],
+            "x-enum-varnames": [
+                "CampaignStatusEnumPLANNING",
+                "CampaignStatusEnumACTIVE",
+                "CampaignStatusEnumPAUSED",
+                "CampaignStatusEnumFINISHED",
+                "CampaignStatusEnumARCHIVED"
+            ]
+        },
+        "sqlc.GameSystemEnum": {
+            "type": "string",
+            "enum": [
+                "DND_5E",
+                "PATHFINDER_2E",
+                "COC_7E",
+                "CUSTOM"
+            ],
+            "x-enum-varnames": [
+                "GameSystemEnumDND5E",
+                "GameSystemEnumPATHFINDER2E",
+                "GameSystemEnumCOC7E",
+                "GameSystemEnumCUSTOM"
+            ]
+        },
         "sqlc.MemberRole": {
             "type": "string",
             "enum": [
@@ -923,6 +1059,18 @@ const docTemplate = `{
                 "MemberRoleGm",
                 "MemberRolePlayer"
             ]
+        },
+        "sqlc.NullGameSystemEnum": {
+            "type": "object",
+            "properties": {
+                "game_system_enum": {
+                    "$ref": "#/definitions/sqlc.GameSystemEnum"
+                },
+                "valid": {
+                    "description": "Valid is true if GameSystemEnum is not NULL",
+                    "type": "boolean"
+                }
+            }
         },
         "utils.ErrorResponse": {
             "type": "object",

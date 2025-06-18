@@ -7,12 +7,46 @@ definitions:
       user:
         $ref: '#/definitions/domain.User'
     type: object
+  domain.Campaign:
+    properties:
+      created_at:
+        type: string
+      created_by:
+        type: string
+      game_system:
+        $ref: '#/definitions/sqlc.GameSystemEnum'
+      id:
+        type: string
+      image_url:
+        type: string
+      invite_code:
+        type: string
+      is_public:
+        type: boolean
+      metadata: {}
+      number_of_players:
+        type: integer
+      setting:
+        type: string
+      setting_summary:
+        type: string
+      status:
+        $ref: '#/definitions/sqlc.CampaignStatusEnum'
+      title:
+        type: string
+      updated_at:
+        type: string
+    type: object
   domain.CampaignCreationInput:
     properties:
+      game_system:
+        type: string
       image_url:
         type: string
       is_public:
         type: boolean
+      number_of_players:
+        type: integer
       setting:
         type: string
       setting_summary:
@@ -23,8 +57,10 @@ definitions:
   domain.LoginInput:
     properties:
       password:
+        example: "12345678"
         type: string
       username:
+        example: johndoe
         type: string
     type: object
   domain.User:
@@ -66,6 +102,13 @@ definitions:
     - Infinity
     - Finite
     - NegativeInfinity
+  pgtype.Int2:
+    properties:
+      int16:
+        type: integer
+      valid:
+        type: boolean
+    type: object
   pgtype.Text:
     properties:
       string:
@@ -88,18 +131,39 @@ definitions:
         $ref: '#/definitions/pgtype.Timestamptz'
       created_by:
         type: string
+      game_system:
+        allOf:
+        - $ref: '#/definitions/sqlc.NullGameSystemEnum'
+        description: The game system used for the campaign (e.g., dnd, pathfinder,
+          etc.).
       id:
         type: string
       image_url:
-        $ref: '#/definitions/pgtype.Text'
+        allOf:
+        - $ref: '#/definitions/pgtype.Text'
+        description: The URL of the campaign image.
       invite_code:
-        $ref: '#/definitions/pgtype.Text'
+        allOf:
+        - $ref: '#/definitions/pgtype.Text'
+        description: The invite code for the campaign.
       is_public:
+        description: Whether the campaign is available to players outside the campaign.
         type: boolean
+      number_of_players:
+        $ref: '#/definitions/pgtype.Int2'
       setting:
-        $ref: '#/definitions/pgtype.Text'
+        allOf:
+        - $ref: '#/definitions/pgtype.Text'
+        description: The detailed setting of the campaign.
       setting_summary:
-        $ref: '#/definitions/pgtype.Text'
+        allOf:
+        - $ref: '#/definitions/pgtype.Text'
+        description: A summary of the campaign setting.
+      status:
+        allOf:
+        - $ref: '#/definitions/sqlc.CampaignStatusEnum'
+        description: Lifecycle status of the campaign (e.g., planning, active, paused,
+          etc.).
       title:
         type: string
       updated_at:
@@ -120,6 +184,32 @@ definitions:
       user_id:
         type: string
     type: object
+  sqlc.CampaignStatusEnum:
+    enum:
+    - PLANNING
+    - ACTIVE
+    - PAUSED
+    - FINISHED
+    - ARCHIVED
+    type: string
+    x-enum-varnames:
+    - CampaignStatusEnumPLANNING
+    - CampaignStatusEnumACTIVE
+    - CampaignStatusEnumPAUSED
+    - CampaignStatusEnumFINISHED
+    - CampaignStatusEnumARCHIVED
+  sqlc.GameSystemEnum:
+    enum:
+    - DND_5E
+    - PATHFINDER_2E
+    - COC_7E
+    - CUSTOM
+    type: string
+    x-enum-varnames:
+    - GameSystemEnumDND5E
+    - GameSystemEnumPATHFINDER2E
+    - GameSystemEnumCOC7E
+    - GameSystemEnumCUSTOM
   sqlc.MemberRole:
     enum:
     - gm
@@ -128,6 +218,14 @@ definitions:
     x-enum-varnames:
     - MemberRoleGm
     - MemberRolePlayer
+  sqlc.NullGameSystemEnum:
+    properties:
+      game_system_enum:
+        $ref: '#/definitions/sqlc.GameSystemEnum'
+      valid:
+        description: Valid is true if GameSystemEnum is not NULL
+        type: boolean
+    type: object
   utils.ErrorResponse:
     properties:
       details: {}
@@ -259,7 +357,7 @@ paths:
         "201":
           description: Campaign created successfully
           schema:
-            $ref: '#/definitions/sqlc.Campaign'
+            $ref: '#/definitions/domain.Campaign'
         "400":
           description: Invalid request body
           schema:

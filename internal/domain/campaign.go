@@ -18,11 +18,13 @@ var (
 
 // CampaignCreationInput represents the input for creating a new campaign
 type CampaignCreationInput struct {
-	Title          string `json:"title"`
-	SettingSummary string `json:"setting_summary"`
-	Setting        string `json:"setting"`
-	ImageURL       string `json:"image_url"`
-	IsPublic       bool   `json:"is_public"`
+	Title           string `json:"title"`
+	SettingSummary  string `json:"setting_summary"`
+	Setting         string `json:"setting"`
+	GameSystem      string `json:"game_system"`
+	NumberOfPlayers uint16 `json:"number_of_players"`
+	ImageURL        string `json:"image_url"`
+	IsPublic        bool   `json:"is_public"`
 }
 
 func (campaign *CampaignCreationInput) Validate() error {
@@ -160,29 +162,36 @@ func (campaign *DeleteCampaignInput) ToSqlcParams() (sqlc.DeleteCampaignParams, 
 }
 
 type Campaign struct {
-	ID             uuid.UUID `json:"id"`
-	Title          string    `json:"title"`
-	SettingSummary string    `json:"setting_summary"`
-	Setting        string    `json:"setting"`
-	ImageUrl       string    `json:"image_url"`
-	IsPublic       bool      `json:"is_public"`
-	InviteCode     string    `json:"invite_code"`
-	CreatedBy      uuid.UUID `json:"created_by"`
-	CreatedAt      time.Time `json:"created_at"`
-	UpdatedAt      time.Time `json:"updated_at"`
+	ID              uuid.UUID               `json:"id"`
+	Title           string                  `json:"title"`
+	SettingSummary  string                  `json:"setting_summary"`
+	Setting         string                  `json:"setting"`
+	GameSystem      sqlc.GameSystemEnum     `json:"game_system"`
+	NumberOfPlayers uint16                  `json:"number_of_players"`
+	ImageUrl        string                  `json:"image_url"`
+	IsPublic        bool                    `json:"is_public"`
+	InviteCode      string                  `json:"invite_code"`
+	Metadata        interface{}             `json:"metadata"`
+	Status          sqlc.CampaignStatusEnum `json:"status"`
+	CreatedBy       uuid.UUID               `json:"created_by"`
+	CreatedAt       time.Time               `json:"created_at"`
+	UpdatedAt       time.Time               `json:"updated_at"`
 }
 
 func FromSqlcCampaignToDomain(campaignSqlc sqlc.Campaign) Campaign {
 	return Campaign{
-		ID:             campaignSqlc.ID.Bytes,
-		Title:          campaignSqlc.Title,
-		SettingSummary: campaignSqlc.SettingSummary.String,
-		Setting:        campaignSqlc.Setting.String,
-		ImageUrl:       campaignSqlc.ImageUrl.String,
-		IsPublic:       campaignSqlc.IsPublic,
-		InviteCode:     campaignSqlc.InviteCode.String,
-		CreatedBy:      campaignSqlc.CreatedBy.Bytes,
-		CreatedAt:      campaignSqlc.CreatedAt.Time,
-		UpdatedAt:      campaignSqlc.UpdatedAt.Time,
+		ID:              campaignSqlc.ID.Bytes,
+		Title:           campaignSqlc.Title,
+		SettingSummary:  campaignSqlc.SettingSummary.String,
+		Setting:         campaignSqlc.Setting.String,
+		GameSystem:      campaignSqlc.GameSystem.GameSystemEnum,
+		NumberOfPlayers: uint16(campaignSqlc.NumberOfPlayers.Int16),
+		ImageUrl:        campaignSqlc.ImageUrl.String,
+		IsPublic:        campaignSqlc.IsPublic,
+		InviteCode:      campaignSqlc.InviteCode.String,
+		Status:          campaignSqlc.Status,
+		CreatedBy:       campaignSqlc.CreatedBy.Bytes,
+		CreatedAt:       campaignSqlc.CreatedAt.Time,
+		UpdatedAt:       campaignSqlc.UpdatedAt.Time,
 	}
 }

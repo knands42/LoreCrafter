@@ -11,6 +11,95 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+type CampaignStatusEnum string
+
+const (
+	CampaignStatusEnumPLANNING CampaignStatusEnum = "PLANNING"
+	CampaignStatusEnumACTIVE   CampaignStatusEnum = "ACTIVE"
+	CampaignStatusEnumPAUSED   CampaignStatusEnum = "PAUSED"
+	CampaignStatusEnumFINISHED CampaignStatusEnum = "FINISHED"
+	CampaignStatusEnumARCHIVED CampaignStatusEnum = "ARCHIVED"
+)
+
+func (e *CampaignStatusEnum) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = CampaignStatusEnum(s)
+	case string:
+		*e = CampaignStatusEnum(s)
+	default:
+		return fmt.Errorf("unsupported scan type for CampaignStatusEnum: %T", src)
+	}
+	return nil
+}
+
+type NullCampaignStatusEnum struct {
+	CampaignStatusEnum CampaignStatusEnum `json:"campaign_status_enum"`
+	Valid              bool               `json:"valid"` // Valid is true if CampaignStatusEnum is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullCampaignStatusEnum) Scan(value interface{}) error {
+	if value == nil {
+		ns.CampaignStatusEnum, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.CampaignStatusEnum.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullCampaignStatusEnum) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.CampaignStatusEnum), nil
+}
+
+type GameSystemEnum string
+
+const (
+	GameSystemEnumDND5E        GameSystemEnum = "DND_5E"
+	GameSystemEnumPATHFINDER2E GameSystemEnum = "PATHFINDER_2E"
+	GameSystemEnumCOC7E        GameSystemEnum = "COC_7E"
+	GameSystemEnumCUSTOM       GameSystemEnum = "CUSTOM"
+)
+
+func (e *GameSystemEnum) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = GameSystemEnum(s)
+	case string:
+		*e = GameSystemEnum(s)
+	default:
+		return fmt.Errorf("unsupported scan type for GameSystemEnum: %T", src)
+	}
+	return nil
+}
+
+type NullGameSystemEnum struct {
+	GameSystemEnum GameSystemEnum `json:"game_system_enum"`
+	Valid          bool           `json:"valid"` // Valid is true if GameSystemEnum is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullGameSystemEnum) Scan(value interface{}) error {
+	if value == nil {
+		ns.GameSystemEnum, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.GameSystemEnum.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullGameSystemEnum) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.GameSystemEnum), nil
+}
+
 type InvitationStatus string
 
 const (
@@ -97,17 +186,28 @@ func (ns NullMemberRole) Value() (driver.Value, error) {
 	return string(ns.MemberRole), nil
 }
 
+// Campaigns are the main entity in the system. They are used to store the campaign data.
 type Campaign struct {
-	ID             pgtype.UUID        `json:"id"`
-	Title          string             `json:"title"`
-	SettingSummary pgtype.Text        `json:"setting_summary"`
-	Setting        pgtype.Text        `json:"setting"`
-	ImageUrl       pgtype.Text        `json:"image_url"`
-	IsPublic       bool               `json:"is_public"`
-	InviteCode     pgtype.Text        `json:"invite_code"`
-	CreatedBy      pgtype.UUID        `json:"created_by"`
-	CreatedAt      pgtype.Timestamptz `json:"created_at"`
-	UpdatedAt      pgtype.Timestamptz `json:"updated_at"`
+	ID    pgtype.UUID `json:"id"`
+	Title string      `json:"title"`
+	// A summary of the campaign setting.
+	SettingSummary pgtype.Text `json:"setting_summary"`
+	// The detailed setting of the campaign.
+	Setting pgtype.Text `json:"setting"`
+	// The game system used for the campaign (e.g., dnd, pathfinder, etc.).
+	GameSystem      NullGameSystemEnum `json:"game_system"`
+	NumberOfPlayers pgtype.Int2        `json:"number_of_players"`
+	// Lifecycle status of the campaign (e.g., planning, active, paused, etc.).
+	Status CampaignStatusEnum `json:"status"`
+	// The URL of the campaign image.
+	ImageUrl pgtype.Text `json:"image_url"`
+	// Whether the campaign is available to players outside the campaign.
+	IsPublic bool `json:"is_public"`
+	// The invite code for the campaign.
+	InviteCode pgtype.Text        `json:"invite_code"`
+	CreatedBy  pgtype.UUID        `json:"created_by"`
+	CreatedAt  pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt  pgtype.Timestamptz `json:"updated_at"`
 }
 
 type CampaignMember struct {
