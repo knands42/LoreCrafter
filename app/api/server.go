@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"fmt"
+	llms2 "github.com/knands42/lorecrafter/internal/adapter/llms"
 	"log"
 	"net/http"
 	"os"
@@ -40,7 +41,7 @@ type Server struct {
 }
 
 // NewServer creates a new HTTP server
-func NewServer(cfg config.Config, repo sqlc.Querier) *Server {
+func NewServer(cfg config.Config, repo sqlc.Querier, llmFactory *llms2.LlmFactory) *Server {
 	router := chi.NewRouter()
 
 	// Set up middleware
@@ -81,7 +82,7 @@ func NewServer(cfg config.Config, repo sqlc.Querier) *Server {
 	// Set up use cases
 	ctx := context.Background()
 	authUseCase := usecases.NewAuthUseCase(ctx, repo, tokenMakerAdapter, argon2Adapter, cfg.TokenExpiry)
-	aiCampaignUseCase := usecases.NewAICampaignUseCase(ctx, repo)
+	aiCampaignUseCase := usecases.NewAICampaignUseCase(ctx, repo, llmFactory)
 	campaignUseCase := usecases.NewCampaignUseCase(ctx, aiCampaignUseCase, repo)
 
 	// Set up HTTP handlers

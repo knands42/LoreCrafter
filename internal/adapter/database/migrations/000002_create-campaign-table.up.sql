@@ -25,12 +25,13 @@ CREATE TABLE campaigns (
     image_url VARCHAR(255),
     is_public BOOLEAN NOT NULL DEFAULT false,
     invite_code VARCHAR(12) UNIQUE,
+    setting_metadata JSONB DEFAULT '{}'::JSONB,
+    setting_ai_metadata JSONB DEFAULT '{}'::JSONB,
     created_by UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
--- create index for title using gin index
 CREATE INDEX idx_campaigns_title_trgm ON campaigns USING GIN (title gin_trgm_ops);
 
 CREATE INDEX idx_campaigns_created_by ON campaigns(created_by);
@@ -48,3 +49,4 @@ COMMENT ON COLUMN campaigns.status IS 'Lifecycle status of the campaign (e.g., p
 COMMENT ON COLUMN campaigns.image_url IS 'The URL of the campaign image.';
 COMMENT ON COLUMN campaigns.is_public IS 'Whether the campaign is available to players outside the campaign.';
 COMMENT ON COLUMN campaigns.invite_code IS 'The invite code for the campaign.';
+COMMENT ON COLUMN campaigns.setting_ai_metadata IS 'Information used by LLMs on how to generate the data (e.g., a dark tone in a high fantasy world).'

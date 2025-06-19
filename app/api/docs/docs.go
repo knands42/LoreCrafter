@@ -176,7 +176,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Create a new campaign with the provided details",
+                "description": "Create a new campaign with the provided details. If use_ai query parameter is true, AI will generate the campaign settings.",
                 "consumes": [
                     "application/json"
                 ],
@@ -196,6 +196,13 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/domain.CampaignCreationInput"
                         }
+                    },
+                    {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Whether to use AI to generate campaign settings",
+                        "name": "use_gen_ai",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -206,7 +213,7 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Invalid request body",
+                        "description": "Invalid request body or parameters",
                         "schema": {
                             "$ref": "#/definitions/utils.ErrorResponse"
                         }
@@ -315,7 +322,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Campaign retrieved successfully",
                         "schema": {
-                            "$ref": "#/definitions/sqlc.Campaign"
+                            "$ref": "#/definitions/domain.Campaign"
                         }
                     },
                     "400": {
@@ -767,7 +774,6 @@ const docTemplate = `{
                 "is_public": {
                     "type": "boolean"
                 },
-                "metadata": {},
                 "number_of_players": {
                     "type": "integer"
                 },
@@ -785,6 +791,14 @@ const docTemplate = `{
                 },
                 "updated_at": {
                     "type": "string"
+                },
+                "world_theme": {
+                    "type": "string",
+                    "example": "Gothic"
+                },
+                "written_tone": {
+                    "type": "string",
+                    "example": "Dramatic"
                 }
             }
         },
@@ -822,6 +836,14 @@ const docTemplate = `{
                 "title": {
                     "type": "string",
                     "example": "Chronicles of the Fall"
+                },
+                "world_theme": {
+                    "type": "string",
+                    "example": "Gothic"
+                },
+                "written_tone": {
+                    "type": "string",
+                    "example": "Dramatic"
                 }
             }
         },
@@ -980,6 +1002,19 @@ const docTemplate = `{
                             "$ref": "#/definitions/pgtype.Text"
                         }
                     ]
+                },
+                "setting_ai_metadata": {
+                    "description": "Information used by LLMs on how to generate the data (e.g., a dark tone in a high fantasy world).",
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "setting_metadata": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
                 },
                 "setting_summary": {
                     "description": "A summary of the campaign setting.",

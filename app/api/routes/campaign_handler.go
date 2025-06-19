@@ -101,7 +101,7 @@ func (h *CampaignHandler) CreateCampaign(w http.ResponseWriter, r *http.Request)
 // @Produce json
 // @Security BearerAuth
 // @Param campaignID path string true "Campaign ID"
-// @Success 200 {object} sqlc.Campaign "Campaign retrieved successfully"
+// @Success 200 {object} domain.Campaign "Campaign retrieved successfully"
 // @Failure 400 {object} utils.ErrorResponse "Invalid campaign ID"
 // @Failure 401 {object} utils.ErrorResponse "Unauthorized"
 // @Failure 403 {object} utils.ErrorResponse "Insufficient permissions"

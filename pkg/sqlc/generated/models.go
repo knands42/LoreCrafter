@@ -204,10 +204,13 @@ type Campaign struct {
 	// Whether the campaign is available to players outside the campaign.
 	IsPublic bool `json:"is_public"`
 	// The invite code for the campaign.
-	InviteCode pgtype.Text        `json:"invite_code"`
-	CreatedBy  pgtype.UUID        `json:"created_by"`
-	CreatedAt  pgtype.Timestamptz `json:"created_at"`
-	UpdatedAt  pgtype.Timestamptz `json:"updated_at"`
+	InviteCode      pgtype.Text `json:"invite_code"`
+	SettingMetadata []byte      `json:"setting_metadata"`
+	// Information used by LLMs on how to generate the data (e.g., a dark tone in a high fantasy world).
+	SettingAiMetadata []byte             `json:"setting_ai_metadata"`
+	CreatedBy         pgtype.UUID        `json:"created_by"`
+	CreatedAt         pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt         pgtype.Timestamptz `json:"updated_at"`
 }
 
 type CampaignMember struct {
@@ -247,18 +250,6 @@ type Invitation struct {
 	ExpiresAt  pgtype.Timestamptz `json:"expires_at"`
 	CreatedAt  pgtype.Timestamptz `json:"created_at"`
 	UpdatedAt  pgtype.Timestamptz `json:"updated_at"`
-}
-
-type TimelineEvent struct {
-	ID          pgtype.UUID        `json:"id"`
-	CampaignID  pgtype.UUID        `json:"campaign_id"`
-	Title       string             `json:"title"`
-	Description pgtype.Text        `json:"description"`
-	EventDate   pgtype.Timestamptz `json:"event_date"`
-	IsPublic    bool               `json:"is_public"`
-	CreatedBy   pgtype.UUID        `json:"created_by"`
-	CreatedAt   pgtype.Timestamptz `json:"created_at"`
-	UpdatedAt   pgtype.Timestamptz `json:"updated_at"`
 }
 
 type User struct {

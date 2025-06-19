@@ -23,7 +23,6 @@ definitions:
         type: string
       is_public:
         type: boolean
-      metadata: {}
       number_of_players:
         type: integer
       setting:
@@ -35,6 +34,12 @@ definitions:
       title:
         type: string
       updated_at:
+        type: string
+      world_theme:
+        example: Gothic
+        type: string
+      written_tone:
+        example: Dramatic
         type: string
     type: object
   domain.CampaignCreationInput:
@@ -60,6 +65,12 @@ definitions:
         type: string
       title:
         example: Chronicles of the Fall
+        type: string
+      world_theme:
+        example: Gothic
+        type: string
+      written_tone:
+        example: Dramatic
         type: string
     type: object
   domain.LoginInput:
@@ -163,6 +174,16 @@ definitions:
         allOf:
         - $ref: '#/definitions/pgtype.Text'
         description: The detailed setting of the campaign.
+      setting_ai_metadata:
+        description: Information used by LLMs on how to generate the data (e.g., a
+          dark tone in a high fantasy world).
+        items:
+          type: integer
+        type: array
+      setting_metadata:
+        items:
+          type: integer
+        type: array
       setting_summary:
         allOf:
         - $ref: '#/definitions/pgtype.Text'
@@ -343,7 +364,8 @@ paths:
     post:
       consumes:
       - application/json
-      description: Create a new campaign with the provided details
+      description: Create a new campaign with the provided details. If use_ai query
+        parameter is true, AI will generate the campaign settings.
       parameters:
       - description: Campaign creation details
         in: body
@@ -351,6 +373,11 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/domain.CampaignCreationInput'
+      - default: false
+        description: Whether to use AI to generate campaign settings
+        in: query
+        name: use_gen_ai
+        type: boolean
       produces:
       - application/json
       responses:
@@ -359,7 +386,7 @@ paths:
           schema:
             $ref: '#/definitions/domain.Campaign'
         "400":
-          description: Invalid request body
+          description: Invalid request body or parameters
           schema:
             $ref: '#/definitions/utils.ErrorResponse'
         "401":
@@ -432,7 +459,7 @@ paths:
         "200":
           description: Campaign retrieved successfully
           schema:
-            $ref: '#/definitions/sqlc.Campaign'
+            $ref: '#/definitions/domain.Campaign'
         "400":
           description: Invalid campaign ID
           schema:

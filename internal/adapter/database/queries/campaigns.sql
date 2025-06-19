@@ -8,10 +8,12 @@ INSERT INTO campaigns (
     setting_summary,
     setting,
     image_url,
+    setting_metadata,
+    setting_ai_metadata,
     is_public,
     created_by
 ) VALUES (
-    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10
+    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12
 ) RETURNING *;
 
 -- name: GetCampaignByID :one
@@ -26,6 +28,8 @@ SELECT
     c.image_url,
     c.is_public,
     c.invite_code,
+    c.setting_metadata,
+    c.setting_ai_metadata,
     c.created_by,
     c.created_at,
     c.updated_at
@@ -67,6 +71,8 @@ RETURNING
     c.image_url,
     c.is_public,
     c.invite_code,
+    c.setting_metadata,
+    c.setting_ai_metadata,
     c.created_by,
     c.created_at,
     c.updated_at;
