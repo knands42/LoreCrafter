@@ -792,25 +792,36 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "game_system": {
-                    "$ref": "#/definitions/sqlc.GameSystemEnum"
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/sqlc.GameSystemEnum"
+                        }
+                    ],
+                    "example": ""
                 },
                 "image_url": {
-                    "type": "string"
+                    "type": "string",
+                    "example": ""
                 },
                 "is_public": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "example": false
                 },
                 "number_of_players": {
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 6
                 },
                 "setting": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "In the era of Ultron, Superman was a Fairy"
                 },
                 "setting_summary": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "The fall of the kingdom of Lorecrafter"
                 },
                 "title": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Chronicles of the Fall"
                 }
             }
         },
@@ -932,7 +943,7 @@ const docTemplate = `{
                     "description": "The game system used for the campaign (e.g., dnd, pathfinder, etc.).",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/sqlc.NullGameSystemEnum"
+                            "$ref": "#/definitions/sqlc.GameSystemEnum"
                         }
                     ]
                 },
@@ -1040,13 +1051,13 @@ const docTemplate = `{
                 "DND_5E",
                 "PATHFINDER_2E",
                 "COC_7E",
-                "CUSTOM"
+                "OTHER"
             ],
             "x-enum-varnames": [
                 "GameSystemEnumDND5E",
                 "GameSystemEnumPATHFINDER2E",
                 "GameSystemEnumCOC7E",
-                "GameSystemEnumCUSTOM"
+                "GameSystemEnumOTHER"
             ]
         },
         "sqlc.MemberRole": {
@@ -1059,18 +1070,6 @@ const docTemplate = `{
                 "MemberRoleGm",
                 "MemberRolePlayer"
             ]
-        },
-        "sqlc.NullGameSystemEnum": {
-            "type": "object",
-            "properties": {
-                "game_system_enum": {
-                    "$ref": "#/definitions/sqlc.GameSystemEnum"
-                },
-                "valid": {
-                    "description": "Valid is true if GameSystemEnum is not NULL",
-                    "type": "boolean"
-                }
-            }
         },
         "utils.ErrorResponse": {
             "type": "object",

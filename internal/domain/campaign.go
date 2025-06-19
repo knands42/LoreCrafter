@@ -19,13 +19,13 @@ var (
 
 // CampaignCreationInput represents the input for creating a new campaign
 type CampaignCreationInput struct {
-	Title           string              `json:"title"`
-	SettingSummary  string              `json:"setting_summary"`
-	Setting         string              `json:"setting"`
-	GameSystem      sqlc.GameSystemEnum `json:"game_system"`
-	NumberOfPlayers int16               `json:"number_of_players"`
-	ImageURL        string              `json:"image_url"`
-	IsPublic        bool                `json:"is_public"`
+	Title           string              `json:"title" example:"Chronicles of the Fall"`
+	SettingSummary  string              `json:"setting_summary" example:"The fall of the kingdom of Lorecrafter"`
+	Setting         string              `json:"setting" example:"In the era of Ultron, Superman was a Fairy"`
+	GameSystem      sqlc.GameSystemEnum `json:"game_system" example:""`
+	NumberOfPlayers int16               `json:"number_of_players" example:"6"`
+	ImageURL        string              `json:"image_url" example:""`
+	IsPublic        bool                `json:"is_public" example:"false"`
 }
 
 func (campaign *CampaignCreationInput) Validate() error {
@@ -75,23 +75,12 @@ func (campaign *CampaignCreationInput) PrepareToInsert(creatorID uuid.UUID) (sql
 	}, nil
 }
 
-func HasPermission(memberRole sqlc.MemberRole, requiredRole sqlc.MemberRole) bool {
-	if memberRole == sqlc.MemberRoleGm {
-		return true
-	}
-	if requiredRole == sqlc.MemberRolePlayer && memberRole == sqlc.MemberRolePlayer {
-		return true
-	}
-
-	return false
-}
-
 type GetCampaignInput struct {
 	UserId     uuid.UUID `json:"user_id"`
 	CampaignId uuid.UUID `json:"campaign_id"`
 }
 
-func (campaign *GetCampaignInput) ToSqlcParams() (sqlc.GetCampaignByIDParams, error) {
+func (campaign *GetCampaignInput) PrepareToInsert() (sqlc.GetCampaignByIDParams, error) {
 	campaignPGUUID, err := utils.GeneratePGUUIDFromCustomId(campaign.CampaignId)
 	if err != nil {
 		return sqlc.GetCampaignByIDParams{}, err
@@ -117,7 +106,7 @@ type UpdateCampaignInput struct {
 	IsPublic       bool      `json:"is_public"`
 }
 
-func (campaign *UpdateCampaignInput) ToSqlcParams() (sqlc.UpdateCampaignParams, error) {
+func (campaign *UpdateCampaignInput) PrepareToInsert() (sqlc.UpdateCampaignParams, error) {
 	campaignPGUUID, err := utils.GeneratePGUUIDFromCustomId(campaign.ID)
 	if err != nil {
 		return sqlc.UpdateCampaignParams{}, err
@@ -152,7 +141,7 @@ type DeleteCampaignInput struct {
 	UserID uuid.UUID `json:"user_id"`
 }
 
-func (campaign *DeleteCampaignInput) ToSqlcParams() (sqlc.DeleteCampaignParams, error) {
+func (campaign *DeleteCampaignInput) PrepareToInsert() (sqlc.DeleteCampaignParams, error) {
 	campaignPGUUID, err := utils.GeneratePGUUIDFromCustomId(campaign.ID)
 	if err != nil {
 		return sqlc.DeleteCampaignParams{}, err
@@ -185,7 +174,7 @@ type Campaign struct {
 	UpdatedAt       time.Time               `json:"updated_at"`
 }
 
-func FromSqlcCampaignToDomain(campaignSqlc sqlc.Campaign) Campaign {
+func ToDomain(campaignSqlc sqlc.Campaign) Campaign {
 	return Campaign{
 		ID:              campaignSqlc.ID.Bytes,
 		Title:           campaignSqlc.Title,

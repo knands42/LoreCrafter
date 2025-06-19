@@ -40,18 +40,26 @@ definitions:
   domain.CampaignCreationInput:
     properties:
       game_system:
-        $ref: '#/definitions/sqlc.GameSystemEnum'
+        allOf:
+        - $ref: '#/definitions/sqlc.GameSystemEnum'
+        example: ""
       image_url:
+        example: ""
         type: string
       is_public:
+        example: false
         type: boolean
       number_of_players:
+        example: 6
         type: integer
       setting:
+        example: In the era of Ultron, Superman was a Fairy
         type: string
       setting_summary:
+        example: The fall of the kingdom of Lorecrafter
         type: string
       title:
+        example: Chronicles of the Fall
         type: string
     type: object
   domain.LoginInput:
@@ -133,7 +141,7 @@ definitions:
         type: string
       game_system:
         allOf:
-        - $ref: '#/definitions/sqlc.NullGameSystemEnum'
+        - $ref: '#/definitions/sqlc.GameSystemEnum'
         description: The game system used for the campaign (e.g., dnd, pathfinder,
           etc.).
       id:
@@ -203,13 +211,13 @@ definitions:
     - DND_5E
     - PATHFINDER_2E
     - COC_7E
-    - CUSTOM
+    - OTHER
     type: string
     x-enum-varnames:
     - GameSystemEnumDND5E
     - GameSystemEnumPATHFINDER2E
     - GameSystemEnumCOC7E
-    - GameSystemEnumCUSTOM
+    - GameSystemEnumOTHER
   sqlc.MemberRole:
     enum:
     - gm
@@ -218,14 +226,6 @@ definitions:
     x-enum-varnames:
     - MemberRoleGm
     - MemberRolePlayer
-  sqlc.NullGameSystemEnum:
-    properties:
-      game_system_enum:
-        $ref: '#/definitions/sqlc.GameSystemEnum'
-      valid:
-        description: Valid is true if GameSystemEnum is not NULL
-        type: boolean
-    type: object
   utils.ErrorResponse:
     properties:
       details: {}

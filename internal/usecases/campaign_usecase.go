@@ -69,13 +69,13 @@ func (uc *CampaignUseCase) CreateCampaign(input domain.CampaignCreationInput, cr
 		return domain.Campaign{}, ErrCampaignMemberCreation
 	}
 
-	return domain.FromSqlcCampaignToDomain(createdCampaign), nil
+	return domain.ToDomain(createdCampaign), nil
 }
 
 // GetCampaign retrieves a campaign by ID if the user has access
 func (uc *CampaignUseCase) GetCampaign(input domain.GetCampaignInput) (sqlc.Campaign, error) {
 	// Get the campaign
-	getCampaignParams, err := input.ToSqlcParams()
+	getCampaignParams, err := input.PrepareToInsert()
 	if err != nil {
 		return sqlc.Campaign{}, err
 	}
@@ -89,7 +89,7 @@ func (uc *CampaignUseCase) GetCampaign(input domain.GetCampaignInput) (sqlc.Camp
 
 // UpdateCampaign updates a campaign if the user has GM permissions
 func (uc *CampaignUseCase) UpdateCampaign(campaign domain.UpdateCampaignInput) error {
-	updateCampaignParams, err := campaign.ToSqlcParams()
+	updateCampaignParams, err := campaign.PrepareToInsert()
 	_, err = uc.repo.UpdateCampaign(uc.ctx, updateCampaignParams)
 	if err != nil && err.Error() == "no rows in result set" {
 		return ErrCampaignNotFound
@@ -101,7 +101,7 @@ func (uc *CampaignUseCase) UpdateCampaign(campaign domain.UpdateCampaignInput) e
 // DeleteCampaign deletes a campaign if the user has GM permissions
 func (uc *CampaignUseCase) DeleteCampaign(input domain.DeleteCampaignInput) error {
 	// Delete the campaign
-	deleteCampaignParams, err := input.ToSqlcParams()
+	deleteCampaignParams, err := input.PrepareToInsert()
 	if err != nil {
 		return err
 	}
