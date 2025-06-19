@@ -27,15 +27,14 @@ func TestRegister_Success(t *testing.T) {
 	})
 
 	// When registering the user
-	var authOutput domain.AuthOutput
-	statusCode := RegisterUser(t, input, &authOutput)
+	var createdUser domain.User
+	statusCode, _ := RegisterUser(t, input, &createdUser)
 
 	// Then the user should be registered successfully
 	assert.Equal(t, http.StatusCreated, statusCode)
-	assert.NotEmpty(t, authOutput.Token)
-	assert.NotEmpty(t, authOutput.User.ID)
-	assert.Equal(t, username, authOutput.User.Username)
-	assert.Equal(t, email, authOutput.User.Email)
+	assert.NotEmpty(t, createdUser.ID)
+	assert.Equal(t, username, createdUser.Username)
+	assert.Equal(t, email, createdUser.Email)
 }
 
 func TestRegister_Failure_UserAlreadyExists(t *testing.T) {
@@ -56,12 +55,12 @@ func TestRegister_Failure_UserAlreadyExists(t *testing.T) {
 	})
 
 	// Register the user first
-	var authOutput domain.AuthOutput
-	statusCode := RegisterUser(t, input, &authOutput)
+	var createdUser domain.User
+	statusCode, _ := RegisterUser(t, input, &createdUser)
 	require.Equal(t, http.StatusCreated, statusCode)
 
 	// When trying to register the same user again
-	statusCode = RegisterUser(t, input, nil)
+	statusCode, _ = RegisterUser(t, input, nil)
 
 	// Then it should fail with a conflict status
 	assert.Equal(t, http.StatusConflict, statusCode)
@@ -124,7 +123,7 @@ func TestRegister_Failure_InvalidInput(t *testing.T) {
 	// When registering with invalid inputs
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			statusCode := RegisterUser(t, tc.input, nil)
+			statusCode, _ := RegisterUser(t, tc.input, nil)
 
 			// Then it should fail with the expected status code
 			assert.Equal(t, tc.expected, statusCode)
@@ -151,7 +150,7 @@ func TestLogin_Success(t *testing.T) {
 	}
 
 	var registerOutput domain.AuthOutput
-	statusCode := RegisterUser(t, input, &registerOutput)
+	statusCode, _ := RegisterUser(t, input, &registerOutput)
 	require.Equal(t, http.StatusCreated, statusCode)
 
 	// When logging in with valid credentials
@@ -161,14 +160,18 @@ func TestLogin_Success(t *testing.T) {
 	}
 
 	var loginOutput domain.AuthOutput
-	statusCode = LoginUser(t, loginInput, &loginOutput)
+	statusCode, cookies := LoginUser(t, loginInput, &loginOutput)
 
 	// Then the login should be successful
 	assert.Equal(t, http.StatusOK, statusCode)
-	assert.NotEmpty(t, loginOutput.Token)
 	assert.NotEmpty(t, loginOutput.User.ID)
 	assert.Equal(t, username, loginOutput.User.Username)
 	assert.Equal(t, email, loginOutput.User.Email)
+	for _, cookie := range cookies {
+		if cookie.Name == "auth_token" {
+			assert.NotEmpty(t, cookie.Value)
+		}
+	}
 }
 
 func TestLogin_Failure_InvalidCredentials(t *testing.T) {
@@ -190,7 +193,7 @@ func TestLogin_Failure_InvalidCredentials(t *testing.T) {
 	}
 
 	var registerOutput domain.AuthOutput
-	statusCode := RegisterUser(t, input, &registerOutput)
+	statusCode, _ := RegisterUser(t, input, &registerOutput)
 	require.Equal(t, http.StatusCreated, statusCode)
 
 	// When logging in with invalid credentials
@@ -236,7 +239,7 @@ func TestLogin_Failure_InvalidCredentials(t *testing.T) {
 	// Then the login should fail with the expected status code
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			statusCode := LoginUser(t, tc.input, nil)
+			statusCode, _ := LoginUser(t, tc.input, nil)
 			assert.Equal(t, tc.expected, statusCode)
 		})
 	}
@@ -244,10 +247,10 @@ func TestLogin_Failure_InvalidCredentials(t *testing.T) {
 
 func TestMe_Success(t *testing.T) {
 	// Given a registered and authenticated user
-	user := CreateTestUser(t)
+	_, cookie := CreateTestUser(t)
 
 	// When getting the user's profile
-	statusCode := SendAuthenticatedRequest(t, "GET", "/api/me", user.Token, nil, nil)
+	statusCode, _ := SendAuthenticatedRequest(t, "GET", "/api/me", cookie, nil, nil)
 
 	// Then the profile should be retrieved successfully
 	assert.Equal(t, http.StatusOK, statusCode)
@@ -256,14 +259,14 @@ func TestMe_Success(t *testing.T) {
 func TestMe_Failure_Unauthorized(t *testing.T) {
 	// Given no authentication token
 	// When getting the user's profile without a token
-	statusCode := SendAuthenticatedRequest(t, "GET", "/api/me", "", nil, nil)
+	statusCode, _ := SendAuthenticatedRequest(t, "GET", "/api/me", http.Cookie{}, nil, nil)
 
 	// Then it should fail with an unauthorized status
 	assert.Equal(t, http.StatusUnauthorized, statusCode)
 
 	// Given an invalid authentication token
 	// When getting the user's profile with an invalid token
-	statusCode = SendAuthenticatedRequest(t, "GET", "/api/me", "invalid_token", nil, nil)
+	statusCode, _ = SendAuthenticatedRequest(t, "GET", "/api/me", http.Cookie{Name: "bazinga", Value: "nothing here"}, nil, nil)
 
 	// Then it should fail with an unauthorized status
 	assert.Equal(t, http.StatusUnauthorized, statusCode)

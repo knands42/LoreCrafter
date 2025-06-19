@@ -35,7 +35,7 @@ func NewCampaignUseCase(
 }
 
 // CreateCampaign creates a new campaign and adds the creator as a GM
-func (uc *CampaignUseCase) CreateCampaign(input domain.CampaignCreationInput, creatorID uuid.UUID) (domain.Campaign, error) {
+func (uc *CampaignUseCase) CreateCampaign(creatorID uuid.UUID, input domain.CampaignCreationInput) (domain.Campaign, error) {
 	// Validate the input
 	err := input.Validate()
 	if err != nil {
@@ -88,8 +88,8 @@ func (uc *CampaignUseCase) GetCampaign(input domain.GetCampaignInput) (sqlc.Camp
 }
 
 // UpdateCampaign updates a campaign if the user has GM permissions
-func (uc *CampaignUseCase) UpdateCampaign(campaign domain.UpdateCampaignInput) error {
-	updateCampaignParams, err := campaign.PrepareToInsert()
+func (uc *CampaignUseCase) UpdateCampaign(userID uuid.UUID, campaign domain.UpdateCampaignInput) error {
+	updateCampaignParams, err := campaign.PrepareToInsert(userID)
 	_, err = uc.repo.UpdateCampaign(uc.ctx, updateCampaignParams)
 	if err != nil && err.Error() == "no rows in result set" {
 		return ErrCampaignNotFound

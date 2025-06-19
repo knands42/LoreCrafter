@@ -40,7 +40,7 @@ func (h *AuthHandler) RegisterRoutes(r chi.Router) {
 // @Accept json
 // @Produce json
 // @Param input body domain.UserCreationInput true "User registration details"
-// @Success 201 {object} domain.AuthOutput "User registered successfully"
+// @Success 201 {object} domain.User "User registered successfully"
 // @Failure 400 {object} utils.ErrorResponse "Invalid request body"
 // @Failure 409 {object} utils.ErrorResponse "User already exists"
 // @Failure 500 {object} utils.ErrorResponse "Internal server error"

@@ -78,7 +78,7 @@ func (h *CampaignHandler) CreateCampaign(w http.ResponseWriter, r *http.Request)
 		return utils.WriteJSONError(w, http.StatusBadRequest, "Invalid user ID")
 	}
 
-	campaign, err := h.campaignUseCase.CreateCampaign(input, userID)
+	campaign, err := h.campaignUseCase.CreateCampaign(userID, input)
 	if err != nil {
 		return err
 	}
@@ -178,9 +178,8 @@ func (h *CampaignHandler) UpdateCampaign(w http.ResponseWriter, r *http.Request)
 	if err != nil {
 		return utils.WriteJSONError(w, http.StatusBadRequest, "Invalid user ID")
 	}
-	campaign.UserId = userID
 
-	err = h.campaignUseCase.UpdateCampaign(campaign)
+	err = h.campaignUseCase.UpdateCampaign(userID, campaign)
 	if err != nil {
 		switch {
 		case errors.Is(err, usecases.ErrCampaignNotFound):

@@ -104,7 +104,7 @@ const docTemplate = `{
                     "201": {
                         "description": "User registered successfully",
                         "schema": {
-                            "$ref": "#/definitions/domain.AuthOutput"
+                            "$ref": "#/definitions/domain.User"
                         }
                     },
                     "400": {

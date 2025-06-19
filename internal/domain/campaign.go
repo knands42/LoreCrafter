@@ -28,6 +28,18 @@ type CampaignCreationInput struct {
 	IsPublic        bool                `json:"is_public" example:"false"`
 }
 
+func NewCampaignCreationInput(title string, settingSummary string, setting string, gameSystem sqlc.GameSystemEnum, numberOfPlayers int16, imageURL string, isPublic bool) *CampaignCreationInput {
+	return &CampaignCreationInput{
+		Title:           title,
+		SettingSummary:  settingSummary,
+		Setting:         setting,
+		GameSystem:      gameSystem,
+		NumberOfPlayers: numberOfPlayers,
+		ImageURL:        imageURL,
+		IsPublic:        isPublic,
+	}
+}
+
 func (campaign *CampaignCreationInput) Validate() error {
 	var validationErrors []string
 
@@ -97,21 +109,47 @@ func (campaign *GetCampaignInput) PrepareToInsert() (sqlc.GetCampaignByIDParams,
 }
 
 type UpdateCampaignInput struct {
-	ID             uuid.UUID `json:"campaign_id"`
-	UserId         uuid.UUID `json:"user_id"`
-	Title          string    `json:"title"`
-	SettingSummary string    `json:"setting_summary"`
-	Setting        string    `json:"setting"`
-	ImageURL       string    `json:"image_url"`
-	IsPublic       bool      `json:"is_public"`
+	ID              uuid.UUID               `json:"campaign_id"`
+	Title           string                  `json:"title"`
+	SettingSummary  string                  `json:"setting_summary"`
+	Setting         string                  `json:"setting"`
+	ImageURL        string                  `json:"image_url"`
+	IsPublic        bool                    `json:"is_public"`
+	GameSystem      sqlc.GameSystemEnum     `json:"game_system" example:"DND_5E"`
+	NumberOfPlayers int16                   `json:"number_of_players" example:"6"`
+	Status          sqlc.CampaignStatusEnum `json:"status" example:"PLANNING"`
 }
 
-func (campaign *UpdateCampaignInput) PrepareToInsert() (sqlc.UpdateCampaignParams, error) {
+func NewUpdateCampaignInput(
+	id uuid.UUID,
+	title string,
+	settingSummary string,
+	setting string,
+	imageURL string,
+	isPublic bool,
+	gameSystem sqlc.GameSystemEnum,
+	numberOfPlayers int16,
+	status sqlc.CampaignStatusEnum,
+) *UpdateCampaignInput {
+	return &UpdateCampaignInput{
+		ID:              id,
+		Title:           title,
+		SettingSummary:  settingSummary,
+		Setting:         setting,
+		ImageURL:        imageURL,
+		IsPublic:        isPublic,
+		GameSystem:      gameSystem,
+		NumberOfPlayers: numberOfPlayers,
+		Status:          status,
+	}
+}
+
+func (campaign *UpdateCampaignInput) PrepareToInsert(userID uuid.UUID) (sqlc.UpdateCampaignParams, error) {
 	campaignPGUUID, err := utils.GeneratePGUUIDFromCustomId(campaign.ID)
 	if err != nil {
 		return sqlc.UpdateCampaignParams{}, err
 	}
-	userPGUUID, err := utils.GeneratePGUUIDFromCustomId(campaign.UserId)
+	userPGUUID, err := utils.GeneratePGUUIDFromCustomId(userID)
 	if err != nil {
 		return sqlc.UpdateCampaignParams{}, err
 	}
@@ -132,7 +170,12 @@ func (campaign *UpdateCampaignInput) PrepareToInsert() (sqlc.UpdateCampaignParam
 			String: campaign.ImageURL,
 			Valid:  true,
 		},
-		IsPublic: campaign.IsPublic,
+		IsPublic:   campaign.IsPublic,
+		GameSystem: campaign.GameSystem,
+		NumberOfPlayers: pgtype.Int2{
+			Int16: campaign.NumberOfPlayers,
+		},
+		Status: campaign.Status,
 	}, nil
 }
 
