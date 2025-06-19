@@ -22,7 +22,7 @@ type CampaignCreationInput struct {
 	Title           string              `json:"title" example:"Chronicles of the Fall"`
 	SettingSummary  string              `json:"setting_summary" example:"The fall of the kingdom of Lorecrafter"`
 	Setting         string              `json:"setting" example:"In the era of Ultron, Superman was a Fairy"`
-	GameSystem      sqlc.GameSystemEnum `json:"game_system" example:""`
+	GameSystem      sqlc.GameSystemEnum `json:"game_system" example:"DND_5E"`
 	NumberOfPlayers int16               `json:"number_of_players" example:"6"`
 	ImageURL        string              `json:"image_url" example:""`
 	IsPublic        bool                `json:"is_public" example:"false"`

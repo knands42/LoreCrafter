@@ -797,7 +797,7 @@ const docTemplate = `{
                             "$ref": "#/definitions/sqlc.GameSystemEnum"
                         }
                     ],
-                    "example": ""
+                    "example": "DND_5E"
                 },
                 "image_url": {
                     "type": "string",

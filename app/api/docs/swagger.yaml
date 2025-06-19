@@ -42,7 +42,7 @@ definitions:
       game_system:
         allOf:
         - $ref: '#/definitions/sqlc.GameSystemEnum'
-        example: ""
+        example: DND_5E
       image_url:
         example: ""
         type: string
