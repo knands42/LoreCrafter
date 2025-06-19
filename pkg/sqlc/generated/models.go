@@ -62,7 +62,7 @@ const (
 	GameSystemEnumDND5E        GameSystemEnum = "DND_5E"
 	GameSystemEnumPATHFINDER2E GameSystemEnum = "PATHFINDER_2E"
 	GameSystemEnumCOC7E        GameSystemEnum = "COC_7E"
-	GameSystemEnumCUSTOM       GameSystemEnum = "CUSTOM"
+	GameSystemEnumOTHER        GameSystemEnum = "OTHER"
 )
 
 func (e *GameSystemEnum) Scan(src interface{}) error {
@@ -195,8 +195,8 @@ type Campaign struct {
 	// The detailed setting of the campaign.
 	Setting pgtype.Text `json:"setting"`
 	// The game system used for the campaign (e.g., dnd, pathfinder, etc.).
-	GameSystem      NullGameSystemEnum `json:"game_system"`
-	NumberOfPlayers pgtype.Int2        `json:"number_of_players"`
+	GameSystem      GameSystemEnum `json:"game_system"`
+	NumberOfPlayers pgtype.Int2    `json:"number_of_players"`
 	// Lifecycle status of the campaign (e.g., planning, active, paused, etc.).
 	Status CampaignStatusEnum `json:"status"`
 	// The URL of the campaign image.

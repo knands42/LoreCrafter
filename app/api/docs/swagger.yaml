@@ -40,7 +40,7 @@ definitions:
   domain.CampaignCreationInput:
     properties:
       game_system:
-        type: string
+        $ref: '#/definitions/sqlc.GameSystemEnum'
       image_url:
         type: string
       is_public:

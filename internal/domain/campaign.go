@@ -2,12 +2,13 @@ package domain
 
 import (
 	"errors"
+	"strings"
+	"time"
+
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/knands42/lorecrafter/internal/utils"
 	sqlc "github.com/knands42/lorecrafter/pkg/sqlc/generated"
-	"strings"
-	"time"
 )
 
 // Campaign permission errors
@@ -18,13 +19,13 @@ var (
 
 // CampaignCreationInput represents the input for creating a new campaign
 type CampaignCreationInput struct {
-	Title           string `json:"title"`
-	SettingSummary  string `json:"setting_summary"`
-	Setting         string `json:"setting"`
-	GameSystem      string `json:"game_system"`
-	NumberOfPlayers uint16 `json:"number_of_players"`
-	ImageURL        string `json:"image_url"`
-	IsPublic        bool   `json:"is_public"`
+	Title           string              `json:"title"`
+	SettingSummary  string              `json:"setting_summary"`
+	Setting         string              `json:"setting"`
+	GameSystem      sqlc.GameSystemEnum `json:"game_system"`
+	NumberOfPlayers int16               `json:"number_of_players"`
+	ImageURL        string              `json:"image_url"`
+	IsPublic        bool                `json:"is_public"`
 }
 
 func (campaign *CampaignCreationInput) Validate() error {
@@ -45,7 +46,7 @@ func (campaign *CampaignCreationInput) Validate() error {
 	return nil
 }
 
-func (campaign *CampaignCreationInput) ToSqlcParams(creatorID uuid.UUID) (sqlc.CreateCampaignParams, error) {
+func (campaign *CampaignCreationInput) PrepareToInsert(creatorID uuid.UUID) (sqlc.CreateCampaignParams, error) {
 	newUUUIDV7, err := utils.GeneratePGUUID()
 	creatorUUUIDV7, err := utils.GeneratePGUUIDFromCustomId(creatorID)
 	if err != nil {
@@ -59,10 +60,16 @@ func (campaign *CampaignCreationInput) ToSqlcParams(creatorID uuid.UUID) (sqlc.C
 			String: campaign.SettingSummary,
 			Valid:  true,
 		},
+		NumberOfPlayers: pgtype.Int2{
+			Int16: campaign.NumberOfPlayers,
+			Valid: true,
+		},
+		GameSystem: campaign.GameSystem,
 		Setting: pgtype.Text{
 			String: campaign.Setting,
 			Valid:  true,
 		},
+		Status:    sqlc.CampaignStatusEnumPLANNING,
 		IsPublic:  campaign.IsPublic,
 		CreatedBy: creatorUUUIDV7,
 	}, nil
@@ -184,7 +191,7 @@ func FromSqlcCampaignToDomain(campaignSqlc sqlc.Campaign) Campaign {
 		Title:           campaignSqlc.Title,
 		SettingSummary:  campaignSqlc.SettingSummary.String,
 		Setting:         campaignSqlc.Setting.String,
-		GameSystem:      campaignSqlc.GameSystem.GameSystemEnum,
+		GameSystem:      campaignSqlc.GameSystem,
 		NumberOfPlayers: uint16(campaignSqlc.NumberOfPlayers.Int16),
 		ImageUrl:        campaignSqlc.ImageUrl.String,
 		IsPublic:        campaignSqlc.IsPublic,

@@ -792,7 +792,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "game_system": {
-                    "type": "string"
+                    "$ref": "#/definitions/sqlc.GameSystemEnum"
                 },
                 "image_url": {
                     "type": "string"

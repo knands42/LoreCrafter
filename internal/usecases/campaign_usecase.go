@@ -43,7 +43,7 @@ func (uc *CampaignUseCase) CreateCampaign(input domain.CampaignCreationInput, cr
 	}
 
 	// Save the campaign
-	createCampaignParams, err := input.ToSqlcParams(creatorID)
+	createCampaignParams, err := input.PrepareToInsert(creatorID)
 	if err != nil {
 		return domain.Campaign{}, err
 	}

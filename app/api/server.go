@@ -48,15 +48,17 @@ func NewServer(cfg config.Config, repo sqlc.Querier) *Server {
 	router.Use(middleware.Timeout(10 * time.Second))
 
 	// Set up CORS middleware
-	router.Use(cors.Handler(cors.Options{
-		AllowedOrigins: cfg.AppHostnames,
-		// AllowOriginFunc:  func(r *http.Request, origin string) bool { return true },
+	corsMiddleware := cors.New(cors.Options{
+		AllowedOrigins:   cfg.AppHostnames,
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 		ExposedHeaders:   []string{"Link"},
 		AllowCredentials: true,
-		MaxAge:           300, // Maximum value not ignored by any of major browsers
-	}))
+		MaxAge:           300,  // Maximum value not ignored by any of major browsers
+		Debug:            true, // Enable debug logging
+	})
+
+	router.Use(corsMiddleware.Handler)
 
 	// Create the HTTP server
 	httpServer := &http.Server{

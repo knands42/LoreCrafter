@@ -31,7 +31,7 @@ INSERT INTO campaigns (
 type CreateCampaignParams struct {
 	ID              pgtype.UUID        `json:"id"`
 	Title           string             `json:"title"`
-	GameSystem      NullGameSystemEnum `json:"game_system"`
+	GameSystem      GameSystemEnum     `json:"game_system"`
 	NumberOfPlayers pgtype.Int2        `json:"number_of_players"`
 	Status          CampaignStatusEnum `json:"status"`
 	SettingSummary  pgtype.Text        `json:"setting_summary"`
@@ -396,7 +396,7 @@ type UpdateCampaignParams struct {
 	Setting         pgtype.Text        `json:"setting"`
 	ImageUrl        pgtype.Text        `json:"image_url"`
 	IsPublic        bool               `json:"is_public"`
-	GameSystem      NullGameSystemEnum `json:"game_system"`
+	GameSystem      GameSystemEnum     `json:"game_system"`
 	NumberOfPlayers pgtype.Int2        `json:"number_of_players"`
 	Status          CampaignStatusEnum `json:"status"`
 }

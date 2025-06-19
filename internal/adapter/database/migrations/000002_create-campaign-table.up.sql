@@ -2,7 +2,7 @@ CREATE TYPE game_system_enum AS ENUM (
     'DND_5E',
     'PATHFINDER_2E',
     'COC_7E',
-    'CUSTOM'
+    'OTHER'
 );
 
 CREATE TYPE campaign_status_enum AS ENUM (
@@ -18,7 +18,7 @@ CREATE TABLE campaigns (
     title VARCHAR(100) NOT NULL,
     setting_summary TEXT,
     setting TEXT,
-    game_system game_system_enum,
+    game_system game_system_enum NOT NULL,
     number_of_players SMALLINT DEFAULT 1,
     status campaign_status_enum NOT NULL DEFAULT 'PLANNING',
     image_url VARCHAR(255),
