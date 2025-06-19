@@ -1,3 +1,4 @@
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
 CREATE TYPE game_system_enum AS ENUM (
     'DND_5E',
     'PATHFINDER_2E',
@@ -16,8 +17,8 @@ CREATE TYPE campaign_status_enum AS ENUM (
 CREATE TABLE campaigns (
     id UUID PRIMARY KEY,
     title VARCHAR(100) NOT NULL,
-    setting_summary TEXT,
-    setting TEXT,
+    setting_summary TEXT NULL,
+    setting TEXT NULL,
     game_system game_system_enum NOT NULL,
     number_of_players SMALLINT DEFAULT 1,
     status campaign_status_enum NOT NULL DEFAULT 'PLANNING',
@@ -30,7 +31,7 @@ CREATE TABLE campaigns (
 );
 
 -- create index for title using gin index
-CREATE INDEX idx_campaigns_title ON campaigns USING GIN (to_tsvector('english', title));
+CREATE INDEX idx_campaigns_title_trgm ON campaigns USING GIN (title gin_trgm_ops);
 
 CREATE INDEX idx_campaigns_created_by ON campaigns(created_by);
 CREATE INDEX idx_campaigns_invite_code ON campaigns(invite_code);

@@ -3,6 +3,13 @@ package api
 import (
 	"context"
 	"fmt"
+	"log"
+	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
+
 	_ "github.com/knands42/lorecrafter/app/api/docs" // Import the docs package
 	middleware2 "github.com/knands42/lorecrafter/app/api/middleware"
 	"github.com/knands42/lorecrafter/app/api/routes"
@@ -10,12 +17,6 @@ import (
 	"github.com/knands42/lorecrafter/internal/config"
 	"github.com/knands42/lorecrafter/internal/usecases"
 	sqlc "github.com/knands42/lorecrafter/pkg/sqlc/generated"
-	"log"
-	"net/http"
-	"os"
-	"os/signal"
-	"syscall"
-	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -80,7 +81,8 @@ func NewServer(cfg config.Config, repo sqlc.Querier) *Server {
 	// Set up use cases
 	ctx := context.Background()
 	authUseCase := usecases.NewAuthUseCase(ctx, repo, tokenMakerAdapter, argon2Adapter, cfg.TokenExpiry)
-	campaignUseCase := usecases.NewCampaignUseCase(ctx, repo)
+	aiCampaignUseCase := usecases.NewAICampaignUseCase(ctx, repo)
+	campaignUseCase := usecases.NewCampaignUseCase(ctx, aiCampaignUseCase, repo)
 
 	// Set up HTTP handlers
 	server.authUseCase = authUseCase

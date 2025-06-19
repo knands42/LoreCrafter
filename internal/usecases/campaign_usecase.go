@@ -3,11 +3,12 @@ package usecases
 import (
 	"context"
 	"errors"
+	"log"
+
 	"github.com/google/uuid"
 	"github.com/knands42/lorecrafter/internal/domain"
 	"github.com/knands42/lorecrafter/internal/utils"
 	sqlc "github.com/knands42/lorecrafter/pkg/sqlc/generated"
-	"log"
 )
 
 var (
@@ -19,27 +20,39 @@ var (
 
 // CampaignUseCase implements the campaign business logic
 type CampaignUseCase struct {
-	ctx  context.Context
-	repo sqlc.Querier
+	ctx               context.Context
+	aiCampaignUseCase *AICampaignUseCase
+	repo              sqlc.Querier
 }
 
 // NewCampaignUseCase creates a new campaign use case
 func NewCampaignUseCase(
 	ctx context.Context,
+	aiCampaignUseCase *AICampaignUseCase,
 	repo sqlc.Querier,
 ) *CampaignUseCase {
 	return &CampaignUseCase{
-		ctx:  ctx,
-		repo: repo,
+		ctx:               ctx,
+		aiCampaignUseCase: aiCampaignUseCase,
+		repo:              repo,
 	}
 }
 
 // CreateCampaign creates a new campaign and adds the creator as a GM
-func (uc *CampaignUseCase) CreateCampaign(creatorID uuid.UUID, input domain.CampaignCreationInput) (domain.Campaign, error) {
+func (uc *CampaignUseCase) CreateCampaign(creatorID uuid.UUID, useGenAI bool, input domain.CampaignCreationInput) (domain.Campaign, error) {
 	// Validate the input
 	err := input.Validate()
 	if err != nil {
 		return domain.Campaign{}, err
+	}
+
+	// Generate the campaign settings if needed
+	if useGenAI {
+		generatedInput, err := uc.aiCampaignUseCase.GenerateCampaignSettings(input)
+		if err != nil {
+			return domain.Campaign{}, err
+		}
+		input = generatedInput
 	}
 
 	// Save the campaign
@@ -54,12 +67,12 @@ func (uc *CampaignUseCase) CreateCampaign(creatorID uuid.UUID, input domain.Camp
 	}
 
 	// Add the creator as a GM
-	newUUUIDV7, err := utils.GeneratePGUUID()
+	newUUIDV7, err := utils.GeneratePGUUID()
 	if err != nil {
 		return domain.Campaign{}, err
 	}
 	createCampaignMemberParams := sqlc.CreateCampaignMemberParams{
-		ID:         newUUUIDV7,
+		ID:         newUUIDV7,
 		CampaignID: createdCampaign.ID,
 		UserID:     createdCampaign.CreatedBy,
 		Role:       sqlc.MemberRoleGm,

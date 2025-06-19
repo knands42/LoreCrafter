@@ -16,7 +16,6 @@ import (
 // CampaignHandler handles campaign-related HTTP requests
 type CampaignHandler struct {
 	campaignUseCase *usecases.CampaignUseCase
-	authUseCase     *usecases.AuthUseCase
 }
 
 // NewCampaignHandler creates a new CampaignHandler
@@ -50,18 +49,23 @@ func (h *CampaignHandler) RegisterRoutes(r chi.Router) {
 
 // CreateCampaign handles campaign creation
 // @Summary Create a new campaign
-// @Description Create a new campaign with the provided details
+// @Description Create a new campaign with the provided details. If use_ai query parameter is true, AI will generate the campaign settings.
 // @Tags campaigns
 // @Accept json
 // @Produce json
 // @Security BearerAuth
 // @Param input body domain.CampaignCreationInput true "Campaign creation details"
+// @Param use_gen_ai query bool false "Whether to use AI to generate campaign settings" default(false)
 // @Success 201 {object} domain.Campaign "Campaign created successfully"
-// @Failure 400 {object} utils.ErrorResponse "Invalid request body"
+// @Failure 400 {object} utils.ErrorResponse "Invalid request body or parameters"
 // @Failure 401 {object} utils.ErrorResponse "Unauthorized"
 // @Failure 500 {object} utils.ErrorResponse "Internal server error"
 // @Router /api/campaigns [post]
 func (h *CampaignHandler) CreateCampaign(w http.ResponseWriter, r *http.Request) error {
+	// Parse query parameters
+	useAI := r.URL.Query().Get("use_gen_ai") == "true"
+
+	// Parse request body
 	var input domain.CampaignCreationInput
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
 		return utils.WriteJSONError(w, http.StatusBadRequest, "Invalid request body")
@@ -78,7 +82,8 @@ func (h *CampaignHandler) CreateCampaign(w http.ResponseWriter, r *http.Request)
 		return utils.WriteJSONError(w, http.StatusBadRequest, "Invalid user ID")
 	}
 
-	campaign, err := h.campaignUseCase.CreateCampaign(userID, input)
+	// Create the campaign with either original or AI-enhanced input
+	campaign, err := h.campaignUseCase.CreateCampaign(userID, useAI, input)
 	if err != nil {
 		return err
 	}
