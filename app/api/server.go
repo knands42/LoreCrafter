@@ -3,13 +3,14 @@ package api
 import (
 	"context"
 	"fmt"
-	llms2 "github.com/knands42/lorecrafter/internal/adapter/llms"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	llms2 "github.com/knands42/lorecrafter/internal/adapter/llms"
 
 	_ "github.com/knands42/lorecrafter/app/api/docs" // Import the docs package
 	middleware2 "github.com/knands42/lorecrafter/app/api/middleware"
@@ -50,8 +51,15 @@ func NewServer(cfg config.Config, repo sqlc.Querier, llmFactory *llms2.LlmFactor
 	router.Use(middleware.Timeout(10 * time.Second))
 
 	// Set up CORS middleware
+	var allowedOrigins []string
+	if cfg.Profile == "dev" {
+		allowedOrigins = []string{"http://localhost:3000", "http://localhost:8080"}
+	} else {
+		allowedOrigins = []string{"https://lorecrafter-client.vercel.app"}
+	}
+
 	corsMiddleware := cors.New(cors.Options{
-		AllowedOrigins:   cfg.AppHostnames,
+		AllowedOrigins:   allowedOrigins,
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 		ExposedHeaders:   []string{"Link"},
