@@ -59,7 +59,7 @@ func NewServer(cfg config.Config, repo sqlc.Querier, llmFactory *llms2.LlmFactor
 	corsMiddleware := cors.New(cors.Options{
 		AllowedOrigins:   allowedOrigins,
 		AllowedMethods:   []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
-		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token", "X-Requested-With"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token", "X-Requested-With", "Origin", "X-Forwarded-For", "Access-Control-Allow-Origin", "Access-Control-Allow-Credentials"},
 		ExposedHeaders:   []string{"Link", "Content-Length", "Content-Type"},
 		AllowCredentials: true,
 		MaxAge:           86400, // 24 hours
