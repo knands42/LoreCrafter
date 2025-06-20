@@ -51,21 +51,19 @@ func NewServer(cfg config.Config, repo sqlc.Querier, llmFactory *llms2.LlmFactor
 	router.Use(middleware.Timeout(10 * time.Second))
 
 	// Set up CORS middleware
-	var allowedOrigins []string
+	allowedOrigins := []string{"https://lorecrafter-client.vercel.app", "https://lorecrafter.fly.dev"}
 	if cfg.Profile == "dev" {
-		allowedOrigins = []string{"http://localhost:3000", "http://localhost:8080"}
-	} else {
-		allowedOrigins = []string{"https://lorecrafter-client.vercel.app"}
+		allowedOrigins = append(allowedOrigins, "http://localhost:3000", "http://localhost:8080")
 	}
 
 	corsMiddleware := cors.New(cors.Options{
 		AllowedOrigins:   allowedOrigins,
-		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
-		ExposedHeaders:   []string{"Link"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token", "X-Requested-With"},
+		ExposedHeaders:   []string{"Link", "Content-Length", "Content-Type"},
 		AllowCredentials: true,
-		MaxAge:           300,  // Maximum value not ignored by any of major browsers
-		Debug:            true, // Enable debug logging
+		MaxAge:           86400, // 24 hours
+		Debug:            cfg.Profile == "dev",
 	})
 
 	router.Use(corsMiddleware.Handler)
