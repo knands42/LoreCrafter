@@ -3,13 +3,6 @@ package api
 import (
 	"context"
 	"fmt"
-	_ "github.com/knands42/lorecrafter/app/api/docs" // Import the docs package
-	middleware2 "github.com/knands42/lorecrafter/app/api/middleware"
-	"github.com/knands42/lorecrafter/app/api/routes"
-	"github.com/knands42/lorecrafter/internal/adapter/security"
-	"github.com/knands42/lorecrafter/internal/config"
-	"github.com/knands42/lorecrafter/internal/usecases"
-	sqlc "github.com/knands42/lorecrafter/pkg/sqlc/generated"
 	"log"
 	"net/http"
 	"os"
@@ -17,8 +10,19 @@ import (
 	"syscall"
 	"time"
 
+	llms2 "github.com/knands42/lorecrafter/internal/adapter/llms"
+
+	_ "github.com/knands42/lorecrafter/app/api/docs" // Import the docs package
+	middleware2 "github.com/knands42/lorecrafter/app/api/middleware"
+	"github.com/knands42/lorecrafter/app/api/routes"
+	"github.com/knands42/lorecrafter/internal/adapter/security"
+	"github.com/knands42/lorecrafter/internal/config"
+	"github.com/knands42/lorecrafter/internal/usecases"
+	sqlc "github.com/knands42/lorecrafter/pkg/sqlc/generated"
+
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/cors"
 	httpSwagger "github.com/swaggo/http-swagger"
 	_ "github.com/swaggo/swag"
 )
@@ -38,13 +42,31 @@ type Server struct {
 }
 
 // NewServer creates a new HTTP server
-func NewServer(cfg config.Config, repo sqlc.Querier) *Server {
+func NewServer(cfg config.Config, repo sqlc.Querier, llmFactory *llms2.LlmFactory) *Server {
 	router := chi.NewRouter()
 
 	// Set up middleware
 	router.Use(middleware.Logger)
 	router.Use(middleware.Recoverer)
 	router.Use(middleware.Timeout(10 * time.Second))
+
+	// Set up CORS middleware
+	allowedOrigins := []string{"https://lorecrafter-client.vercel.app", "https://lorecrafter.fly.dev"}
+	if cfg.Profile == "dev" {
+		allowedOrigins = append(allowedOrigins, "http://localhost:3000", "http://localhost:8080")
+	}
+
+	corsMiddleware := cors.New(cors.Options{
+		AllowedOrigins:   allowedOrigins,
+		AllowedMethods:   []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token", "X-Requested-With", "Origin", "X-Forwarded-For", "Access-Control-Allow-Origin", "Access-Control-Allow-Credentials"},
+		ExposedHeaders:   []string{"Link", "Content-Length", "Content-Type"},
+		AllowCredentials: true,
+		MaxAge:           86400, // 24 hours
+		Debug:            cfg.Profile == "dev",
+	})
+
+	router.Use(corsMiddleware.Handler)
 
 	// Create the HTTP server
 	httpServer := &http.Server{
@@ -66,7 +88,8 @@ func NewServer(cfg config.Config, repo sqlc.Querier) *Server {
 	// Set up use cases
 	ctx := context.Background()
 	authUseCase := usecases.NewAuthUseCase(ctx, repo, tokenMakerAdapter, argon2Adapter, cfg.TokenExpiry)
-	campaignUseCase := usecases.NewCampaignUseCase(ctx, repo)
+	aiCampaignUseCase := usecases.NewAICampaignUseCase(ctx, repo, llmFactory)
+	campaignUseCase := usecases.NewCampaignUseCase(ctx, aiCampaignUseCase, repo)
 
 	// Set up HTTP handlers
 	server.authUseCase = authUseCase

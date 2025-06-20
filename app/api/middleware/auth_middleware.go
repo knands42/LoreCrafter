@@ -13,16 +13,24 @@ const UserIDContextKey = "user_id"
 func AuthMiddleware(authUseCase *usecases.AuthUseCase) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			authHeader := r.Header.Get("Authorization")
-			if authHeader == "" {
-				utils.WriteJSONError(w, http.StatusUnauthorized, "missing authorization header")
-				return
-			}
+			var tokenStr string
 
-			tokenStr := strings.TrimPrefix(authHeader, "Bearer ")
-			if tokenStr == authHeader {
-				utils.WriteJSONError(w, http.StatusUnauthorized, "malformed token")
-				return
+			// Check for Authorization header
+			authHeader := r.Header.Get("Authorization")
+			if authHeader != "" {
+				tokenStr = strings.TrimPrefix(authHeader, "Bearer ")
+				if tokenStr == authHeader {
+					utils.WriteJSONError(w, http.StatusUnauthorized, "malformed token")
+					return
+				}
+			} else {
+				// Check for auth_token cookie if header is not present
+				cookie, err := r.Cookie("auth_token")
+				if err != nil || cookie.Value == "" {
+					utils.WriteJSONError(w, http.StatusUnauthorized, "missing authentication credentials")
+					return
+				}
+				tokenStr = cookie.Value
 			}
 
 			token, err := authUseCase.VerifyToken(tokenStr)
@@ -32,7 +40,7 @@ func AuthMiddleware(authUseCase *usecases.AuthUseCase) func(next http.Handler) h
 			}
 
 			// Add user ID to context
-			ctx := context.WithValue(r.Context(), UserIDContextKey, token.UserID)
+			ctx := context.WithValue(r.Context(), UserIDContextKey, token.ID.String())
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}

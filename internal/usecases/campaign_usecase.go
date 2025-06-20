@@ -3,11 +3,12 @@ package usecases
 import (
 	"context"
 	"errors"
+	"log"
+
 	"github.com/google/uuid"
 	"github.com/knands42/lorecrafter/internal/domain"
 	"github.com/knands42/lorecrafter/internal/utils"
 	sqlc "github.com/knands42/lorecrafter/pkg/sqlc/generated"
-	"log"
 )
 
 var (
@@ -19,63 +20,75 @@ var (
 
 // CampaignUseCase implements the campaign business logic
 type CampaignUseCase struct {
-	ctx  context.Context
-	repo sqlc.Querier
+	ctx               context.Context
+	aiCampaignUseCase *AICampaignUseCase
+	repo              sqlc.Querier
 }
 
 // NewCampaignUseCase creates a new campaign use case
 func NewCampaignUseCase(
 	ctx context.Context,
+	aiCampaignUseCase *AICampaignUseCase,
 	repo sqlc.Querier,
 ) *CampaignUseCase {
 	return &CampaignUseCase{
-		ctx:  ctx,
-		repo: repo,
+		ctx:               ctx,
+		aiCampaignUseCase: aiCampaignUseCase,
+		repo:              repo,
 	}
 }
 
 // CreateCampaign creates a new campaign and adds the creator as a GM
-func (uc *CampaignUseCase) CreateCampaign(input domain.CampaignCreationInput, creatorID uuid.UUID) (sqlc.Campaign, error) {
+func (uc *CampaignUseCase) CreateCampaign(creatorID uuid.UUID, useGenAI bool, input domain.CampaignCreationInput) (domain.Campaign, error) {
 	// Validate the input
 	err := input.Validate()
 	if err != nil {
-		return sqlc.Campaign{}, err
+		return domain.Campaign{}, err
+	}
+
+	// Generate the campaign settings if needed
+	if useGenAI {
+		generatedInput, err := uc.aiCampaignUseCase.GenerateCampaignSettings(input)
+		if err != nil {
+			return domain.Campaign{}, err
+		}
+		input = generatedInput
 	}
 
 	// Save the campaign
-	createCampaignParams, err := input.ToSqlcParams(creatorID)
+	createCampaignParams, err := input.PrepareToInsert(creatorID)
 	if err != nil {
-		return sqlc.Campaign{}, err
+		return domain.Campaign{}, err
 	}
 	createdCampaign, err := uc.repo.CreateCampaign(uc.ctx, createCampaignParams)
 	if err != nil {
 		log.Printf("Error saving campaign: %v", err)
-		return sqlc.Campaign{}, ErrCampaignCreation
+		return domain.Campaign{}, ErrCampaignCreation
 	}
 
 	// Add the creator as a GM
-	newUUUIDV7, err := utils.GeneratePGUUID()
+	newUUIDV7, err := utils.GeneratePGUUID()
 	if err != nil {
-		return sqlc.Campaign{}, err
+		return domain.Campaign{}, err
 	}
 	createCampaignMemberParams := sqlc.CreateCampaignMemberParams{
-		ID:         newUUUIDV7,
+		ID:         newUUIDV7,
 		CampaignID: createdCampaign.ID,
 		UserID:     createdCampaign.CreatedBy,
 		Role:       sqlc.MemberRoleGm,
 	}
 	if _, err := uc.repo.CreateCampaignMember(uc.ctx, createCampaignMemberParams); err != nil {
 		log.Printf("Error saving campaign member: %v", err)
-		return sqlc.Campaign{}, ErrCampaignMemberCreation
+		return domain.Campaign{}, ErrCampaignMemberCreation
 	}
 
-	return createdCampaign, nil
+	return domain.ToDomain(createdCampaign), nil
 }
 
 // GetCampaign retrieves a campaign by ID if the user has access
 func (uc *CampaignUseCase) GetCampaign(input domain.GetCampaignInput) (sqlc.Campaign, error) {
 	// Get the campaign
-	getCampaignParams, err := input.ToSqlcParams()
+	getCampaignParams, err := input.PrepareToInsert()
 	if err != nil {
 		return sqlc.Campaign{}, err
 	}
@@ -88,8 +101,8 @@ func (uc *CampaignUseCase) GetCampaign(input domain.GetCampaignInput) (sqlc.Camp
 }
 
 // UpdateCampaign updates a campaign if the user has GM permissions
-func (uc *CampaignUseCase) UpdateCampaign(campaign domain.UpdateCampaignInput) error {
-	updateCampaignParams, err := campaign.ToSqlcParams()
+func (uc *CampaignUseCase) UpdateCampaign(userID uuid.UUID, campaign domain.UpdateCampaignInput) error {
+	updateCampaignParams, err := campaign.PrepareToInsert(userID)
 	_, err = uc.repo.UpdateCampaign(uc.ctx, updateCampaignParams)
 	if err != nil && err.Error() == "no rows in result set" {
 		return ErrCampaignNotFound
@@ -101,7 +114,7 @@ func (uc *CampaignUseCase) UpdateCampaign(campaign domain.UpdateCampaignInput) e
 // DeleteCampaign deletes a campaign if the user has GM permissions
 func (uc *CampaignUseCase) DeleteCampaign(input domain.DeleteCampaignInput) error {
 	// Delete the campaign
-	deleteCampaignParams, err := input.ToSqlcParams()
+	deleteCampaignParams, err := input.PrepareToInsert()
 	if err != nil {
 		return err
 	}

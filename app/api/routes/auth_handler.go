@@ -30,6 +30,7 @@ func NewAuthHandler(authUseCase *usecases.AuthUseCase) *AuthHandler {
 func (h *AuthHandler) RegisterRoutes(r chi.Router) {
 	r.Post("/register", middleware.ErrorHandlerMiddleware(h.Register))
 	r.Post("/login", middleware.ErrorHandlerMiddleware(h.Login))
+	r.Post("/logout", middleware.ErrorHandlerMiddleware(h.Logout))
 }
 
 // Register handles user registration
@@ -39,7 +40,7 @@ func (h *AuthHandler) RegisterRoutes(r chi.Router) {
 // @Accept json
 // @Produce json
 // @Param input body domain.UserCreationInput true "User registration details"
-// @Success 201 {object} domain.AuthOutput "User registered successfully"
+// @Success 201 {object} domain.User "User registered successfully"
 // @Failure 400 {object} utils.ErrorResponse "Invalid request body"
 // @Failure 409 {object} utils.ErrorResponse "User already exists"
 // @Failure 500 {object} utils.ErrorResponse "Internal server error"
@@ -87,7 +88,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) error {
 		return utils.WriteJSONError(w, http.StatusBadRequest, "Invalid request body")
 	}
 
-	response, err := h.authUseCase.Login(input)
+	response, token, err := h.authUseCase.Login(input)
 	if err != nil {
 		switch {
 		case errors.Is(err, usecases.ErrInvalidCredentials):
@@ -99,8 +100,41 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
+	http.SetCookie(w, &http.Cookie{
+		Name:     "auth_token",
+		Value:    token,
+		Path:     "/",
+		HttpOnly: true,
+		Secure:   r.TLS != nil,
+		SameSite: http.SameSiteLaxMode,
+		MaxAge:   60 * 60 * 24, // 24 hours
+	})
+
 	w.Header().Set("Content-Type", "application/json")
 	return json.NewEncoder(w).Encode(response)
+}
+
+// Logout clears the authentication token by setting an empty cookie with the same name.
+// @Summary Logout a user
+// @Description Logout a user by clearing the authentication token
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Success 204 "User logged out successfully"
+// @Failure 401 {object} utils.ErrorResponse "Unauthorized"
+// @Failure 500 {object} utils.ErrorResponse "Internal server error"
+func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) error {
+	http.SetCookie(w, &http.Cookie{
+		Name:     "auth_token",
+		Value:    "",
+		Path:     "/",
+		HttpOnly: true,
+		Secure:   r.TLS != nil,
+		SameSite: http.SameSiteLaxMode,
+	})
+
+	return nil
 }
 
 // GetAuthorizationPayload extracts the token payload from the Authorization header

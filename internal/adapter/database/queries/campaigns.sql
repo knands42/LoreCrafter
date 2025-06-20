@@ -2,13 +2,18 @@
 INSERT INTO campaigns (
     id,
     title,
+    game_system,
+    number_of_players,
+    status,
     setting_summary,
     setting,
     image_url,
+    setting_metadata,
+    setting_ai_metadata,
     is_public,
     created_by
 ) VALUES (
-    $1, $2, $3, $4, $5, $6, $7
+    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12
 ) RETURNING *;
 
 -- name: GetCampaignByID :one
@@ -17,9 +22,14 @@ SELECT
     c.title,
     c.setting_summary,
     c.setting,
+    c.game_system,
+    c.number_of_players,
+    c.status,
     c.image_url,
     c.is_public,
     c.invite_code,
+    c.setting_metadata,
+    c.setting_ai_metadata,
     c.created_by,
     c.created_at,
     c.updated_at
@@ -39,6 +49,9 @@ SET
     setting = $5,
     image_url = $6,
     is_public = $7,
+    game_system = $8,
+    number_of_players = $9,
+    status = $10,
     updated_at = CURRENT_TIMESTAMP
 FROM campaign_members AS cm
 WHERE cm.campaign_id = c.id
@@ -52,9 +65,14 @@ RETURNING
     c.title,
     c.setting_summary,
     c.setting,
+    c.game_system,
+    c.number_of_players,
+    c.status,
     c.image_url,
     c.is_public,
     c.invite_code,
+    c.setting_metadata,
+    c.setting_ai_metadata,
     c.created_by,
     c.created_at,
     c.updated_at;

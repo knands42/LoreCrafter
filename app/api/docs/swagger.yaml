@@ -2,29 +2,106 @@ basePath: /
 definitions:
   domain.AuthOutput:
     properties:
-      expiresAt:
-        type: string
-      token:
+      expires_at:
         type: string
       user:
-        $ref: '#/definitions/sqlc.User'
+        $ref: '#/definitions/domain.User'
     type: object
-  domain.CampaignCreationInput:
+  domain.Campaign:
     properties:
+      created_at:
+        type: string
+      created_by:
+        type: string
+      game_system:
+        $ref: '#/definitions/sqlc.GameSystemEnum'
+      id:
+        type: string
       image_url:
+        type: string
+      invite_code:
         type: string
       is_public:
         type: boolean
+      number_of_players:
+        type: integer
       setting:
         type: string
       setting_summary:
         type: string
+      settings_ai_metadata:
+        $ref: '#/definitions/domain.SettingsAIMetadata'
+      settings_metadata:
+        $ref: '#/definitions/domain.SettingsMetadata'
+      status:
+        $ref: '#/definitions/sqlc.CampaignStatusEnum'
       title:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  domain.CampaignCreationInput:
+    properties:
+      game_system:
+        allOf:
+        - $ref: '#/definitions/sqlc.GameSystemEnum'
+        example: DND_5E
+      image_url:
+        example: ""
+        type: string
+      is_public:
+        example: false
+        type: boolean
+      number_of_players:
+        example: 6
+        type: integer
+      setting:
+        example: In the era of Ultron, Superman was a Fairy
+        type: string
+      setting_summary:
+        example: The fall of the kingdom of Lorecrafter
+        type: string
+      settings_ai_metadata:
+        $ref: '#/definitions/domain.SettingsAIMetadata'
+      settings_metadata:
+        $ref: '#/definitions/domain.SettingsMetadata'
+      title:
+        example: Chronicles of the Fall
         type: string
     type: object
   domain.LoginInput:
     properties:
       password:
+        example: "12345678"
+        type: string
+      username:
+        example: johndoe
+        type: string
+    type: object
+  domain.SettingsAIMetadata:
+    properties:
+      world_theme:
+        example: Gothic
+        type: string
+      written_tone:
+        example: Dramatic
+        type: string
+    type: object
+  domain.SettingsMetadata:
+    type: object
+  domain.User:
+    properties:
+      avatar_url:
+        type: string
+      created_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      last_login_at:
+        type: string
+      updated_at:
         type: string
       username:
         type: string
@@ -51,6 +128,13 @@ definitions:
     - Infinity
     - Finite
     - NegativeInfinity
+  pgtype.Int2:
+    properties:
+      int16:
+        type: integer
+      valid:
+        type: boolean
+    type: object
   pgtype.Text:
     properties:
       string:
@@ -73,18 +157,49 @@ definitions:
         $ref: '#/definitions/pgtype.Timestamptz'
       created_by:
         type: string
+      game_system:
+        allOf:
+        - $ref: '#/definitions/sqlc.GameSystemEnum'
+        description: The game system used for the campaign (e.g., dnd, pathfinder,
+          etc.).
       id:
         type: string
       image_url:
-        $ref: '#/definitions/pgtype.Text'
+        allOf:
+        - $ref: '#/definitions/pgtype.Text'
+        description: The URL of the campaign image.
       invite_code:
-        $ref: '#/definitions/pgtype.Text'
+        allOf:
+        - $ref: '#/definitions/pgtype.Text'
+        description: The invite code for the campaign.
       is_public:
+        description: Whether the campaign is available to players outside the campaign.
         type: boolean
+      number_of_players:
+        $ref: '#/definitions/pgtype.Int2'
       setting:
-        $ref: '#/definitions/pgtype.Text'
+        allOf:
+        - $ref: '#/definitions/pgtype.Text'
+        description: The detailed setting of the campaign.
+      setting_ai_metadata:
+        description: Information used by LLMs on how to generate the data (e.g., a
+          dark tone in a high fantasy world).
+        items:
+          type: integer
+        type: array
+      setting_metadata:
+        items:
+          type: integer
+        type: array
       setting_summary:
-        $ref: '#/definitions/pgtype.Text'
+        allOf:
+        - $ref: '#/definitions/pgtype.Text'
+        description: A summary of the campaign setting.
+      status:
+        allOf:
+        - $ref: '#/definitions/sqlc.CampaignStatusEnum'
+        description: Lifecycle status of the campaign (e.g., planning, active, paused,
+          etc.).
       title:
         type: string
       updated_at:
@@ -105,6 +220,32 @@ definitions:
       user_id:
         type: string
     type: object
+  sqlc.CampaignStatusEnum:
+    enum:
+    - PLANNING
+    - ACTIVE
+    - PAUSED
+    - FINISHED
+    - ARCHIVED
+    type: string
+    x-enum-varnames:
+    - CampaignStatusEnumPLANNING
+    - CampaignStatusEnumACTIVE
+    - CampaignStatusEnumPAUSED
+    - CampaignStatusEnumFINISHED
+    - CampaignStatusEnumARCHIVED
+  sqlc.GameSystemEnum:
+    enum:
+    - DND_5E
+    - PATHFINDER_2E
+    - COC_7E
+    - OTHER
+    type: string
+    x-enum-varnames:
+    - GameSystemEnumDND5E
+    - GameSystemEnumPATHFINDER2E
+    - GameSystemEnumCOC7E
+    - GameSystemEnumOTHER
   sqlc.MemberRole:
     enum:
     - gm
@@ -113,27 +254,6 @@ definitions:
     x-enum-varnames:
     - MemberRoleGm
     - MemberRolePlayer
-  sqlc.User:
-    properties:
-      avatar_url:
-        $ref: '#/definitions/pgtype.Text'
-      created_at:
-        $ref: '#/definitions/pgtype.Timestamptz'
-      email:
-        type: string
-      hashed_password:
-        type: string
-      id:
-        type: string
-      is_active:
-        type: boolean
-      last_login_at:
-        $ref: '#/definitions/pgtype.Timestamptz'
-      updated_at:
-        $ref: '#/definitions/pgtype.Timestamptz'
-      username:
-        type: string
-    type: object
   utils.ErrorResponse:
     properties:
       details: {}
@@ -205,7 +325,7 @@ paths:
         "201":
           description: User registered successfully
           schema:
-            $ref: '#/definitions/domain.AuthOutput'
+            $ref: '#/definitions/domain.User'
         "400":
           description: Invalid request body
           schema:
@@ -251,7 +371,8 @@ paths:
     post:
       consumes:
       - application/json
-      description: Create a new campaign with the provided details
+      description: Create a new campaign with the provided details. If use_ai query
+        parameter is true, AI will generate the campaign settings.
       parameters:
       - description: Campaign creation details
         in: body
@@ -259,15 +380,20 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/domain.CampaignCreationInput'
+      - default: false
+        description: Whether to use AI to generate campaign settings
+        in: query
+        name: use_gen_ai
+        type: boolean
       produces:
       - application/json
       responses:
         "201":
           description: Campaign created successfully
           schema:
-            $ref: '#/definitions/sqlc.Campaign'
+            $ref: '#/definitions/domain.Campaign'
         "400":
-          description: Invalid request body
+          description: Invalid request body or parameters
           schema:
             $ref: '#/definitions/utils.ErrorResponse'
         "401":
@@ -340,7 +466,7 @@ paths:
         "200":
           description: Campaign retrieved successfully
           schema:
-            $ref: '#/definitions/sqlc.Campaign'
+            $ref: '#/definitions/domain.Campaign'
         "400":
           description: Invalid campaign ID
           schema:
