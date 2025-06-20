@@ -29,17 +29,15 @@ definitions:
         type: string
       setting_summary:
         type: string
+      settings_ai_metadata:
+        $ref: '#/definitions/domain.SettingsAIMetadata'
+      settings_metadata:
+        $ref: '#/definitions/domain.SettingsMetadata'
       status:
         $ref: '#/definitions/sqlc.CampaignStatusEnum'
       title:
         type: string
       updated_at:
-        type: string
-      world_theme:
-        example: Gothic
-        type: string
-      written_tone:
-        example: Dramatic
         type: string
     type: object
   domain.CampaignCreationInput:
@@ -63,14 +61,12 @@ definitions:
       setting_summary:
         example: The fall of the kingdom of Lorecrafter
         type: string
+      settings_ai_metadata:
+        $ref: '#/definitions/domain.SettingsAIMetadata'
+      settings_metadata:
+        $ref: '#/definitions/domain.SettingsMetadata'
       title:
         example: Chronicles of the Fall
-        type: string
-      world_theme:
-        example: Gothic
-        type: string
-      written_tone:
-        example: Dramatic
         type: string
     type: object
   domain.LoginInput:
@@ -81,6 +77,17 @@ definitions:
       username:
         example: johndoe
         type: string
+    type: object
+  domain.SettingsAIMetadata:
+    properties:
+      world_theme:
+        example: Gothic
+        type: string
+      written_tone:
+        example: Dramatic
+        type: string
+    type: object
+  domain.SettingsMetadata:
     type: object
   domain.User:
     properties:

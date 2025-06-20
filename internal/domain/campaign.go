@@ -19,15 +19,15 @@ var (
 
 // CampaignCreationInput represents the input for creating a new campaign
 type CampaignCreationInput struct {
-	Title           string              `json:"title" example:"Chronicles of the Fall"`
-	SettingSummary  string              `json:"setting_summary" example:"The fall of the kingdom of Lorecrafter"`
-	Setting         string              `json:"setting" example:"In the era of Ultron, Superman was a Fairy"`
-	GameSystem      sqlc.GameSystemEnum `json:"game_system" example:"DND_5E"`
-	NumberOfPlayers int16               `json:"number_of_players" example:"6"`
-	ImageURL        string              `json:"image_url" example:""`
-	IsPublic        bool                `json:"is_public" example:"false"`
-	SettingsMetadata
-	SettingsAIMetadata
+	Title              string              `json:"title" example:"Chronicles of the Fall"`
+	SettingSummary     string              `json:"setting_summary" example:"The fall of the kingdom of Lorecrafter"`
+	Setting            string              `json:"setting" example:"In the era of Ultron, Superman was a Fairy"`
+	GameSystem         sqlc.GameSystemEnum `json:"game_system" example:"DND_5E"`
+	NumberOfPlayers    int16               `json:"number_of_players" example:"6"`
+	ImageURL           string              `json:"image_url" example:""`
+	IsPublic           bool                `json:"is_public" example:"false"`
+	SettingsMetadata   SettingsMetadata    `json:"settings_metadata"`
+	SettingsAIMetadata SettingsAIMetadata  `json:"settings_ai_metadata"`
 }
 
 func NewCampaignCreationInput(title string, settingSummary string, setting string, gameSystem sqlc.GameSystemEnum, numberOfPlayers int16, imageURL string, isPublic bool) *CampaignCreationInput {
@@ -203,21 +203,21 @@ func (campaign *DeleteCampaignInput) PrepareToInsert() (sqlc.DeleteCampaignParam
 }
 
 type Campaign struct {
-	ID              uuid.UUID           `json:"id"`
-	Title           string              `json:"title"`
-	SettingSummary  string              `json:"setting_summary"`
-	Setting         string              `json:"setting"`
-	GameSystem      sqlc.GameSystemEnum `json:"game_system"`
-	NumberOfPlayers uint16              `json:"number_of_players"`
-	ImageUrl        string              `json:"image_url"`
-	IsPublic        bool                `json:"is_public"`
-	InviteCode      string              `json:"invite_code"`
-	SettingsMetadata
-	SettingsAIMetadata
-	Status    sqlc.CampaignStatusEnum `json:"status"`
-	CreatedBy uuid.UUID               `json:"created_by"`
-	CreatedAt time.Time               `json:"created_at"`
-	UpdatedAt time.Time               `json:"updated_at"`
+	ID                 uuid.UUID               `json:"id"`
+	Title              string                  `json:"title"`
+	SettingSummary     string                  `json:"setting_summary"`
+	Setting            string                  `json:"setting"`
+	GameSystem         sqlc.GameSystemEnum     `json:"game_system"`
+	NumberOfPlayers    uint16                  `json:"number_of_players"`
+	ImageUrl           string                  `json:"image_url"`
+	IsPublic           bool                    `json:"is_public"`
+	InviteCode         string                  `json:"invite_code"`
+	SettingsMetadata   SettingsMetadata        `json:"settings_metadata"`
+	SettingsAIMetadata SettingsAIMetadata      `json:"settings_ai_metadata"`
+	Status             sqlc.CampaignStatusEnum `json:"status"`
+	CreatedBy          uuid.UUID               `json:"created_by"`
+	CreatedAt          time.Time               `json:"created_at"`
+	UpdatedAt          time.Time               `json:"updated_at"`
 }
 
 type SettingsMetadata struct {

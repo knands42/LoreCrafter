@@ -783,6 +783,12 @@ const docTemplate = `{
                 "setting_summary": {
                     "type": "string"
                 },
+                "settings_ai_metadata": {
+                    "$ref": "#/definitions/domain.SettingsAIMetadata"
+                },
+                "settings_metadata": {
+                    "$ref": "#/definitions/domain.SettingsMetadata"
+                },
                 "status": {
                     "$ref": "#/definitions/sqlc.CampaignStatusEnum"
                 },
@@ -791,14 +797,6 @@ const docTemplate = `{
                 },
                 "updated_at": {
                     "type": "string"
-                },
-                "world_theme": {
-                    "type": "string",
-                    "example": "Gothic"
-                },
-                "written_tone": {
-                    "type": "string",
-                    "example": "Dramatic"
                 }
             }
         },
@@ -833,17 +831,15 @@ const docTemplate = `{
                     "type": "string",
                     "example": "The fall of the kingdom of Lorecrafter"
                 },
+                "settings_ai_metadata": {
+                    "$ref": "#/definitions/domain.SettingsAIMetadata"
+                },
+                "settings_metadata": {
+                    "$ref": "#/definitions/domain.SettingsMetadata"
+                },
                 "title": {
                     "type": "string",
                     "example": "Chronicles of the Fall"
-                },
-                "world_theme": {
-                    "type": "string",
-                    "example": "Gothic"
-                },
-                "written_tone": {
-                    "type": "string",
-                    "example": "Dramatic"
                 }
             }
         },
@@ -859,6 +855,22 @@ const docTemplate = `{
                     "example": "johndoe"
                 }
             }
+        },
+        "domain.SettingsAIMetadata": {
+            "type": "object",
+            "properties": {
+                "world_theme": {
+                    "type": "string",
+                    "example": "Gothic"
+                },
+                "written_tone": {
+                    "type": "string",
+                    "example": "Dramatic"
+                }
+            }
+        },
+        "domain.SettingsMetadata": {
+            "type": "object"
         },
         "domain.User": {
             "type": "object",

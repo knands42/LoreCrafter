@@ -30,7 +30,7 @@ func NewAICampaignUseCase(ctx context.Context, repo sqlc.Querier, llm llms2.LlmF
 // GenerateCampaignSettings generates campaign settings using AI
 func (uc *AICampaignUseCase) GenerateCampaignSettings(input domain.CampaignCreationInput) (domain.CampaignCreationInput, error) {
 	// Prepare the prompt with the user's input
-	prompt := dnd_5e.NewDND5ECreateCampaignPromptData(input.WorldTheme, input.WrittenTone, input.Setting).CreateCampaignSettingPrompt()
+	prompt := dnd_5e.NewDND5ECreateCampaignPromptData(input.SettingsAIMetadata.WorldTheme, input.SettingsAIMetadata.WrittenTone, input.Setting).CreateCampaignSettingPrompt()
 
 	// Call the OpenAI API
 	generatedCampaignSettings, err := uc.llm.GenerateFromSinglePrompt(uc.ctx, prompt)
