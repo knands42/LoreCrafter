@@ -107,6 +107,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) error {
 		HttpOnly: true,
 		Secure:   r.TLS != nil,
 		SameSite: http.SameSiteLaxMode,
+		MaxAge:   60 * 60 * 24, // 24 hours
 	})
 
 	w.Header().Set("Content-Type", "application/json")
