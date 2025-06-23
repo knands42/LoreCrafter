@@ -84,40 +84,41 @@ func (uc *AuthUseCase) Register(input domain.UserCreationInput) (domain.User, er
 }
 
 // Login authenticates a user and generates a token for them
-func (uc *AuthUseCase) Login(req domain.LoginInput) (domain.AuthOutput, string, error) {
+func (uc *AuthUseCase) Login(req domain.LoginInput) (domain.AuthOutput, error) {
 	// Validate the input
 	if err := req.Validate(); err != nil {
-		return domain.AuthOutput{}, "", err
+		return domain.AuthOutput{}, err
 	}
 
 	// Get the user by username
 	user, err := uc.userRepo.GetUserByUsername(uc.ctx, req.Username)
 	if err != nil {
 		log.Printf("error getting user: %v", err)
-		return domain.AuthOutput{}, "", ErrUserNotFound
+		return domain.AuthOutput{}, ErrUserNotFound
 	}
 
 	// Verify the password
 	match, err := uc.argon2Hash.VerifyPassword(req.Password, user.HashedPassword)
 	if err != nil {
 		log.Printf("error verifying password: %v", err)
-		return domain.AuthOutput{}, "", ErrCheckingPassword
+		return domain.AuthOutput{}, ErrCheckingPassword
 	}
 
 	if !match {
-		return domain.AuthOutput{}, "", ErrInvalidCredentials
+		return domain.AuthOutput{}, ErrInvalidCredentials
 	}
 
 	// Generate a token
 	token, expiresAt, err := uc.tokenMaker.CreateToken(user, uc.tokenExpiry)
 	if err != nil {
-		return domain.AuthOutput{}, "", fmt.Errorf("error generating token: %w", err)
+		return domain.AuthOutput{}, fmt.Errorf("error generating token: %w", err)
 	}
 
 	return domain.AuthOutput{
 		User:      domain.FromSqlcUserToDomain(user),
+		Token:     token,
 		ExpiresAt: expiresAt,
-	}, token, nil
+	}, nil
 }
 
 // VerifyToken verifies a token and returns the payload

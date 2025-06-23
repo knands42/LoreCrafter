@@ -32,6 +32,7 @@ func (input *LoginInput) Validate() error {
 // AuthOutput represents the response after successful authentication
 type AuthOutput struct {
 	User      User      `json:"user"`
+	Token     string    `json:"token"`
 	ExpiresAt time.Time `json:"expires_at"`
 }
 
