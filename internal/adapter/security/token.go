@@ -57,13 +57,13 @@ func (maker *TokenMakerAdapter) CreateToken(user sqlc.User, duration time.Durati
 		IssuedAt:  time.Now(),
 		ExpiresAt: time.Now().Add(duration),
 	}
-	payload.ID = convertedUUID
-	payload.Email = user.Email
-	payload.Username = user.Username
-	payload.AvatarUrl = user.AvatarUrl.String
-	payload.LastLoginAt = user.LastLoginAt.Time
-	payload.CreatedAt = user.CreatedAt.Time
-	payload.UpdatedAt = user.UpdatedAt.Time
+	payload.User.ID = convertedUUID
+	payload.User.Email = user.Email
+	payload.User.Username = user.Username
+	payload.User.AvatarUrl = user.AvatarUrl.String
+	payload.User.LastLoginAt = user.LastLoginAt.Time
+	payload.User.CreatedAt = user.CreatedAt.Time
+	payload.User.UpdatedAt = user.UpdatedAt.Time
 
 	token, err := maker.paseto.Sign(maker.privateKey, payload, nil)
 	if err != nil {

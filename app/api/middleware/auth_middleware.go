@@ -40,7 +40,7 @@ func AuthMiddleware(authUseCase *usecases.AuthUseCase) func(next http.Handler) h
 			}
 
 			// Add user ID to context
-			ctx := context.WithValue(r.Context(), UserIDContextKey, token.ID.String())
+			ctx := context.WithValue(r.Context(), UserIDContextKey, token.User.ID.String())
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}

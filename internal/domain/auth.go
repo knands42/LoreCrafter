@@ -38,7 +38,7 @@ type AuthOutput struct {
 
 // TokenPayload represents the data stored in the authentication token
 type TokenPayload struct {
-	User
+	User      User      `json:"user"`
 	IssuedAt  time.Time `json:"issued_at"`
 	ExpiresAt time.Time `json:"expires_at"`
 }
