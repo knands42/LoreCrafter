@@ -7,9 +7,10 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
+	"time"
+
 	"github.com/knands42/lorecrafter/internal/utils"
 	sqlc "github.com/knands42/lorecrafter/pkg/sqlc/generated"
-	"time"
 
 	"github.com/knands42/lorecrafter/internal/domain"
 	"github.com/o1egl/paseto"
@@ -61,7 +62,7 @@ func (maker *TokenMakerAdapter) CreateToken(user sqlc.User, duration time.Durati
 	payload.User.Email = user.Email
 	payload.User.Username = user.Username
 	payload.User.AvatarUrl = user.AvatarUrl.String
-	payload.User.LastLoginAt = user.LastLoginAt.Time
+	payload.User.LastLoginAt = &user.LastLoginAt.Time
 	payload.User.CreatedAt = user.CreatedAt.Time
 	payload.User.UpdatedAt = user.UpdatedAt.Time
 

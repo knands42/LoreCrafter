@@ -4,10 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/knands42/lorecrafter/internal/interfaces"
-	sqlc "github.com/knands42/lorecrafter/pkg/sqlc/generated"
 	"log"
 	"time"
+
+	"github.com/knands42/lorecrafter/internal/interfaces"
+	"github.com/knands42/lorecrafter/internal/utils"
+	sqlc "github.com/knands42/lorecrafter/pkg/sqlc/generated"
 
 	"github.com/knands42/lorecrafter/internal/domain"
 )
@@ -22,11 +24,12 @@ var (
 )
 
 type AuthUseCase struct {
-	ctx         context.Context
-	userRepo    sqlc.Querier
-	tokenMaker  interfaces.TokenMaker
-	argon2Hash  interfaces.Argon2Hash
-	tokenExpiry time.Duration
+	ctx          context.Context
+	userRepo     sqlc.Querier
+	tokenMaker   interfaces.TokenMaker
+	argon2Hash   interfaces.Argon2Hash
+	tokenExpiry  time.Duration
+	emailUseCase *EmailUseCase
 }
 
 func NewAuthUseCase(
@@ -35,13 +38,15 @@ func NewAuthUseCase(
 	tokenMaker interfaces.TokenMaker,
 	argon2Hash interfaces.Argon2Hash,
 	tokenExpiry time.Duration,
+	emailUseCase *EmailUseCase,
 ) *AuthUseCase {
 	return &AuthUseCase{
-		ctx:         ctx,
-		userRepo:    userRepo,
-		tokenMaker:  tokenMaker,
-		argon2Hash:  argon2Hash,
-		tokenExpiry: tokenExpiry,
+		ctx:          ctx,
+		userRepo:     userRepo,
+		tokenMaker:   tokenMaker,
+		argon2Hash:   argon2Hash,
+		tokenExpiry:  tokenExpiry,
+		emailUseCase: emailUseCase,
 	}
 }
 
@@ -79,6 +84,21 @@ func (uc *AuthUseCase) Register(input domain.UserCreationInput) (domain.User, er
 		log.Printf("Error creating user: %v", err)
 		return domain.User{}, ErrCreateUser
 	}
+
+	// Send verification email
+	createdUserUUID, err := utils.FromPGTypeUUID(createdUser.ID)
+	if err != nil {
+		log.Printf("Error converting new user ID to UUID: %v", err)
+	}
+	createdEmailVerificationTokenInput := domain.NewCreateEmailVerificationTokenInput(createdUserUUID)
+	emailVerificationToken, err := uc.emailUseCase.CreateEmailVerificationToken(*createdEmailVerificationTokenInput)
+
+	go func() {
+		if err != nil {
+			log.Printf("Error sending verification email: %v", err)
+		}
+		uc.emailUseCase.SendVerificationEmail(*domain.NewSendEmailVerificationToken(emailVerificationToken, createdUser.Email))
+	}()
 
 	return domain.FromSqlcUserToDomain(createdUser), nil
 }

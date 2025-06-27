@@ -4,6 +4,8 @@ definitions:
     properties:
       expires_at:
         type: string
+      token:
+        type: string
       user:
         $ref: '#/definitions/domain.User'
     type: object
@@ -99,6 +101,8 @@ definitions:
         type: string
       id:
         type: string
+      is_active:
+        type: boolean
       last_login_at:
         type: string
       updated_at:

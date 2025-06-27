@@ -67,13 +67,13 @@ migration-create:
 migration-up:
 	migrate -path internal/adapter/database/migrations -database "$(POSTGRES_URL)" up
 
-migrate-up1:
+migration-up1:
 	migrate -path internal/adapter/database/migrations -database "$(POSTGRES_URL)" -verbose up 1
 
-migrate-down:
+migration-down:
 	migrate -path internal/adapter/database/migrations -database "$(POSTGRES_URL)" -verbose down
 
-migrate-down1:
+migration-down1:
 	migrate -path internal/adapter/database/migrations -database "$(POSTGRES_URL)" -verbose down 1
 
 # Generate SQLC code
@@ -84,4 +84,4 @@ sqlc-generate:
 swagger-generate:
 	swag init -g app/api/docs.go -o app/api/docs --parseDependency
 
-.PHONY: sqlc-generate, swagger-generate, migrate-down, migrate-down1, migrate-up1, migration-up, migration-create, docker-build
+.PHONY: sqlc-generate, swagger-generate, migration-down, migration-down1, migration-up1, migration-up, migration-create, docker-build

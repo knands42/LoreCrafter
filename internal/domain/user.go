@@ -1,11 +1,12 @@
 package domain
 
 import (
+	"strings"
+	"time"
+
 	"github.com/google/uuid"
 	"github.com/knands42/lorecrafter/internal/utils"
 	sqlc "github.com/knands42/lorecrafter/pkg/sqlc/generated"
-	"strings"
-	"time"
 )
 
 type UserCreationInput struct {
@@ -53,23 +54,26 @@ func (user *UserCreationInput) ToSqlcParams(hashedPassword string) (sqlc.CreateU
 }
 
 type User struct {
-	ID          uuid.UUID `json:"id"`
-	Username    string    `json:"username"`
-	Email       string    `json:"email"`
-	AvatarUrl   string    `json:"avatar_url"`
-	LastLoginAt time.Time `json:"last_login_at"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
+	ID          uuid.UUID  `json:"id"`
+	Username    string     `json:"username"`
+	Email       string     `json:"email"`
+	IsActive    bool       `json:"is_active"`
+	AvatarUrl   string     `json:"avatar_url"`
+	LastLoginAt *time.Time `json:"last_login_at,omitempty"`
+	CreatedAt   time.Time  `json:"created_at"`
+	UpdatedAt   time.Time  `json:"updated_at"`
 }
 
 func FromSqlcUserToDomain(userSqlc sqlc.User) User {
-	return User{
-		ID:          userSqlc.ID.Bytes,
-		Username:    userSqlc.Username,
-		Email:       userSqlc.Email,
-		AvatarUrl:   userSqlc.AvatarUrl.String,
-		LastLoginAt: userSqlc.LastLoginAt.Time,
-		CreatedAt:   userSqlc.CreatedAt.Time,
-		UpdatedAt:   userSqlc.UpdatedAt.Time,
+	user := User{
+		ID:        userSqlc.ID.Bytes,
+		Username:  userSqlc.Username,
+		Email:     userSqlc.Email,
+		IsActive:  userSqlc.IsActive,
+		AvatarUrl: userSqlc.AvatarUrl.String,
+		CreatedAt: userSqlc.CreatedAt.Time,
+		UpdatedAt: userSqlc.UpdatedAt.Time,
 	}
+
+	return user
 }

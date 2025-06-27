@@ -745,6 +745,9 @@ const docTemplate = `{
                 "expires_at": {
                     "type": "string"
                 },
+                "token": {
+                    "type": "string"
+                },
                 "user": {
                     "$ref": "#/definitions/domain.User"
                 }
@@ -886,6 +889,9 @@ const docTemplate = `{
                 },
                 "id": {
                     "type": "string"
+                },
+                "is_active": {
+                    "type": "boolean"
                 },
                 "last_login_at": {
                     "type": "string"

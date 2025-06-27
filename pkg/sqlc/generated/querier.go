@@ -13,6 +13,7 @@ import (
 type Querier interface {
 	CreateCampaign(ctx context.Context, arg CreateCampaignParams) (Campaign, error)
 	CreateCampaignMember(ctx context.Context, arg CreateCampaignMemberParams) (CampaignMember, error)
+	CreateEmailVerificationToken(ctx context.Context, arg CreateEmailVerificationTokenParams) (UsersEmailVerification, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
 	DeleteCampaign(ctx context.Context, arg DeleteCampaignParams) error
 	DeleteCampaignMember(ctx context.Context, arg DeleteCampaignMemberParams) error

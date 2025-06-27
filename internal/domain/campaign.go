@@ -62,6 +62,9 @@ func (campaign *CampaignCreationInput) Validate() error {
 
 func (campaign *CampaignCreationInput) PrepareToInsert(creatorID uuid.UUID) (sqlc.CreateCampaignParams, error) {
 	newUUUIDV7, err := utils.GeneratePGUUID()
+	if err != nil {
+		return sqlc.CreateCampaignParams{}, err
+	}
 	creatorUUUIDV7, err := utils.GeneratePGUUIDFromCustomId(creatorID)
 	if err != nil {
 		return sqlc.CreateCampaignParams{}, err

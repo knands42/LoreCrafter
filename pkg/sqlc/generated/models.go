@@ -263,3 +263,14 @@ type User struct {
 	CreatedAt      pgtype.Timestamptz `json:"created_at"`
 	UpdatedAt      pgtype.Timestamptz `json:"updated_at"`
 }
+
+type UsersEmailVerification struct {
+	ID                         pgtype.UUID        `json:"id"`
+	UserID                     pgtype.UUID        `json:"user_id"`
+	EmailVerificationToken     pgtype.Text        `json:"email_verification_token"`
+	EmailVerificationSentAt    pgtype.Timestamptz `json:"email_verification_sent_at"`
+	EmailVerificationExpiresAt pgtype.Timestamptz `json:"email_verification_expires_at"`
+	EmailVerifiedAt            pgtype.Timestamptz `json:"email_verified_at"`
+	CreatedAt                  pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt                  pgtype.Timestamptz `json:"updated_at"`
+}

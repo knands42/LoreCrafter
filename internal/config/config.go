@@ -22,6 +22,13 @@ type Config struct {
 
 	// Database configuration
 	PostgresURL string `mapstructure:"POSTGRES_URL"`
+
+	// SMTP configuration
+	SMTPServer   string `mapstructure:"SMTP_SERVER"`
+	SMTPPort     int    `mapstructure:"SMTP_PORT"`
+	SMTPUsername string `mapstructure:"SMTP_USERNAME"`
+	SMTPPassword string `mapstructure:"SMTP_PASSWORD"`
+	SMTPFrom     string `mapstructure:"SMTP_FROM"`
 }
 
 // LoadConfig loads the configuration from .env file and environment variables
@@ -48,6 +55,11 @@ func LoadConfig(path string) (config Config, err error) {
 		"GOOGLE_API_KEY",
 		"OPENAI_API_KEY",
 		"POSTGRES_URL",
+		"SMTP_SERVER",
+		"SMTP_PORT",
+		"SMTP_USERNAME",
+		"SMTP_PASSWORD",
+		"SMTP_FROM",
 	}
 	for _, key := range keys {
 		err := v.BindEnv(key)

@@ -10,6 +10,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/knands42/lorecrafter/internal/adapter/email"
 	llms2 "github.com/knands42/lorecrafter/internal/adapter/llms"
 
 	_ "github.com/knands42/lorecrafter/app/api/docs" // Import the docs package
@@ -84,10 +85,16 @@ func NewServer(cfg config.Config, repo sqlc.Querier, llmFactory *llms2.LlmFactor
 		log.Fatalf("Failed to create token maker: %v", err)
 	}
 	argon2Adapter := security.NewArgon2Adapter()
+	emailSender := email.NewSMTPSenderAdapter(cfg.SMTPServer, cfg.SMTPPort, cfg.SMTPUsername, cfg.SMTPPassword, cfg.SMTPFrom)
+	templateManager, err := email.NewTemplateManagerAdapter()
+	if err != nil {
+		log.Fatalf("Failed to create template manager: %v", err)
+	}
 
 	// Set up use cases
 	ctx := context.Background()
-	authUseCase := usecases.NewAuthUseCase(ctx, repo, tokenMakerAdapter, argon2Adapter, cfg.TokenExpiry)
+	emailUseCase := usecases.NewEmailUseCase(ctx, emailSender, templateManager, repo, "")
+	authUseCase := usecases.NewAuthUseCase(ctx, repo, tokenMakerAdapter, argon2Adapter, cfg.TokenExpiry, emailUseCase)
 	aiCampaignUseCase := usecases.NewAICampaignUseCase(ctx, repo, llmFactory)
 	campaignUseCase := usecases.NewCampaignUseCase(ctx, aiCampaignUseCase, repo)
 
