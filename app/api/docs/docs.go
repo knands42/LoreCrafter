@@ -1175,6 +1175,9 @@ const docTemplate = `{
                 "campaign_id": {
                     "type": "string"
                 },
+                "created_at": {
+                    "$ref": "#/definitions/pgtype.Timestamptz"
+                },
                 "id": {
                     "type": "string"
                 },
@@ -1186,6 +1189,9 @@ const docTemplate = `{
                 },
                 "role": {
                     "$ref": "#/definitions/sqlc.MemberRole"
+                },
+                "updated_at": {
+                    "$ref": "#/definitions/pgtype.Timestamptz"
                 },
                 "user_id": {
                     "type": "string"

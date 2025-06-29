@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
 
 	"github.com/knands42/lorecrafter/internal/domain"
 	"github.com/knands42/lorecrafter/internal/interfaces"
@@ -65,6 +66,23 @@ func (eu *EmailUseCase) SendVerificationEmail(input domain.SendEmailVerification
 	return nil
 }
 
+// TODO: implement
 func (eu *EmailUseCase) ValidateEmailVerificationToken(token string) error {
+	return nil
+}
+
+func (eu *EmailUseCase) SendPasswordResetTokenEmail(input domain.SendEmailVerificationToken) error {
+	body, err := eu.tm.Render("password_reset", map[string]string{
+		"ResetURL": fmt.Sprintf("%s/reset-password?token=%s&email=%s", eu.baseURL, input.Token, input.Email),
+	})
+	if err != nil {
+		log.Printf("Failed to render password reset template: %v", err)
+		return ErrEmailTemplateRender
+	}
+	if err := eu.sender.SendEmail(input.Email, "Reset Your Password", body); err != nil {
+		log.Printf("Failed to send password reset email: %v", err)
+		return ErrSendEmail
+	}
+
 	return nil
 }

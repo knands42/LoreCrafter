@@ -25,11 +25,11 @@ func NewTemplateManagerAdapter() (*TemplateManagerAdapter, error) {
 	}
 	tm.templates["email_verification"] = tmpl
 
-	tmpl, err = template.ParseFS(templatesFS, "templates/password_reset.html")
+	tmpl2, err := template.ParseFS(templatesFS, "templates/password_reset.html")
 	if err != nil {
 		return nil, err
 	}
-	tm.templates["password_reset"] = tmpl
+	tm.templates["password_reset"] = tmpl2
 
 	return tm, nil
 }

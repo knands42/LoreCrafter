@@ -224,7 +224,7 @@ func (h *AuthHandler) ResetPassword(w http.ResponseWriter, r *http.Request) erro
 	if err != nil {
 		switch {
 		case errors.Is(err, usecases.ErrInvalidResetToken):
-			return utils.WriteJSONError(w, http.StatusBadRequest, usecases.ErrInvalidResetToken.Error())
+			return utils.WriteJSONError(w, http.StatusNotFound, usecases.ErrInvalidResetToken.Error())
 		case errors.Is(err, usecases.ErrPasswordResetTokenExpired):
 			return utils.WriteJSONError(w, http.StatusBadRequest, usecases.ErrPasswordResetTokenExpired.Error())
 		case errors.Is(err, usecases.ErrPasswordResetTokenUsed):

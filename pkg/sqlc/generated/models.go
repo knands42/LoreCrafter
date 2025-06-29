@@ -220,6 +220,8 @@ type CampaignMember struct {
 	Role         MemberRole         `json:"role"`
 	JoinedAt     pgtype.Timestamptz `json:"joined_at"`
 	LastAccessed pgtype.Timestamptz `json:"last_accessed"`
+	CreatedAt    pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt    pgtype.Timestamptz `json:"updated_at"`
 }
 
 type Character struct {

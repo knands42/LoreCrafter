@@ -78,14 +78,7 @@ func (uc *PasswordResetUseCase) RequestPasswordReset(input domain.ForgotPassword
 
 	// Send password reset email
 	go func() {
-		body, err := uc.tm.Render("password_reset", map[string]string{
-			"ResetURL": fmt.Sprintf("%s/reset-password?token=%s&email=%s", uc.emailUseCase.baseURL, token, input.Email),
-		})
-		if err != nil {
-			log.Printf("Failed to render password reset template: %v", err)
-			return
-		}
-		if err := uc.emailUseCase.sender.SendEmail(input.Email, "Reset Your Password", body); err != nil {
+		if err = uc.emailUseCase.SendPasswordResetTokenEmail(domain.SendEmailVerificationToken{Token: token, Email: input.Email}); err != nil {
 			log.Printf("Failed to send password reset email: %v", err)
 		}
 	}()
@@ -102,17 +95,12 @@ func (uc *PasswordResetUseCase) ResetPassword(input domain.PasswordResetInput) e
 		return fmt.Errorf("failed to hash password: %w", err)
 	}
 
-	tokenHash, err := uc.argon2Hash.HashPassword(input.Token)
-	if err != nil {
-		return fmt.Errorf("failed to hash token: %w", err)
-	}
-
 	_, err = uc.repo.UpdateUserPasswordFromToken(uc.ctx, sqlc.UpdateUserPasswordFromTokenParams{
-		TokenHash:      tokenHash,
+		TokenHash:      input.Token,
 		HashedPassword: hashedPassword,
 	})
-	if err != nil {
-		return fmt.Errorf("failed to update user password: %w", err)
+	if err != nil && err.Error() == "no rows in result set" {
+		return ErrInvalidResetToken
 	}
 
 	// Mark the token as used

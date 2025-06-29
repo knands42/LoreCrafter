@@ -94,6 +94,24 @@ func ListUserCampaigns(t *testing.T, cookie http.Cookie, output interface{}) (in
 	return SendAuthenticatedRequest(t, "GET", "/api/campaigns", cookie, nil, output)
 }
 
+// ForgotPassword sends a forgot password request
+func ForgotPassword(t *testing.T, email string) (int, []*http.Cookie) {
+	input := domain.ForgotPasswordInput{
+		Email: email,
+	}
+	return SendRequest(t, "POST", "/api/auth/forgot-password", input, nil)
+}
+
+// ResetPassword sends a reset password request
+func ResetPassword(t *testing.T, token, email, newPassword string) (int, []*http.Cookie) {
+	input := domain.PasswordResetInput{
+		Token:    token,
+		Email:    email,
+		Password: newPassword,
+	}
+	return SendRequest(t, "POST", "/api/auth/reset-password", input, nil)
+}
+
 // SendRequest sends an HTTP request to the test server
 func SendRequest(t *testing.T, method, path string, body interface{}, output interface{}) (int, []*http.Cookie) {
 	// Create request body

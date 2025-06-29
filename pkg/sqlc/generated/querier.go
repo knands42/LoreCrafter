@@ -30,7 +30,6 @@ type Querier interface {
 	ListCampaignsByUserID(ctx context.Context, userID pgtype.UUID) ([]Campaign, error)
 	UpdateCampaign(ctx context.Context, arg UpdateCampaignParams) (Campaign, error)
 	UpdateCampaignMember(ctx context.Context, arg UpdateCampaignMemberParams) (CampaignMember, error)
-	UpdateUserPassword(ctx context.Context, arg UpdateUserPasswordParams) (User, error)
 	UpdateUserPasswordFromToken(ctx context.Context, arg UpdateUserPasswordFromTokenParams) (UpdateUserPasswordFromTokenRow, error)
 }
 

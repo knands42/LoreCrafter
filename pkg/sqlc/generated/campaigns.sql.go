@@ -89,7 +89,7 @@ INSERT INTO campaign_members (
     role
 ) VALUES (
     $1, $2, $3, $4
-) RETURNING id, campaign_id, user_id, role, joined_at, last_accessed
+) RETURNING id, campaign_id, user_id, role, joined_at, last_accessed, created_at, updated_at
 `
 
 type CreateCampaignMemberParams struct {
@@ -114,6 +114,8 @@ func (q *Queries) CreateCampaignMember(ctx context.Context, arg CreateCampaignMe
 		&i.Role,
 		&i.JoinedAt,
 		&i.LastAccessed,
+		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
@@ -273,7 +275,7 @@ func (q *Queries) GetCampaignByInviteCode(ctx context.Context, inviteCode pgtype
 }
 
 const getCampaignMember = `-- name: GetCampaignMember :one
-SELECT id, campaign_id, user_id, role, joined_at, last_accessed FROM campaign_members
+SELECT id, campaign_id, user_id, role, joined_at, last_accessed, created_at, updated_at FROM campaign_members
 WHERE campaign_id = $1 AND user_id = $2
 LIMIT 1
 `
@@ -293,12 +295,14 @@ func (q *Queries) GetCampaignMember(ctx context.Context, arg GetCampaignMemberPa
 		&i.Role,
 		&i.JoinedAt,
 		&i.LastAccessed,
+		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
 
 const listCampaignMembers = `-- name: ListCampaignMembers :many
-SELECT id, campaign_id, user_id, role, joined_at, last_accessed FROM campaign_members
+SELECT id, campaign_id, user_id, role, joined_at, last_accessed, created_at, updated_at FROM campaign_members
 WHERE campaign_id = $1
 `
 
@@ -318,6 +322,8 @@ func (q *Queries) ListCampaignMembers(ctx context.Context, campaignID pgtype.UUI
 			&i.Role,
 			&i.JoinedAt,
 			&i.LastAccessed,
+			&i.CreatedAt,
+			&i.UpdatedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -461,7 +467,7 @@ SET
     role = $3,
     last_accessed = CURRENT_TIMESTAMP
 WHERE campaign_id = $1 AND user_id = $2
-RETURNING id, campaign_id, user_id, role, joined_at, last_accessed
+RETURNING id, campaign_id, user_id, role, joined_at, last_accessed, created_at, updated_at
 `
 
 type UpdateCampaignMemberParams struct {
@@ -480,6 +486,8 @@ func (q *Queries) UpdateCampaignMember(ctx context.Context, arg UpdateCampaignMe
 		&i.Role,
 		&i.JoinedAt,
 		&i.LastAccessed,
+		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }

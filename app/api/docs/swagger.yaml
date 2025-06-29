@@ -230,6 +230,8 @@ definitions:
     properties:
       campaign_id:
         type: string
+      created_at:
+        $ref: '#/definitions/pgtype.Timestamptz'
       id:
         type: string
       joined_at:
@@ -238,6 +240,8 @@ definitions:
         $ref: '#/definitions/pgtype.Timestamptz'
       role:
         $ref: '#/definitions/sqlc.MemberRole'
+      updated_at:
+        $ref: '#/definitions/pgtype.Timestamptz'
       user_id:
         type: string
     type: object

@@ -22,6 +22,7 @@ type CreatePasswordResetTokenInput struct {
 func NewCreatePasswordResetTokenInput(email, token string) *CreatePasswordResetTokenInput {
 	return &CreatePasswordResetTokenInput{
 		Email:     email,
+		TokenHash: token,
 		expiresAt: time.Now().Add(24 * time.Hour), // Token expires in 24 hours
 	}
 }
