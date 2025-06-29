@@ -10,11 +10,12 @@ import (
 
 // Config holds all configuration for the application
 type Config struct {
-	Profile     string        `mapstructure:"PROFILE"`
-	ServerPort  string        `mapstructure:"SERVER_PORT"`
-	TokenExpiry time.Duration `mapstructure:"TOKEN_EXPIRY"`
-	PrivateKey  string        `mapstructure:"PASETO_PRIVATE_KEY"`
-	PublicKey   string        `mapstructure:"PASETO_PUBLIC_KEY"`
+	Profile      string        `mapstructure:"PROFILE"`
+	ServerPort   string        `mapstructure:"SERVER_PORT"`
+	TokenExpiry  time.Duration `mapstructure:"TOKEN_EXPIRY"`
+	PrivateKey   string        `mapstructure:"PASETO_PRIVATE_KEY"`
+	PublicKey    string        `mapstructure:"PASETO_PUBLIC_KEY"`
+	PasswordSalt string        `mapstructure:"PASSWORD_SALT"`
 
 	// API Keys
 	GoogleAPIKey string `mapstructure:"GOOGLE_API_KEY"`
@@ -52,6 +53,7 @@ func LoadConfig(path string) (config Config, err error) {
 		"TOKEN_EXPIRY",
 		"PASETO_PRIVATE_KEY",
 		"PASETO_PUBLIC_KEY",
+		"PASSWORD_SALT",
 		"GOOGLE_API_KEY",
 		"OPENAI_API_KEY",
 		"POSTGRES_URL",

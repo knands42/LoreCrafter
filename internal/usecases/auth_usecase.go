@@ -92,12 +92,14 @@ func (uc *AuthUseCase) Register(input domain.UserCreationInput) (domain.User, er
 	}
 	createdEmailVerificationTokenInput := domain.NewCreateEmailVerificationTokenInput(createdUserUUID)
 	emailVerificationToken, err := uc.emailUseCase.CreateEmailVerificationToken(*createdEmailVerificationTokenInput)
+	if err != nil {
+		log.Printf("Error creating email verification token: %v", err)
+	}
 
 	go func() {
-		if err != nil {
+		if err := uc.emailUseCase.SendVerificationEmail(*domain.NewSendEmailVerificationToken(emailVerificationToken, createdUser.Email)); err != nil {
 			log.Printf("Error sending verification email: %v", err)
 		}
-		uc.emailUseCase.SendVerificationEmail(*domain.NewSendEmailVerificationToken(emailVerificationToken, createdUser.Email))
 	}()
 
 	return domain.FromSqlcUserToDomain(createdUser), nil

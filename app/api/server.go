@@ -54,7 +54,7 @@ func NewServer(cfg config.Config, repo sqlc.Querier, llmFactory *llms2.LlmFactor
 	// Set up CORS middleware
 	allowedOrigins := []string{"https://lorecrafter-client.vercel.app", "https://lorecrafter.fly.dev"}
 	if cfg.Profile == "dev" {
-		allowedOrigins = append(allowedOrigins, "http://localhost:3000", "http://localhost:8080")
+		allowedOrigins = append(allowedOrigins, "http://localhost:3000", "http://localhost:8080", "http://localhost:8000")
 	}
 
 	corsMiddleware := cors.New(cors.Options{
@@ -84,7 +84,7 @@ func NewServer(cfg config.Config, repo sqlc.Querier, llmFactory *llms2.LlmFactor
 	if err != nil {
 		log.Fatalf("Failed to create token maker: %v", err)
 	}
-	argon2Adapter := security.NewArgon2Adapter()
+	argon2Adapter := security.NewArgon2Adapter(cfg.PasswordSalt)
 	emailSender := email.NewSMTPSenderAdapter(cfg.SMTPServer, cfg.SMTPPort, cfg.SMTPUsername, cfg.SMTPPassword, cfg.SMTPFrom)
 	templateManager, err := email.NewTemplateManagerAdapter()
 	if err != nil {
