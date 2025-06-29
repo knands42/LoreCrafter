@@ -28,8 +28,8 @@ type CampaignUseCase struct {
 // NewCampaignUseCase creates a new campaign use case
 func NewCampaignUseCase(
 	ctx context.Context,
-	aiCampaignUseCase *AICampaignUseCase,
 	repo sqlc.Querier,
+	aiCampaignUseCase *AICampaignUseCase,
 ) *CampaignUseCase {
 	return &CampaignUseCase{
 		ctx:               ctx,

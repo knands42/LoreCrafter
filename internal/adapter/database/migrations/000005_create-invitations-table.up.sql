@@ -14,3 +14,9 @@ CREATE TABLE invitations (
 
 CREATE INDEX idx_invitations_campaign_id ON invitations(campaign_id);
 CREATE INDEX idx_invitations_email ON invitations(email);
+
+-- Create a trigger to update the updated_at column
+CREATE TRIGGER update_invitations_updated_at
+BEFORE UPDATE ON invitations
+FOR EACH ROW
+EXECUTE FUNCTION update_updated_at_column();

@@ -3,10 +3,11 @@ package migrations
 import (
 	"context"
 	"database/sql"
-	_ "github.com/jackc/pgx/v5/stdlib"
-	"github.com/knands42/lorecrafter/internal/config"
 	"io/fs"
 	"log"
+
+	_ "github.com/jackc/pgx/v5/stdlib"
+	"github.com/knands42/lorecrafter/internal/config"
 	"maragu.dev/migrate"
 )
 

@@ -18,3 +18,9 @@ CREATE TABLE characters (
 
 CREATE INDEX idx_characters_campaign_id ON characters(campaign_id);
 CREATE INDEX idx_characters_user_id ON characters(user_id);
+
+-- Create a trigger to update the updated_at column
+CREATE TRIGGER update_characters_updated_at
+BEFORE UPDATE ON characters
+FOR EACH ROW
+EXECUTE FUNCTION update_updated_at_column();

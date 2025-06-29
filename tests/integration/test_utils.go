@@ -40,8 +40,8 @@ func CreateTestUser(t *testing.T) (domain.User, http.Cookie) {
 	var createdUser domain.User
 	statusCode, _ := RegisterUser(t, input, &createdUser)
 	_, cookies := LoginUser(t, domain.LoginInput{
-		Username: username,
-		Password: password,
+		UsernameOrEmail: email,
+		Password:        password,
 	}, nil)
 
 	// Assert that the user was created successfully

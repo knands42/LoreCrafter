@@ -252,6 +252,16 @@ type Invitation struct {
 	UpdatedAt  pgtype.Timestamptz `json:"updated_at"`
 }
 
+type PasswordResetToken struct {
+	ID        pgtype.UUID        `json:"id"`
+	UserID    pgtype.UUID        `json:"user_id"`
+	TokenHash string             `json:"token_hash"`
+	ExpiresAt pgtype.Timestamptz `json:"expires_at"`
+	Used      bool               `json:"used"`
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
+}
+
 type User struct {
 	ID             pgtype.UUID        `json:"id"`
 	Username       string             `json:"username"`

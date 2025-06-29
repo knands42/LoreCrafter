@@ -155,8 +155,8 @@ func TestLogin_Success(t *testing.T) {
 
 	// When logging in with valid credentials
 	loginInput := domain.LoginInput{
-		Username: username,
-		Password: password,
+		UsernameOrEmail: email,
+		Password:        password,
 	}
 
 	var loginOutput domain.AuthOutput
@@ -205,32 +205,32 @@ func TestLogin_Failure_InvalidCredentials(t *testing.T) {
 		{
 			name: "Wrong username",
 			input: domain.LoginInput{
-				Username: "wrong_username",
-				Password: password,
+				UsernameOrEmail: "wrong_username",
+				Password:        password,
 			},
 			expected: http.StatusUnauthorized,
 		},
 		{
 			name: "Wrong password",
 			input: domain.LoginInput{
-				Username: username,
-				Password: "wrong_password",
+				UsernameOrEmail: email,
+				Password:        "wrong_password",
 			},
 			expected: http.StatusUnauthorized,
 		},
 		{
 			name: "Empty username",
 			input: domain.LoginInput{
-				Username: "",
-				Password: password,
+				UsernameOrEmail: "",
+				Password:        password,
 			},
 			expected: http.StatusBadRequest,
 		},
 		{
 			name: "Empty password",
 			input: domain.LoginInput{
-				Username: username,
-				Password: "",
+				UsernameOrEmail: email,
+				Password:        "",
 			},
 			expected: http.StatusBadRequest,
 		},

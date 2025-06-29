@@ -113,7 +113,10 @@ func (uc *AuthUseCase) Login(req domain.LoginInput) (domain.AuthOutput, error) {
 	}
 
 	// Get the user by username
-	user, err := uc.userRepo.GetUserByUsername(uc.ctx, req.Username)
+	user, err := uc.userRepo.GetUserByUsernameOrEmail(uc.ctx, sqlc.GetUserByUsernameOrEmailParams{
+		Username: req.UsernameOrEmail,
+		Email:    req.UsernameOrEmail,
+	})
 	if err != nil {
 		log.Printf("error getting user: %v", err)
 		return domain.AuthOutput{}, ErrUserNotFound

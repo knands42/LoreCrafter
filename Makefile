@@ -4,7 +4,7 @@ SHELL := /bin/bash
 
 ####### setup commands
 # Generate Ed25519 key pair for PASETO tokens
-setup:
+setup-paseto-keys:
 	openssl genpkey -algorithm Ed25519 -out private_key.pem
 	openssl pkey -in private_key.pem -pubout -out public_key.pem
 	@echo "Base64 encoding keys and updating .env file..."
@@ -16,6 +16,16 @@ setup:
 	@echo "Keys generated, encoded, and set in .env file"
 	@echo "Cleaning up temporary PEM files..."
 	@rm private_key.pem public_key.pem
+
+setup-password-salt:
+	@echo "Generating password salt..."
+	@PASSWORD_SALT=$$(head -c 16 /dev/urandom | base64) && \
+	sed -i "s|PASSWORD_SALT=.*|PASSWORD_SALT=$$PASSWORD_SALT|" .env
+	@echo "Password salt generated and set in .env file"
+
+setup:
+	$(MAKE) setup-paseto-keys
+	$(MAKE) setup-password-salt
 
 ####### application commands #######
 # Build the application

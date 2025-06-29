@@ -1,20 +1,21 @@
 package domain
 
 import (
-	"github.com/knands42/lorecrafter/internal/utils"
 	"time"
+
+	"github.com/knands42/lorecrafter/internal/utils"
 )
 
 // LoginInput represents a request to authenticate a user
 type LoginInput struct {
-	Username string `json:"username" example:"johndoe"`
-	Password string `json:"password" example:"12345678"`
+	UsernameOrEmail string `json:"username_or_email" example:"johndoe"`
+	Password        string `json:"password" example:"12345678"`
 }
 
 func (input *LoginInput) Validate() error {
 	var validationErrors []string
 
-	if len(input.Username) < 4 {
+	if len(input.UsernameOrEmail) < 4 {
 		validationErrors = append(validationErrors, "username must be at least 5 characters long")
 	}
 

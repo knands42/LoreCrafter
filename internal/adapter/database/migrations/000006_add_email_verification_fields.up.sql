@@ -14,3 +14,10 @@ CREATE TABLE users_email_verification (
 
 -- Add index for faster lookups by verification token
 CREATE INDEX IF NOT EXISTS idx_users_email_verification_token ON users_email_verification(email_verification_token);
+
+
+-- Create a trigger to update the updated_at column
+CREATE TRIGGER update_users_email_verification_updated_at
+BEFORE UPDATE ON users_email_verification
+FOR EACH ROW
+EXECUTE FUNCTION update_updated_at_column();

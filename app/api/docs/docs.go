@@ -24,6 +24,49 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/auth/forgot-password": {
+            "post": {
+                "description": "Forgot password",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Forgot password",
+                "parameters": [
+                    {
+                        "description": "User forgot password details",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.ForgotPasswordInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Password reset email sent successfully"
+                    },
+                    "400": {
+                        "description": "Failed to generate token",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/auth/login": {
             "post": {
                 "description": "Login a user with the provided credentials",
@@ -115,6 +158,49 @@ const docTemplate = `{
                     },
                     "409": {
                         "description": "User already exists",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/auth/reset-password": {
+            "post": {
+                "description": "Reset password",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Reset password",
+                "parameters": [
+                    {
+                        "description": "User reset password details",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.PasswordResetInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Password reset successfully"
+                    },
+                    "400": {
+                        "description": "Invalid request body",
                         "schema": {
                             "$ref": "#/definitions/utils.ErrorResponse"
                         }
@@ -846,6 +932,15 @@ const docTemplate = `{
                 }
             }
         },
+        "domain.ForgotPasswordInput": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "johndoe@mail.com"
+                }
+            }
+        },
         "domain.LoginInput": {
             "type": "object",
             "properties": {
@@ -853,9 +948,25 @@ const docTemplate = `{
                     "type": "string",
                     "example": "12345678"
                 },
-                "username": {
+                "username_or_email": {
                     "type": "string",
                     "example": "johndoe"
+                }
+            }
+        },
+        "domain.PasswordResetInput": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "johndoe@mail.com"
+                },
+                "password": {
+                    "type": "string",
+                    "example": "87654321"
+                },
+                "token": {
+                    "type": "string"
                 }
             }
         },

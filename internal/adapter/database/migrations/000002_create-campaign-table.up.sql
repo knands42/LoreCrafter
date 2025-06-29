@@ -49,4 +49,10 @@ COMMENT ON COLUMN campaigns.status IS 'Lifecycle status of the campaign (e.g., p
 COMMENT ON COLUMN campaigns.image_url IS 'The URL of the campaign image.';
 COMMENT ON COLUMN campaigns.is_public IS 'Whether the campaign is available to players outside the campaign.';
 COMMENT ON COLUMN campaigns.invite_code IS 'The invite code for the campaign.';
-COMMENT ON COLUMN campaigns.setting_ai_metadata IS 'Information used by LLMs on how to generate the data (e.g., a dark tone in a high fantasy world).'
+COMMENT ON COLUMN campaigns.setting_ai_metadata IS 'Information used by LLMs on how to generate the data (e.g., a dark tone in a high fantasy world).';
+
+-- Create a trigger to update the updated_at column
+CREATE TRIGGER update_campaigns_updated_at
+BEFORE UPDATE ON campaigns
+FOR EACH ROW
+EXECUTE FUNCTION update_updated_at_column();

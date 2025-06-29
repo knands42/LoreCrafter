@@ -35,7 +35,8 @@ type Server struct {
 
 	cfg config.Config
 
-	authUseCase     *usecases.AuthUseCase
+	authUseCase *usecases.AuthUseCase
+
 	authHandler     *routes.AuthHandler
 	userHandler     *routes.UserHandler
 	campaignHandler *routes.CampaignHandler
@@ -96,11 +97,12 @@ func NewServer(cfg config.Config, repo sqlc.Querier, llmFactory *llms2.LlmFactor
 	emailUseCase := usecases.NewEmailUseCase(ctx, emailSender, templateManager, repo, "")
 	authUseCase := usecases.NewAuthUseCase(ctx, repo, tokenMakerAdapter, argon2Adapter, cfg.TokenExpiry, emailUseCase)
 	aiCampaignUseCase := usecases.NewAICampaignUseCase(ctx, repo, llmFactory)
-	campaignUseCase := usecases.NewCampaignUseCase(ctx, aiCampaignUseCase, repo)
+	campaignUseCase := usecases.NewCampaignUseCase(ctx, repo, aiCampaignUseCase)
+	passwordResetUseCase := usecases.NewPasswordResetUseCase(ctx, repo, emailUseCase, templateManager, argon2Adapter, cfg.TokenExpiry)
+	server.authUseCase = authUseCase
 
 	// Set up HTTP handlers
-	server.authUseCase = authUseCase
-	server.authHandler = routes.NewAuthHandler(authUseCase)
+	server.authHandler = routes.NewAuthHandler(authUseCase, passwordResetUseCase)
 	server.userHandler = routes.NewUserHandler()
 	server.campaignHandler = routes.NewCampaignHandler(campaignUseCase)
 	server.repo = repo

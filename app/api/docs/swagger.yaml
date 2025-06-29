@@ -71,13 +71,30 @@ definitions:
         example: Chronicles of the Fall
         type: string
     type: object
+  domain.ForgotPasswordInput:
+    properties:
+      email:
+        example: johndoe@mail.com
+        type: string
+    type: object
   domain.LoginInput:
     properties:
       password:
         example: "12345678"
         type: string
-      username:
+      username_or_email:
         example: johndoe
+        type: string
+    type: object
+  domain.PasswordResetInput:
+    properties:
+      email:
+        example: johndoe@mail.com
+        type: string
+      password:
+        example: "87654321"
+        type: string
+      token:
         type: string
     type: object
   domain.SettingsAIMetadata:
@@ -277,6 +294,34 @@ info:
   title: LoreCrafter API
   version: "1.0"
 paths:
+  /api/auth/forgot-password:
+    post:
+      consumes:
+      - application/json
+      description: Forgot password
+      parameters:
+      - description: User forgot password details
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/domain.ForgotPasswordInput'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Password reset email sent successfully
+        "400":
+          description: Failed to generate token
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Forgot password
+      tags:
+      - auth
   /api/auth/login:
     post:
       consumes:
@@ -343,6 +388,34 @@ paths:
           schema:
             $ref: '#/definitions/utils.ErrorResponse'
       summary: Register a new user
+      tags:
+      - auth
+  /api/auth/reset-password:
+    post:
+      consumes:
+      - application/json
+      description: Reset password
+      parameters:
+      - description: User reset password details
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/domain.PasswordResetInput'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Password reset successfully
+        "400":
+          description: Invalid request body
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Reset password
       tags:
       - auth
   /api/campaigns:

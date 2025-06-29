@@ -16,13 +16,15 @@ import (
 
 // AuthHandler handles authentication-related HTTP requests
 type AuthHandler struct {
-	authUseCase *usecases.AuthUseCase
+	authUseCase          *usecases.AuthUseCase
+	passwordResetUseCase *usecases.PasswordResetUseCase
 }
 
 // NewAuthHandler creates a new AuthHandler
-func NewAuthHandler(authUseCase *usecases.AuthUseCase) *AuthHandler {
+func NewAuthHandler(authUseCase *usecases.AuthUseCase, passwordResetUseCase *usecases.PasswordResetUseCase) *AuthHandler {
 	return &AuthHandler{
-		authUseCase: authUseCase,
+		authUseCase:          authUseCase,
+		passwordResetUseCase: passwordResetUseCase,
 	}
 }
 
@@ -31,6 +33,10 @@ func (h *AuthHandler) RegisterRoutes(r chi.Router) {
 	r.Post("/register", middleware.ErrorHandlerMiddleware(h.Register))
 	r.Post("/login", middleware.ErrorHandlerMiddleware(h.Login))
 	r.Post("/logout", middleware.ErrorHandlerMiddleware(h.Logout))
+
+	// Password reset endpoints
+	r.Post("/forgot-password", middleware.ErrorHandlerMiddleware(h.ForgotPassword))
+	r.Post("/reset-password", middleware.ErrorHandlerMiddleware(h.ResetPassword))
 }
 
 // Register handles user registration
@@ -162,4 +168,72 @@ func (h *AuthHandler) GetAuthorizationPayload(r *http.Request) (*domain.TokenPay
 	}
 
 	return payload, nil
+}
+
+// ForgotPassword handles the forgot password request
+// @Summary Forgot password
+// @Description Forgot password
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param input body domain.ForgotPasswordInput true "User forgot password details"
+// @Success 204 "Password reset email sent successfully"
+// @Failure 400 {object} utils.ErrorResponse "Failed to generate token"
+// @Failure 500 {object} utils.ErrorResponse "Internal server error"
+// @Router /api/auth/forgot-password [post]
+func (h *AuthHandler) ForgotPassword(w http.ResponseWriter, r *http.Request) error {
+	var input domain.ForgotPasswordInput
+	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+		return utils.WriteJSONError(w, http.StatusBadRequest, "Invalid request body")
+	}
+
+	err := h.passwordResetUseCase.RequestPasswordReset(input)
+	if err != nil {
+		switch {
+		case errors.Is(err, usecases.ErrFailedToCreatePasswordResetToken):
+			return utils.WriteJSONError(w, http.StatusBadRequest, usecases.ErrFailedToCreatePasswordResetToken.Error())
+		case errors.Is(err, usecases.ErrFailedToGenerateToken):
+			return utils.WriteJSONError(w, http.StatusBadRequest, usecases.ErrFailedToGenerateToken.Error())
+		}
+
+		return err
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+	return nil
+}
+
+// ResetPassword handles the reset password request
+// @Summary Reset password
+// @Description Reset password
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param input body domain.PasswordResetInput true "User reset password details"
+// @Success 204 "Password reset successfully"
+// @Failure 400 {object} utils.ErrorResponse "Invalid request body"
+// @Failure 500 {object} utils.ErrorResponse "Internal server error"
+// @Router /api/auth/reset-password [post]
+func (h *AuthHandler) ResetPassword(w http.ResponseWriter, r *http.Request) error {
+	var input domain.PasswordResetInput
+	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+		return utils.WriteJSONError(w, http.StatusBadRequest, "Invalid request body")
+	}
+
+	err := h.passwordResetUseCase.ResetPassword(input)
+	if err != nil {
+		switch {
+		case errors.Is(err, usecases.ErrInvalidResetToken):
+			return utils.WriteJSONError(w, http.StatusBadRequest, usecases.ErrInvalidResetToken.Error())
+		case errors.Is(err, usecases.ErrPasswordResetTokenExpired):
+			return utils.WriteJSONError(w, http.StatusBadRequest, usecases.ErrPasswordResetTokenExpired.Error())
+		case errors.Is(err, usecases.ErrPasswordResetTokenUsed):
+			return utils.WriteJSONError(w, http.StatusBadRequest, usecases.ErrPasswordResetTokenUsed.Error())
+		}
+
+		return err
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+	return nil
 }

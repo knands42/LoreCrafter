@@ -1,3 +1,5 @@
+DROP TRIGGER IF EXISTS update_campaigns_updated_at ON campaigns;
+
 DROP INDEX IF EXISTS idx_campaigns_title_trgm;
 DROP INDEX IF EXISTS idx_campaigns_created_by;
 DROP INDEX IF EXISTS idx_campaigns_invite_code;
