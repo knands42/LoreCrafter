@@ -9,27 +9,6 @@ CERT_FILE := $(SSL_DIR)/server.crt
 
 ####### setup commands
 
-# Generate self-signed certificate for local development
-setup-ssl:
-	@echo "Generating self-signed certificate..."
-	@mkdir -p $(SSL_DIR)
-	@openssl req -x509 \
-		-nodes \
-		-days 365 \
-		-newkey rsa:2048 \
-		-keyout $(KEY_FILE) \
-		-out $(CERT_FILE) \
-		-subj "/C=US/ST=State/L=City/O=Company/CN=lorecrafter.fly.dev" \
-		-addext "subjectAltName=DNS:DNS:lorecrafter.fly.dev,IP:127.0.0.1"
-	@echo "Self-signed certificate generated in $(SSL_DIR)/"
-	@echo "Base64 encoding keys and updating .env file..."
-	@if [ ! -f .env ]; then cp .env.example .env; fi
-	@SSL_CERT_BASE64=$$(cat $(CERT_FILE) | base64 -w 0) && \
-	SSL_KEY_BASE64=$$(cat $(KEY_FILE) | base64 -w 0) && \
-	sed -i "s|SSL_CERT=.*|SSL_CERT=$$SSL_CERT_BASE64|" .env && \
-	sed -i "s|SSL_KEY=.*|SSL_KEY=$$SSL_KEY_BASE64|" .env
-	@echo "Keys generated, encoded, and set in .env file"
-
 # Generate Ed25519 key pair for PASETO tokens
 setup-paseto-keys:
 	openssl genpkey -algorithm Ed25519 -out private_key.pem
@@ -51,7 +30,7 @@ setup-password-salt:
 	@echo "Password salt generated and set in .env file"
 
 # Setup all required configurations
-setup: setup-paseto-keys setup-password-salt setup-ssl
+setup: setup-paseto-keys setup-password-salt
 
 ####### application commands #######
 # Build the application
