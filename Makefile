@@ -89,7 +89,7 @@ docker-build:
 	docker build -t lorecrafter:latest .
 
 docker-run:
-	docker run -p 443:443 --env-file .env lorecrafter:latest
+	docker run -p 8000:8000 --env-file .env lorecrafter:latest
 
 docker-up:
 	docker rmi lorecrafter || true

@@ -2,5 +2,5 @@
 
 ## Useful Links
 
-- [Swagger UI](http://localhost:443/swagger/index.html)
+- [Swagger UI](http://localhost:8000/swagger/index.html)
 - [Mailhog](http://localhost:8025)

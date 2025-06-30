@@ -56,7 +56,7 @@ func NewServer(cfg config.Config, repo sqlc.Querier, llmFactory *llms2.LlmFactor
 	// Set up CORS middleware
 	allowedOrigins := []string{"https://lorecrafter-client.vercel.app", "https://lorecrafter.fly.dev"}
 	if cfg.Profile == "dev" {
-		allowedOrigins = append(allowedOrigins, "http://localhost:3000", "http://localhost:8080", "https://localhost:443")
+		allowedOrigins = append(allowedOrigins, "http://localhost:3000", "http://localhost:8080", "http://localhost:8000")
 	}
 
 	corsMiddleware := cors.New(cors.Options{
@@ -122,18 +122,6 @@ func (s *Server) Start() {
 		log.Printf("Starting server on port %s", s.cfg.ServerPort)
 		if err := s.httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("Failed to start server: %v", err)
-		}
-	}()
-
-	s.gracefulShutdown()
-}
-
-// StartTLS starts the HTTP server with TLS
-func (s *Server) StartTLS(certFile, keyFile string) {
-	go func() {
-		log.Printf("Starting server with TLS on port %s", s.cfg.ServerPort)
-		if err := s.httpServer.ListenAndServeTLS(certFile, keyFile); err != nil && err != http.ErrServerClosed {
-			log.Fatalf("Failed to start TLS server: %v", err)
 		}
 	}()
 

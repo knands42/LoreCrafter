@@ -36,7 +36,7 @@ RUN chmod +x /app/lorecrafter
 RUN mkdir /app/certs
 
 # Expose the application port
-EXPOSE 443
+EXPOSE 8000
 
 # Run the application
 CMD ["/app/lorecrafter", "--tls"]
