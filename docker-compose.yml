@@ -5,7 +5,9 @@ services:
       dockerfile: Dockerfile
     container_name: lorecrafter
     ports:
-      - '8000:8000'
+      - '443:443'
+    volumes:
+      - ./certs:/var/www/.cache
     env_file:
       - .env
     environment:
