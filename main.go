@@ -16,7 +16,6 @@ import (
 
 func main() {
 	// Parse command line flags
-	enableTLS := flag.Bool("tls", false, "Enable TLS/HTTPS")
 	flag.Parse()
 
 	// Load configuration

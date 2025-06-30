@@ -39,4 +39,4 @@ RUN mkdir /app/certs
 EXPOSE 8000
 
 # Run the application
-CMD ["/app/lorecrafter", "--tls"]
+CMD ["/app/lorecrafter"]

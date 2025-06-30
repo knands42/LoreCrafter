@@ -66,7 +66,7 @@ func NewServer(cfg config.Config, repo sqlc.Querier, llmFactory *llms2.LlmFactor
 		ExposedHeaders:   []string{"Link", "Content-Length", "Content-Type"},
 		AllowCredentials: true,
 		MaxAge:           86400, // 24 hours
-		Debug:            cfg.Profile == "dev",
+		Debug:            false,
 	})
 
 	router.Use(corsMiddleware.Handler)
