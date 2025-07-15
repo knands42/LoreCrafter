@@ -18,8 +18,9 @@ type Config struct {
 	PasswordSalt string        `mapstructure:"PASSWORD_SALT"`
 
 	// API Keys
-	GoogleAPIKey string `mapstructure:"GOOGLE_API_KEY"`
-	OpenAIAPIKey string `mapstructure:"OPENAI_API_KEY"`
+	GoogleAPIKey    string `mapstructure:"GOOGLE_API_KEY"`
+	OpenAIAPIKey    string `mapstructure:"OPENAI_API_KEY"`
+	AntropicAPIKey  string `mapstructure:"ANTROPIC_API_KEY"`
 
 	// Database configuration
 	PostgresURL string `mapstructure:"POSTGRES_URL"`
@@ -53,6 +54,7 @@ func LoadConfig(path string) (config Config, err error) {
 		"PASSWORD_SALT",
 		"GOOGLE_API_KEY",
 		"OPENAI_API_KEY",
+		"ANTROPIC_API_KEY",
 		"POSTGRES_URL",
 		"EMAIL_API_KEY",
 		"EMAIL_DOMAIN",

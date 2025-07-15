@@ -111,7 +111,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) error {
 		Value:    response.Token,
 		Path:     "/",
 		HttpOnly: true,
-		Secure:   r.TLS != nil,
+		Secure:   true,
 		SameSite: http.SameSiteLaxMode,
 		MaxAge:   60 * 60 * 24, // 24 hours
 	})
@@ -137,7 +137,7 @@ func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) error {
 		Value:    "",
 		Path:     "/",
 		HttpOnly: true,
-		Secure:   r.TLS != nil,
+		Secure:   true,
 		SameSite: http.SameSiteLaxMode,
 	})
 
