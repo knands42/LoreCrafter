@@ -24,6 +24,49 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/auth/forgot-password": {
+            "post": {
+                "description": "Forgot password",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Forgot password",
+                "parameters": [
+                    {
+                        "description": "User forgot password details",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.ForgotPasswordInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Password reset email sent successfully"
+                    },
+                    "400": {
+                        "description": "Failed to generate token",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/auth/login": {
             "post": {
                 "description": "Login a user with the provided credentials",
@@ -104,7 +147,7 @@ const docTemplate = `{
                     "201": {
                         "description": "User registered successfully",
                         "schema": {
-                            "$ref": "#/definitions/domain.AuthOutput"
+                            "$ref": "#/definitions/domain.User"
                         }
                     },
                     "400": {
@@ -115,6 +158,49 @@ const docTemplate = `{
                     },
                     "409": {
                         "description": "User already exists",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/auth/reset-password": {
+            "post": {
+                "description": "Reset password",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Reset password",
+                "parameters": [
+                    {
+                        "description": "User reset password details",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.PasswordResetInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Password reset successfully"
+                    },
+                    "400": {
+                        "description": "Invalid request body",
                         "schema": {
                             "$ref": "#/definitions/utils.ErrorResponse"
                         }
@@ -176,7 +262,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Create a new campaign with the provided details",
+                "description": "Create a new campaign with the provided details. If use_ai query parameter is true, AI will generate the campaign settings.",
                 "consumes": [
                     "application/json"
                 ],
@@ -196,17 +282,24 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/domain.CampaignCreationInput"
                         }
+                    },
+                    {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Whether to use AI to generate campaign settings",
+                        "name": "use_gen_ai",
+                        "in": "query"
                     }
                 ],
                 "responses": {
                     "201": {
                         "description": "Campaign created successfully",
                         "schema": {
-                            "$ref": "#/definitions/sqlc.Campaign"
+                            "$ref": "#/definitions/domain.Campaign"
                         }
                     },
                     "400": {
-                        "description": "Invalid request body",
+                        "description": "Invalid request body or parameters",
                         "schema": {
                             "$ref": "#/definitions/utils.ErrorResponse"
                         }
@@ -315,7 +408,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Campaign retrieved successfully",
                         "schema": {
-                            "$ref": "#/definitions/sqlc.Campaign"
+                            "$ref": "#/definitions/domain.Campaign"
                         }
                     },
                     "400": {
@@ -735,25 +828,43 @@ const docTemplate = `{
         "domain.AuthOutput": {
             "type": "object",
             "properties": {
-                "expiresAt": {
+                "expires_at": {
                     "type": "string"
                 },
                 "token": {
                     "type": "string"
                 },
                 "user": {
-                    "$ref": "#/definitions/sqlc.User"
+                    "$ref": "#/definitions/domain.User"
                 }
             }
         },
-        "domain.CampaignCreationInput": {
+        "domain.Campaign": {
             "type": "object",
             "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "created_by": {
+                    "type": "string"
+                },
+                "game_system": {
+                    "$ref": "#/definitions/sqlc.GameSystemEnum"
+                },
+                "id": {
+                    "type": "string"
+                },
                 "image_url": {
+                    "type": "string"
+                },
+                "invite_code": {
                     "type": "string"
                 },
                 "is_public": {
                     "type": "boolean"
+                },
+                "number_of_players": {
+                    "type": "integer"
                 },
                 "setting": {
                     "type": "string"
@@ -761,8 +872,72 @@ const docTemplate = `{
                 "setting_summary": {
                     "type": "string"
                 },
+                "settings_ai_metadata": {
+                    "$ref": "#/definitions/domain.SettingsAIMetadata"
+                },
+                "settings_metadata": {
+                    "$ref": "#/definitions/domain.SettingsMetadata"
+                },
+                "status": {
+                    "$ref": "#/definitions/sqlc.CampaignStatusEnum"
+                },
                 "title": {
                     "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "domain.CampaignCreationInput": {
+            "type": "object",
+            "properties": {
+                "game_system": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/sqlc.GameSystemEnum"
+                        }
+                    ],
+                    "example": "DND_5E"
+                },
+                "image_url": {
+                    "type": "string",
+                    "example": ""
+                },
+                "is_public": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "number_of_players": {
+                    "type": "integer",
+                    "example": 6
+                },
+                "setting": {
+                    "type": "string",
+                    "example": "In the era of Ultron, Superman was a Fairy"
+                },
+                "setting_summary": {
+                    "type": "string",
+                    "example": "The fall of the kingdom of Lorecrafter"
+                },
+                "settings_ai_metadata": {
+                    "$ref": "#/definitions/domain.SettingsAIMetadata"
+                },
+                "settings_metadata": {
+                    "$ref": "#/definitions/domain.SettingsMetadata"
+                },
+                "title": {
+                    "type": "string",
+                    "example": "Chronicles of the Fall"
+                }
+            }
+        },
+        "domain.ForgotPasswordInput": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "johndoe@mail.com"
                 }
             }
         },
@@ -770,6 +945,69 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "password": {
+                    "type": "string",
+                    "example": "12345678"
+                },
+                "username_or_email": {
+                    "type": "string",
+                    "example": "johndoe"
+                }
+            }
+        },
+        "domain.PasswordResetInput": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "johndoe@mail.com"
+                },
+                "password": {
+                    "type": "string",
+                    "example": "87654321"
+                },
+                "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "domain.SettingsAIMetadata": {
+            "type": "object",
+            "properties": {
+                "world_theme": {
+                    "type": "string",
+                    "example": "Gothic"
+                },
+                "written_tone": {
+                    "type": "string",
+                    "example": "Dramatic"
+                }
+            }
+        },
+        "domain.SettingsMetadata": {
+            "type": "object"
+        },
+        "domain.User": {
+            "type": "object",
+            "properties": {
+                "avatar_url": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "is_active": {
+                    "type": "boolean"
+                },
+                "last_login_at": {
+                    "type": "string"
+                },
+                "updated_at": {
                     "type": "string"
                 },
                 "username": {
@@ -807,6 +1045,17 @@ const docTemplate = `{
                 "NegativeInfinity"
             ]
         },
+        "pgtype.Int2": {
+            "type": "object",
+            "properties": {
+                "int16": {
+                    "type": "integer"
+                },
+                "valid": {
+                    "type": "boolean"
+                }
+            }
+        },
         "pgtype.Text": {
             "type": "object",
             "properties": {
@@ -841,23 +1090,76 @@ const docTemplate = `{
                 "created_by": {
                     "type": "string"
                 },
+                "game_system": {
+                    "description": "The game system used for the campaign (e.g., dnd, pathfinder, etc.).",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/sqlc.GameSystemEnum"
+                        }
+                    ]
+                },
                 "id": {
                     "type": "string"
                 },
                 "image_url": {
-                    "$ref": "#/definitions/pgtype.Text"
+                    "description": "The URL of the campaign image.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/pgtype.Text"
+                        }
+                    ]
                 },
                 "invite_code": {
-                    "$ref": "#/definitions/pgtype.Text"
+                    "description": "The invite code for the campaign.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/pgtype.Text"
+                        }
+                    ]
                 },
                 "is_public": {
+                    "description": "Whether the campaign is available to players outside the campaign.",
                     "type": "boolean"
                 },
+                "number_of_players": {
+                    "$ref": "#/definitions/pgtype.Int2"
+                },
                 "setting": {
-                    "$ref": "#/definitions/pgtype.Text"
+                    "description": "The detailed setting of the campaign.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/pgtype.Text"
+                        }
+                    ]
+                },
+                "setting_ai_metadata": {
+                    "description": "Information used by LLMs on how to generate the data (e.g., a dark tone in a high fantasy world).",
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "setting_metadata": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
                 },
                 "setting_summary": {
-                    "$ref": "#/definitions/pgtype.Text"
+                    "description": "A summary of the campaign setting.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/pgtype.Text"
+                        }
+                    ]
+                },
+                "status": {
+                    "description": "Lifecycle status of the campaign (e.g., planning, active, paused, etc.).",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/sqlc.CampaignStatusEnum"
+                        }
+                    ]
                 },
                 "title": {
                     "type": "string"
@@ -873,6 +1175,9 @@ const docTemplate = `{
                 "campaign_id": {
                     "type": "string"
                 },
+                "created_at": {
+                    "$ref": "#/definitions/pgtype.Timestamptz"
+                },
                 "id": {
                     "type": "string"
                 },
@@ -885,10 +1190,45 @@ const docTemplate = `{
                 "role": {
                     "$ref": "#/definitions/sqlc.MemberRole"
                 },
+                "updated_at": {
+                    "$ref": "#/definitions/pgtype.Timestamptz"
+                },
                 "user_id": {
                     "type": "string"
                 }
             }
+        },
+        "sqlc.CampaignStatusEnum": {
+            "type": "string",
+            "enum": [
+                "PLANNING",
+                "ACTIVE",
+                "PAUSED",
+                "FINISHED",
+                "ARCHIVED"
+            ],
+            "x-enum-varnames": [
+                "CampaignStatusEnumPLANNING",
+                "CampaignStatusEnumACTIVE",
+                "CampaignStatusEnumPAUSED",
+                "CampaignStatusEnumFINISHED",
+                "CampaignStatusEnumARCHIVED"
+            ]
+        },
+        "sqlc.GameSystemEnum": {
+            "type": "string",
+            "enum": [
+                "DND_5E",
+                "PATHFINDER_2E",
+                "COC_7E",
+                "OTHER"
+            ],
+            "x-enum-varnames": [
+                "GameSystemEnumDND5E",
+                "GameSystemEnumPATHFINDER2E",
+                "GameSystemEnumCOC7E",
+                "GameSystemEnumOTHER"
+            ]
         },
         "sqlc.MemberRole": {
             "type": "string",
@@ -900,38 +1240,6 @@ const docTemplate = `{
                 "MemberRoleGm",
                 "MemberRolePlayer"
             ]
-        },
-        "sqlc.User": {
-            "type": "object",
-            "properties": {
-                "avatar_url": {
-                    "$ref": "#/definitions/pgtype.Text"
-                },
-                "created_at": {
-                    "$ref": "#/definitions/pgtype.Timestamptz"
-                },
-                "email": {
-                    "type": "string"
-                },
-                "hashed_password": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "is_active": {
-                    "type": "boolean"
-                },
-                "last_login_at": {
-                    "$ref": "#/definitions/pgtype.Timestamptz"
-                },
-                "updated_at": {
-                    "$ref": "#/definitions/pgtype.Timestamptz"
-                },
-                "username": {
-                    "type": "string"
-                }
-            }
         },
         "utils.ErrorResponse": {
             "type": "object",

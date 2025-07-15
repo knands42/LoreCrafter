@@ -1,21 +1,21 @@
 package domain
 
 import (
-	"github.com/knands42/lorecrafter/internal/utils"
-	sqlc "github.com/knands42/lorecrafter/pkg/sqlc/generated"
 	"time"
+
+	"github.com/knands42/lorecrafter/internal/utils"
 )
 
 // LoginInput represents a request to authenticate a user
 type LoginInput struct {
-	Username string
-	Password string
+	UsernameOrEmail string `json:"username_or_email" example:"johndoe"`
+	Password        string `json:"password" example:"12345678"`
 }
 
 func (input *LoginInput) Validate() error {
 	var validationErrors []string
 
-	if len(input.Username) < 4 {
+	if len(input.UsernameOrEmail) < 4 {
 		validationErrors = append(validationErrors, "username must be at least 5 characters long")
 	}
 
@@ -32,15 +32,14 @@ func (input *LoginInput) Validate() error {
 
 // AuthOutput represents the response after successful authentication
 type AuthOutput struct {
-	User      sqlc.User
-	Token     string
-	ExpiresAt time.Time
+	User      User      `json:"user"`
+	Token     string    `json:"token"`
+	ExpiresAt time.Time `json:"expires_at"`
 }
 
 // TokenPayload represents the data stored in the authentication token
 type TokenPayload struct {
-	UserID    string    `json:"user_id"`
-	Username  string    `json:"username"`
+	User      User      `json:"user"`
 	IssuedAt  time.Time `json:"issued_at"`
 	ExpiresAt time.Time `json:"expires_at"`
 }

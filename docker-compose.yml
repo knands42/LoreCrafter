@@ -6,6 +6,8 @@ services:
     container_name: lorecrafter
     ports:
       - '8000:8000'
+    volumes:
+      - ./certs:/var/www/.cache
     env_file:
       - .env
     environment:
@@ -29,7 +31,7 @@ services:
     networks:
       - app-network
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      test: [ 'CMD-SHELL', 'pg_isready -U postgres' ]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -47,11 +49,21 @@ services:
     networks:
       - app-network
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      test: [ 'CMD-SHELL', 'pg_isready -U postgres' ]
       interval: 5s
       timeout: 5s
       retries: 5
       start_period: 10s
+
+  mailhog:
+    image: mailhog/mailhog
+    container_name: mailhog
+    ports:
+      - '1025:1025' # SMTP
+      - '8025:8025' # Web UI
+    restart: always
+    networks:
+      - app-network
 
 networks:
   app-network:

@@ -51,75 +51,6 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 	return i, err
 }
 
-const getUserByEmail = `-- name: GetUserByEmail :one
-SELECT id, username, email, hashed_password, is_active, avatar_url, last_login_at, created_at, updated_at FROM users
-WHERE email = $1
-LIMIT 1
-`
-
-func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error) {
-	row := q.db.QueryRow(ctx, getUserByEmail, email)
-	var i User
-	err := row.Scan(
-		&i.ID,
-		&i.Username,
-		&i.Email,
-		&i.HashedPassword,
-		&i.IsActive,
-		&i.AvatarUrl,
-		&i.LastLoginAt,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return i, err
-}
-
-const getUserByID = `-- name: GetUserByID :one
-SELECT id, username, email, hashed_password, is_active, avatar_url, last_login_at, created_at, updated_at FROM users
-WHERE id = $1
-LIMIT 1
-`
-
-func (q *Queries) GetUserByID(ctx context.Context, id pgtype.UUID) (User, error) {
-	row := q.db.QueryRow(ctx, getUserByID, id)
-	var i User
-	err := row.Scan(
-		&i.ID,
-		&i.Username,
-		&i.Email,
-		&i.HashedPassword,
-		&i.IsActive,
-		&i.AvatarUrl,
-		&i.LastLoginAt,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return i, err
-}
-
-const getUserByUsername = `-- name: GetUserByUsername :one
-SELECT id, username, email, hashed_password, is_active, avatar_url, last_login_at, created_at, updated_at FROM users
-WHERE username = $1
-LIMIT 1
-`
-
-func (q *Queries) GetUserByUsername(ctx context.Context, username string) (User, error) {
-	row := q.db.QueryRow(ctx, getUserByUsername, username)
-	var i User
-	err := row.Scan(
-		&i.ID,
-		&i.Username,
-		&i.Email,
-		&i.HashedPassword,
-		&i.IsActive,
-		&i.AvatarUrl,
-		&i.LastLoginAt,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return i, err
-}
-
 const getUserByUsernameOrEmail = `-- name: GetUserByUsernameOrEmail :one
 SELECT id, username, email, hashed_password, is_active, avatar_url, last_login_at, created_at, updated_at FROM users
 WHERE username = $1 OR email = $2
@@ -144,6 +75,65 @@ func (q *Queries) GetUserByUsernameOrEmail(ctx context.Context, arg GetUserByUse
 		&i.LastLoginAt,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const updateUserPasswordFromToken = `-- name: UpdateUserPasswordFromToken :one
+UPDATE users AS u
+SET hashed_password = $2
+FROM password_reset_tokens AS ptr
+WHERE u.id = ptr.user_id
+AND ptr.token = $1
+AND ptr.expires_at > NOW()
+AND ptr.used = false
+RETURNING ptr.id, user_id, token, expires_at, used, ptr.created_at, ptr.updated_at, u.id, username, email, hashed_password, is_active, avatar_url, last_login_at, u.created_at, u.updated_at
+`
+
+type UpdateUserPasswordFromTokenParams struct {
+	Token          string `json:"token"`
+	HashedPassword string `json:"hashed_password"`
+}
+
+type UpdateUserPasswordFromTokenRow struct {
+	ID             pgtype.UUID        `json:"id"`
+	UserID         pgtype.UUID        `json:"user_id"`
+	Token          string             `json:"token"`
+	ExpiresAt      pgtype.Timestamptz `json:"expires_at"`
+	Used           bool               `json:"used"`
+	CreatedAt      pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt      pgtype.Timestamptz `json:"updated_at"`
+	ID_2           pgtype.UUID        `json:"id_2"`
+	Username       string             `json:"username"`
+	Email          string             `json:"email"`
+	HashedPassword string             `json:"hashed_password"`
+	IsActive       bool               `json:"is_active"`
+	AvatarUrl      pgtype.Text        `json:"avatar_url"`
+	LastLoginAt    pgtype.Timestamptz `json:"last_login_at"`
+	CreatedAt_2    pgtype.Timestamptz `json:"created_at_2"`
+	UpdatedAt_2    pgtype.Timestamptz `json:"updated_at_2"`
+}
+
+func (q *Queries) UpdateUserPasswordFromToken(ctx context.Context, arg UpdateUserPasswordFromTokenParams) (UpdateUserPasswordFromTokenRow, error) {
+	row := q.db.QueryRow(ctx, updateUserPasswordFromToken, arg.Token, arg.HashedPassword)
+	var i UpdateUserPasswordFromTokenRow
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Token,
+		&i.ExpiresAt,
+		&i.Used,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.ID_2,
+		&i.Username,
+		&i.Email,
+		&i.HashedPassword,
+		&i.IsActive,
+		&i.AvatarUrl,
+		&i.LastLoginAt,
+		&i.CreatedAt_2,
+		&i.UpdatedAt_2,
 	)
 	return i, err
 }

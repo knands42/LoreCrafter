@@ -10,18 +10,24 @@ import (
 
 // Config holds all configuration for the application
 type Config struct {
-	Environment string        `mapstructure:"ENVIRONMENT"`
-	ServerPort  string        `mapstructure:"SERVER_PORT"`
-	TokenExpiry time.Duration `mapstructure:"TOKEN_EXPIRY"`
-	PrivateKey  string        `mapstructure:"PASETO_PRIVATE_KEY"`
-	PublicKey   string        `mapstructure:"PASETO_PUBLIC_KEY"`
+	Profile      string        `mapstructure:"PROFILE"`
+	ServerPort   string        `mapstructure:"SERVER_PORT"`
+	TokenExpiry  time.Duration `mapstructure:"TOKEN_EXPIRY"`
+	PrivateKey   string        `mapstructure:"PASETO_PRIVATE_KEY"`
+	PublicKey    string        `mapstructure:"PASETO_PUBLIC_KEY"`
+	PasswordSalt string        `mapstructure:"PASSWORD_SALT"`
 
 	// API Keys
-	GoogleAPIKey string `mapstructure:"GOOGLE_API_KEY"`
-	OpenAIAPIKey string `mapstructure:"OPENAI_API_KEY"`
+	GoogleAPIKey    string `mapstructure:"GOOGLE_API_KEY"`
+	OpenAIAPIKey    string `mapstructure:"OPENAI_API_KEY"`
+	AntropicAPIKey  string `mapstructure:"ANTROPIC_API_KEY"`
 
 	// Database configuration
 	PostgresURL string `mapstructure:"POSTGRES_URL"`
+
+	// Email configuration
+	EmailAPIKEY string `mapstructure:"EMAIL_API_KEY"`
+	EmailDomain string `mapstructure:"EMAIL_DOMAIN"`
 }
 
 // LoadConfig loads the configuration from .env file and environment variables
@@ -40,14 +46,18 @@ func LoadConfig(path string) (config Config, err error) {
 	}
 
 	keys := []string{
-		"ENVIRONMENT",
+		"PROFILE",
 		"SERVER_PORT",
 		"TOKEN_EXPIRY",
 		"PASETO_PRIVATE_KEY",
 		"PASETO_PUBLIC_KEY",
+		"PASSWORD_SALT",
 		"GOOGLE_API_KEY",
 		"OPENAI_API_KEY",
+		"ANTROPIC_API_KEY",
 		"POSTGRES_URL",
+		"EMAIL_API_KEY",
+		"EMAIL_DOMAIN",
 	}
 	for _, key := range keys {
 		err := v.BindEnv(key)

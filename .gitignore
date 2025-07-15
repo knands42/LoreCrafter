@@ -39,3 +39,4 @@ go.work.sum
 assets/
 *.egg-info/
 *.pem
+certs/

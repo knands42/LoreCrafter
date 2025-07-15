@@ -3,13 +3,6 @@ package api
 import (
 	"context"
 	"fmt"
-	_ "github.com/knands42/lorecrafter/app/api/docs" // Import the docs package
-	middleware2 "github.com/knands42/lorecrafter/app/api/middleware"
-	"github.com/knands42/lorecrafter/app/api/routes"
-	"github.com/knands42/lorecrafter/internal/adapter/security"
-	"github.com/knands42/lorecrafter/internal/config"
-	"github.com/knands42/lorecrafter/internal/usecases"
-	sqlc "github.com/knands42/lorecrafter/pkg/sqlc/generated"
 	"log"
 	"net/http"
 	"os"
@@ -17,8 +10,20 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/knands42/lorecrafter/internal/adapter/email"
+	llms2 "github.com/knands42/lorecrafter/internal/adapter/llms"
+
+	_ "github.com/knands42/lorecrafter/app/api/docs" // Import the docs package
+	middleware2 "github.com/knands42/lorecrafter/app/api/middleware"
+	"github.com/knands42/lorecrafter/app/api/routes"
+	"github.com/knands42/lorecrafter/internal/adapter/security"
+	"github.com/knands42/lorecrafter/internal/config"
+	"github.com/knands42/lorecrafter/internal/usecases"
+	sqlc "github.com/knands42/lorecrafter/pkg/sqlc/generated"
+
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/cors"
 	httpSwagger "github.com/swaggo/http-swagger"
 	_ "github.com/swaggo/swag"
 )
@@ -30,7 +35,8 @@ type Server struct {
 
 	cfg config.Config
 
-	authUseCase     *usecases.AuthUseCase
+	authUseCase *usecases.AuthUseCase
+
 	authHandler     *routes.AuthHandler
 	userHandler     *routes.UserHandler
 	campaignHandler *routes.CampaignHandler
@@ -38,7 +44,7 @@ type Server struct {
 }
 
 // NewServer creates a new HTTP server
-func NewServer(cfg config.Config, repo sqlc.Querier) *Server {
+func NewServer(cfg config.Config, repo sqlc.Querier, llmFactory *llms2.LlmFactory) *Server {
 	router := chi.NewRouter()
 
 	// Set up middleware
@@ -46,7 +52,25 @@ func NewServer(cfg config.Config, repo sqlc.Querier) *Server {
 	router.Use(middleware.Recoverer)
 	router.Use(middleware.Timeout(10 * time.Second))
 
-	// Create the HTTP server
+	// Set up CORS middleware
+	allowedOrigins := []string{"https://lorecrafter-client.vercel.app", "https://lorecrafter.fly.dev"}
+	if cfg.Profile == "dev" {
+		allowedOrigins = append(allowedOrigins, "http://localhost:3000", "http://localhost:8080", "http://localhost:8000")
+	}
+
+	corsMiddleware := cors.New(cors.Options{
+		AllowedOrigins:   allowedOrigins,
+		AllowedMethods:   []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type"},
+		ExposedHeaders:   []string{"Link", "Content-Length", "Content-Type"},
+		AllowCredentials: true,
+		MaxAge:           86400, // 24 hours
+		Debug:            false,
+	})
+
+	router.Use(corsMiddleware.Handler)
+
+	// Create the HTTP server with HTTP/2 support
 	httpServer := &http.Server{
 		Addr:    fmt.Sprintf(":%s", cfg.ServerPort),
 		Handler: router,
@@ -61,16 +85,24 @@ func NewServer(cfg config.Config, repo sqlc.Querier) *Server {
 	if err != nil {
 		log.Fatalf("Failed to create token maker: %v", err)
 	}
-	argon2Adapter := security.NewArgon2Adapter()
+	argon2Adapter := security.NewArgon2Adapter(cfg.PasswordSalt)
+	emailSender := email.NewSMTPSenderAdapter(cfg.EmailAPIKEY, cfg.EmailDomain)
+	templateManager, err := email.NewTemplateManagerAdapter()
+	if err != nil {
+		log.Fatalf("Failed to create template manager: %v", err)
+	}
 
 	// Set up use cases
 	ctx := context.Background()
-	authUseCase := usecases.NewAuthUseCase(ctx, repo, tokenMakerAdapter, argon2Adapter, cfg.TokenExpiry)
-	campaignUseCase := usecases.NewCampaignUseCase(ctx, repo)
+	emailUseCase := usecases.NewEmailUseCase(ctx, emailSender, templateManager, repo, "")
+	authUseCase := usecases.NewAuthUseCase(ctx, repo, tokenMakerAdapter, argon2Adapter, cfg.TokenExpiry, emailUseCase)
+	aiCampaignUseCase := usecases.NewAICampaignUseCase(ctx, repo, llmFactory)
+	campaignUseCase := usecases.NewCampaignUseCase(ctx, repo, aiCampaignUseCase)
+	passwordResetUseCase := usecases.NewPasswordResetUseCase(ctx, repo, emailUseCase, templateManager, argon2Adapter, cfg.TokenExpiry)
+	server.authUseCase = authUseCase
 
 	// Set up HTTP handlers
-	server.authUseCase = authUseCase
-	server.authHandler = routes.NewAuthHandler(authUseCase)
+	server.authHandler = routes.NewAuthHandler(authUseCase, passwordResetUseCase)
 	server.userHandler = routes.NewUserHandler()
 	server.campaignHandler = routes.NewCampaignHandler(campaignUseCase)
 	server.repo = repo
@@ -81,11 +113,11 @@ func NewServer(cfg config.Config, repo sqlc.Querier) *Server {
 	return server
 }
 
-// Start starts the HTTP server
+// Start starts the HTTP server with optional TLS
 func (s *Server) Start() {
 	go func() {
 		log.Printf("Starting server on port %s", s.cfg.ServerPort)
-		if err := s.httpServer.ListenAndServe(); err != nil {
+		if err := s.httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("Failed to start server: %v", err)
 		}
 	}()

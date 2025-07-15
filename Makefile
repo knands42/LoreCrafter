@@ -3,8 +3,9 @@ include .env.example
 SHELL := /bin/bash
 
 ####### setup commands
+
 # Generate Ed25519 key pair for PASETO tokens
-setup:
+setup-paseto-keys:
 	openssl genpkey -algorithm Ed25519 -out private_key.pem
 	openssl pkey -in private_key.pem -pubout -out public_key.pem
 	@echo "Base64 encoding keys and updating .env file..."
@@ -17,13 +18,29 @@ setup:
 	@echo "Cleaning up temporary PEM files..."
 	@rm private_key.pem public_key.pem
 
+setup-password-salt:
+	@echo "Generating password salt..."
+	@PASSWORD_SALT=$$(head -c 16 /dev/urandom | base64) && \
+	sed -i "s|PASSWORD_SALT=.*|PASSWORD_SALT=$$PASSWORD_SALT|" .env
+	@echo "Password salt generated and set in .env file"
+
+# Setup all required configurations
+setup: setup-paseto-keys setup-password-salt
+
 ####### application commands #######
 # Build the application
 build:
 	go build -o bin/lorecrafter .
 
-# Run the application
+# Run the application with HTTP/2 and TLS
 run: build
+	@echo "Starting server with HTTP/2 and TLS on https://localhost:$(SERVER_PORT)"
+	@echo "Note: You may need to accept the self-signed certificate in your browser"
+	./bin/lorecrafter --tls
+
+# Run the application without TLS (HTTP only)
+run-http: build
+	@echo "Starting server without TLS on http://localhost:$(SERVER_PORT)"
 	./bin/lorecrafter
 
 # Run tests
@@ -50,6 +67,7 @@ docker-run:
 
 docker-up:
 	docker rmi lorecrafter || true
+	$(MAKE) docker-build
 	docker-compose up --build --force-recreate
 
 docker-down:
@@ -66,13 +84,13 @@ migration-create:
 migration-up:
 	migrate -path internal/adapter/database/migrations -database "$(POSTGRES_URL)" up
 
-migrate-up1:
+migration-up1:
 	migrate -path internal/adapter/database/migrations -database "$(POSTGRES_URL)" -verbose up 1
 
-migrate-down:
+migration-down:
 	migrate -path internal/adapter/database/migrations -database "$(POSTGRES_URL)" -verbose down
 
-migrate-down1:
+migration-down1:
 	migrate -path internal/adapter/database/migrations -database "$(POSTGRES_URL)" -verbose down 1
 
 # Generate SQLC code
@@ -83,4 +101,4 @@ sqlc-generate:
 swagger-generate:
 	swag init -g app/api/docs.go -o app/api/docs --parseDependency
 
-.PHONY: sqlc-generate, swagger-generate, migrate-down, migrate-down1, migrate-up1, migration-up, migration-create, docker-build
+.PHONY: sqlc-generate, swagger-generate, migration-down, migration-down1, migration-up1, migration-up, migration-create, docker-build, setup-ssl
