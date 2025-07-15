@@ -3,7 +3,7 @@ package usecases
 import (
 	"context"
 	"fmt"
-	llms2 "github.com/knands42/lorecrafter/internal/adapter/llms"
+	"github.com/knands42/lorecrafter/internal/interfaces"
 	"github.com/knands42/lorecrafter/internal/prompts/dnd_5e"
 	"strings"
 
@@ -15,11 +15,11 @@ import (
 type AICampaignUseCase struct {
 	ctx  context.Context
 	repo sqlc.Querier
-	llm  llms2.LlmFactoryInterface
+	llm  interfaces.LlmFactoryInterface
 }
 
 // NewAICampaignUseCase creates a new instance of AICampaignUseCase
-func NewAICampaignUseCase(ctx context.Context, repo sqlc.Querier, llm llms2.LlmFactoryInterface) *AICampaignUseCase {
+func NewAICampaignUseCase(ctx context.Context, repo sqlc.Querier, llm interfaces.LlmFactoryInterface) *AICampaignUseCase {
 	return &AICampaignUseCase{
 		ctx:  ctx,
 		repo: repo,

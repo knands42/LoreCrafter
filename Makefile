@@ -32,14 +32,8 @@ setup: setup-paseto-keys setup-password-salt
 build:
 	go build -o bin/lorecrafter .
 
-# Run the application with HTTP/2 and TLS
+# Run the application
 run: build
-	@echo "Starting server with HTTP/2 and TLS on https://localhost:$(SERVER_PORT)"
-	@echo "Note: You may need to accept the self-signed certificate in your browser"
-	./bin/lorecrafter --tls
-
-# Run the application without TLS (HTTP only)
-run-http: build
 	@echo "Starting server without TLS on http://localhost:$(SERVER_PORT)"
 	./bin/lorecrafter
 
@@ -57,24 +51,24 @@ test-coverage:
 clean:
 	rm -rf bin/
 
-####### docker commands #######
-docker-build:
-	docker rmi lorecrafter || true
-	docker build -t lorecrafter:latest .
+####### podman commands #######
+podman-build:
+	podman rmi lorecrafter || true
+	podman build -t lorecrafter:latest .
 
-docker-run:
-	docker run -p 8000:8000 --env-file .env lorecrafter:latest
+podman-run:
+	podman run -p 8000:8000 --env-file .env lorecrafter:latest
 
-docker-up:
-	docker rmi lorecrafter || true
-	$(MAKE) docker-build
-	docker-compose up --build --force-recreate
+podman-up:
+	podman rmi lorecrafter || true
+	$(MAKE) podman-build
+	podman compose up --build --force-recreate
 
-docker-down:
-	docker-compose down
+podman-down:
+	podman compose down
 
-docker-logs:
-	docker-compose logs -f
+podman-logs:
+	podman compose logs -f
 
 ####### migration commands #######
 # e.g., make migration-create NAME=create-users
@@ -101,4 +95,4 @@ sqlc-generate:
 swagger-generate:
 	swag init -g app/api/docs.go -o app/api/docs --parseDependency
 
-.PHONY: sqlc-generate, swagger-generate, migration-down, migration-down1, migration-up1, migration-up, migration-create, docker-build, setup-ssl
+.PHONY: sqlc-generate, swagger-generate, migration-down, migration-down1, migration-up1, migration-up, migration-create, podman-build, setup-ssl, test

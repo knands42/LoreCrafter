@@ -809,9 +809,9 @@ const docTemplate = `{
                 "summary": "Get info about the logged user",
                 "responses": {
                     "200": {
-                        "description": "User information",
+                        "description": "User Info",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/routes.AboutMe"
                         }
                     },
                     "401": {
@@ -1078,6 +1078,14 @@ const docTemplate = `{
                 },
                 "valid": {
                     "type": "boolean"
+                }
+            }
+        },
+        "routes.AboutMe": {
+            "type": "object",
+            "properties": {
+                "user_id": {
+                    "type": "string"
                 }
             }
         },

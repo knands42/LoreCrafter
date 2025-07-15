@@ -172,6 +172,11 @@ definitions:
       valid:
         type: boolean
     type: object
+  routes.AboutMe:
+    properties:
+      user_id:
+        type: string
+    type: object
   sqlc.Campaign:
     properties:
       created_at:
@@ -802,9 +807,9 @@ paths:
       - application/json
       responses:
         "200":
-          description: User information
+          description: User Info
           schema:
-            type: string
+            $ref: '#/definitions/routes.AboutMe'
         "401":
           description: Missing or invalid authorization header
           schema:

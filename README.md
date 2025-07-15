@@ -6,6 +6,7 @@
 [![Codacy Badge](https://app.codacy.com/project/badge/Coverage/890283cc4f7f4f04bac48f6f1a2a1f08)](https://app.codacy.com/gh/knands42/LoreCrafter/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_coverage)
 
 </center>
+
 ## 📘 Project Overview
 
 LoreCrafter is an AI-powered platform designed to assist RPG players in creating rich, immersive content for their games — including characters, worlds, and campaigns. Each element is generated with deep narrative structure and thematic consistency to support long-term storytelling.

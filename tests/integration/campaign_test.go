@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestCreateCampaign_Success(t *testing.T) {
+func TestCreateCampaign_NO_AI_Success(t *testing.T) {
 	// Given a registered and authenticated user
 	user, cookie := CreateTestUser(t)
 
@@ -32,13 +32,44 @@ func TestCreateCampaign_Success(t *testing.T) {
 
 	// When creating a campaign
 	var campaign sqlc.Campaign
-	statusCode, _ := CreateCampaign(t, cookie, *input, &campaign)
+	statusCode, _ := CreateCampaign(t, nil, cookie, *input, &campaign)
 
 	// Then the campaign should be created successfully
 	assert.Equal(t, http.StatusCreated, statusCode)
 	assert.NotEmpty(t, campaign.ID.Bytes)
 	assert.Equal(t, title, campaign.Title)
 	assert.Equal(t, settingSummary, campaign.SettingSummary.String)
+	assert.True(t, campaign.IsPublic)
+
+	createdBy, _ := utils.FromPGTypeUUID(campaign.CreatedBy)
+	assert.Equal(t, user.ID, createdBy)
+}
+
+func TestCreateCampaign_WITH_AI_Success(t *testing.T) {
+	// Given a registered and authenticated user
+	user, cookie := CreateTestUser(t)
+
+	// And a valid campaign creation input
+	title := "Test Campaign"
+	input := domain.NewCampaignCreationInput(
+		title,
+		"",
+		"",
+		sqlc.GameSystemEnumDND5E,
+		6,
+		"",
+		true,
+	)
+
+	// When creating a campaign
+	var campaign sqlc.Campaign
+	statusCode, _ := CreateCampaign(t, map[string]string{"use_gen_ai": "true"}, cookie, *input, &campaign)
+
+	// Then the campaign should be created successfully
+	assert.Equal(t, http.StatusCreated, statusCode)
+	assert.NotEmpty(t, campaign.ID.Bytes)
+	assert.Equal(t, title, campaign.Title)
+	assert.NotEmpty(t, campaign.Setting.String)
 	assert.True(t, campaign.IsPublic)
 
 	createdBy, _ := utils.FromPGTypeUUID(campaign.CreatedBy)
@@ -62,7 +93,7 @@ func TestCreateCampaign_Failure_Unauthorized(t *testing.T) {
 	)
 
 	// When creating a campaign without a token
-	statusCode, _ := CreateCampaign(t, http.Cookie{}, *input, nil)
+	statusCode, _ := CreateCampaign(t, nil, http.Cookie{}, *input, nil)
 
 	// Then it should fail with an unauthorized status
 	assert.Equal(t, http.StatusUnauthorized, statusCode)
@@ -109,7 +140,7 @@ func TestCreateCampaign_Failure_InvalidInput(t *testing.T) {
 	// When creating campaigns with invalid inputs
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			statusCode, _ := CreateCampaign(t, cookie, tc.input, nil)
+			statusCode, _ := CreateCampaign(t, nil, cookie, tc.input, nil)
 
 			// Then it should fail with the expected status code
 			assert.Equal(t, tc.expected, statusCode)
@@ -136,7 +167,7 @@ func TestGetCampaign_Success(t *testing.T) {
 	)
 
 	var campaign sqlc.Campaign
-	statusCode, _ := CreateCampaign(t, cookie, *input, &campaign)
+	statusCode, _ := CreateCampaign(t, nil, cookie, *input, &campaign)
 	require.Equal(t, http.StatusCreated, statusCode)
 
 	// When getting the campaign
@@ -184,7 +215,7 @@ func TestGetCampaign_Failure_Unauthorized(t *testing.T) {
 	)
 
 	var campaign sqlc.Campaign
-	statusCode, _ := CreateCampaign(t, cookie, *input, &campaign)
+	statusCode, _ := CreateCampaign(t, nil, cookie, *input, &campaign)
 	require.Equal(t, http.StatusCreated, statusCode)
 
 	// When getting the campaign without a token
@@ -213,7 +244,7 @@ func TestUpdateCampaign_Success(t *testing.T) {
 	)
 
 	var campaign sqlc.Campaign
-	statusCode, _ := CreateCampaign(t, cookie, *input, &campaign)
+	statusCode, _ := CreateCampaign(t, nil, cookie, *input, &campaign)
 	require.Equal(t, http.StatusCreated, statusCode)
 
 	// When updating the campaign
@@ -291,7 +322,7 @@ func TestUpdateCampaign_Failure_Unauthorized(t *testing.T) {
 	)
 
 	var campaign sqlc.Campaign
-	statusCode, _ := CreateCampaign(t, cookie, *input, &campaign)
+	statusCode, _ := CreateCampaign(t, nil, cookie, *input, &campaign)
 	require.Equal(t, http.StatusCreated, statusCode)
 
 	// When updating the campaign without a token
@@ -326,7 +357,7 @@ func TestDeleteCampaign_Success(t *testing.T) {
 	)
 
 	var campaign sqlc.Campaign
-	statusCode, _ := CreateCampaign(t, cookie, *input, &campaign)
+	statusCode, _ := CreateCampaign(t, nil, cookie, *input, &campaign)
 	require.Equal(t, http.StatusCreated, statusCode)
 
 	// When deleting the campaign
@@ -375,7 +406,7 @@ func TestDeleteCampaign_Failure_Unauthorized(t *testing.T) {
 	)
 
 	var campaign sqlc.Campaign
-	statusCode, _ := CreateCampaign(t, cookie, *input, &campaign)
+	statusCode, _ := CreateCampaign(t, nil, cookie, *input, &campaign)
 	require.Equal(t, http.StatusCreated, statusCode)
 
 	// When deleting the campaign without a token
@@ -410,7 +441,7 @@ func TestListUserCampaigns_Success(t *testing.T) {
 		)
 
 		var campaign sqlc.Campaign
-		statusCode, _ := CreateCampaign(t, cookie, *input, &campaign)
+		statusCode, _ := CreateCampaign(t, nil, cookie, *input, &campaign)
 		require.Equal(t, http.StatusCreated, statusCode)
 	}
 

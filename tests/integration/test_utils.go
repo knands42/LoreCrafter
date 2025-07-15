@@ -70,8 +70,17 @@ func LoginUser(t *testing.T, input domain.LoginInput, output interface{}) (int, 
 }
 
 // CreateCampaign creates a new campaign
-func CreateCampaign(t *testing.T, cookie http.Cookie, input domain.CampaignCreationInput, output interface{}) (int, []*http.Cookie) {
-	return SendAuthenticatedRequest(t, "POST", "/api/campaigns", cookie, input, output)
+func CreateCampaign(t *testing.T, queryParams map[string]string, cookie http.Cookie, input domain.CampaignCreationInput, output interface{}) (int, []*http.Cookie) {
+	if queryParams == nil {
+		return SendAuthenticatedRequest(t, "POST", "/api/campaigns", cookie, input, output)
+	}
+
+	formatedUrl := "/api/campaigns?"
+	for k, v := range queryParams {
+		formatedUrl += fmt.Sprintf("%s=%s&", k, v)
+	}
+
+	return SendAuthenticatedRequest(t, "POST", formatedUrl, cookie, input, output)
 }
 
 // GetCampaign gets a campaign by ID

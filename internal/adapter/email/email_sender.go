@@ -12,7 +12,7 @@ type EmailSenderAdapter struct {
 	from   string
 }
 
-func NewSMTPSenderAdapter(apiKey, from string) *EmailSenderAdapter {
+func NewEmailSenderAdapter(apiKey, from string) *EmailSenderAdapter {
 	return &EmailSenderAdapter{
 		apiKey: apiKey,
 		from:   from,
