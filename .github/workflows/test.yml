@@ -87,7 +87,7 @@ jobs:
           CODACY_USERNAME: ${{ secrets.CODACY_USERNAME }}
         run: |
           PACKAGES=$(go list ./... | grep -v "docs\|pkg")
-          go test -coverprofile=unit.coverage.out ./...
+          go test -coverprofile=unit.coverage.out -covermode=atomic $(shell go list ./... | grep -v "docs\|pkg")
           bash <(curl -Ls https://coverage.codacy.com/get.sh) report \
               --force-coverage-parser go -r unit.coverage.out
 
