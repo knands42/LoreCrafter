@@ -59,7 +59,8 @@ func (eu *EmailUseCase) SendVerificationEmail(input domain.SendEmailVerification
 	}
 
 	subject := "Verify Your Email Address"
-	if err := eu.sender.SendEmail(input.Email, subject, body); err != nil {
+	if err := eu.sender.SendEmail(input.Name, input.Email, subject, body); err != nil {
+		log.Printf("Failed to send verification email: %v", err)
 		return ErrSendEmail
 	}
 
@@ -79,7 +80,7 @@ func (eu *EmailUseCase) SendPasswordResetTokenEmail(input domain.SendEmailVerifi
 		log.Printf("Failed to render password reset template: %v", err)
 		return ErrEmailTemplateRender
 	}
-	if err := eu.sender.SendEmail(input.Email, "Reset Your Password", body); err != nil {
+	if err := eu.sender.SendEmail(input.Name, input.Email, "Reset Your Password", body); err != nil {
 		log.Printf("Failed to send password reset email: %v", err)
 		return ErrSendEmail
 	}

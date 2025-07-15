@@ -3,7 +3,7 @@ package interfaces
 // EmailSender defines the interface for sending emails
 type EmailSender interface {
 	// SendEmail sends an email to the specified recipient
-	SendEmail(to, subject, body string) error
+	SendEmail(name, to, subject, body string) error
 }
 
 type TemplateManager interface {

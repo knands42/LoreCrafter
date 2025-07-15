@@ -97,7 +97,7 @@ func (uc *AuthUseCase) Register(input domain.UserCreationInput) (domain.User, er
 	}
 
 	go func() {
-		if err := uc.emailUseCase.SendVerificationEmail(*domain.NewSendEmailVerificationToken(emailVerificationToken, createdUser.Email)); err != nil {
+		if err := uc.emailUseCase.SendVerificationEmail(*domain.NewSendEmailVerificationToken(createdUser.Username, emailVerificationToken, createdUser.Email)); err != nil {
 			log.Printf("Error sending verification email: %v", err)
 		}
 	}()

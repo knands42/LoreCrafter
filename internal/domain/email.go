@@ -50,12 +50,14 @@ func (input *CreateEmailVerificationTokenInput) PrepareToInsert() (sqlc.CreateEm
 
 type SendEmailVerificationToken struct {
 	Token string `json:"token"`
+	Name  string `json:"name"`
 	Email string `json:"email"`
 }
 
-func NewSendEmailVerificationToken(token string, email string) *SendEmailVerificationToken {
+func NewSendEmailVerificationToken(name, token, email string) *SendEmailVerificationToken {
 	return &SendEmailVerificationToken{
 		Token: token,
+		Name:  name,
 		Email: email,
 	}
 }

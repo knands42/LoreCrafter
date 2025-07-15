@@ -2,11 +2,6 @@ include .env.example
 
 SHELL := /bin/bash
 
-# SSL/TLS configuration
-SSL_DIR := certs
-KEY_FILE := $(SSL_DIR)/server.key
-CERT_FILE := $(SSL_DIR)/server.crt
-
 ####### setup commands
 
 # Generate Ed25519 key pair for PASETO tokens

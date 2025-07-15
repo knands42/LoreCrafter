@@ -86,7 +86,7 @@ func NewServer(cfg config.Config, repo sqlc.Querier, llmFactory *llms2.LlmFactor
 		log.Fatalf("Failed to create token maker: %v", err)
 	}
 	argon2Adapter := security.NewArgon2Adapter(cfg.PasswordSalt)
-	emailSender := email.NewSMTPSenderAdapter(cfg.SMTPServer, cfg.SMTPPort, cfg.SMTPUsername, cfg.SMTPPassword, cfg.SMTPFrom)
+	emailSender := email.NewSMTPSenderAdapter(cfg.EmailAPIKEY, cfg.EmailDomain)
 	templateManager, err := email.NewTemplateManagerAdapter()
 	if err != nil {
 		log.Fatalf("Failed to create template manager: %v", err)

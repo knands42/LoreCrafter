@@ -17,10 +17,6 @@ type Config struct {
 	PublicKey    string        `mapstructure:"PASETO_PUBLIC_KEY"`
 	PasswordSalt string        `mapstructure:"PASSWORD_SALT"`
 
-	// Certificates
-	SSLCert string `mapstructure:"SSL_CERT"`
-	SSLKey  string `mapstructure:"SSL_KEY"`
-
 	// API Keys
 	GoogleAPIKey string `mapstructure:"GOOGLE_API_KEY"`
 	OpenAIAPIKey string `mapstructure:"OPENAI_API_KEY"`
@@ -28,12 +24,9 @@ type Config struct {
 	// Database configuration
 	PostgresURL string `mapstructure:"POSTGRES_URL"`
 
-	// SMTP configuration
-	SMTPServer   string `mapstructure:"SMTP_SERVER"`
-	SMTPPort     int    `mapstructure:"SMTP_PORT"`
-	SMTPUsername string `mapstructure:"SMTP_USERNAME"`
-	SMTPPassword string `mapstructure:"SMTP_PASSWORD"`
-	SMTPFrom     string `mapstructure:"SMTP_FROM"`
+	// Email configuration
+	EmailAPIKEY string `mapstructure:"EMAIL_API_KEY"`
+	EmailDomain string `mapstructure:"EMAIL_DOMAIN"`
 }
 
 // LoadConfig loads the configuration from .env file and environment variables
@@ -58,16 +51,11 @@ func LoadConfig(path string) (config Config, err error) {
 		"PASETO_PRIVATE_KEY",
 		"PASETO_PUBLIC_KEY",
 		"PASSWORD_SALT",
-		"SSL_CERT",
-		"SSL_KEY",
 		"GOOGLE_API_KEY",
 		"OPENAI_API_KEY",
 		"POSTGRES_URL",
-		"SMTP_SERVER",
-		"SMTP_PORT",
-		"SMTP_USERNAME",
-		"SMTP_PASSWORD",
-		"SMTP_FROM",
+		"EMAIL_API_KEY",
+		"EMAIL_DOMAIN",
 	}
 	for _, key := range keys {
 		err := v.BindEnv(key)
