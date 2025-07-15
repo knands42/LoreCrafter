@@ -84,21 +84,21 @@ UPDATE users AS u
 SET hashed_password = $2
 FROM password_reset_tokens AS ptr
 WHERE u.id = ptr.user_id
-AND ptr.token_hash = $1
+AND ptr.token = $1
 AND ptr.expires_at > NOW()
 AND ptr.used = false
-RETURNING ptr.id, user_id, token_hash, expires_at, used, ptr.created_at, ptr.updated_at, u.id, username, email, hashed_password, is_active, avatar_url, last_login_at, u.created_at, u.updated_at
+RETURNING ptr.id, user_id, token, expires_at, used, ptr.created_at, ptr.updated_at, u.id, username, email, hashed_password, is_active, avatar_url, last_login_at, u.created_at, u.updated_at
 `
 
 type UpdateUserPasswordFromTokenParams struct {
-	TokenHash      string `json:"token_hash"`
+	Token          string `json:"token"`
 	HashedPassword string `json:"hashed_password"`
 }
 
 type UpdateUserPasswordFromTokenRow struct {
 	ID             pgtype.UUID        `json:"id"`
 	UserID         pgtype.UUID        `json:"user_id"`
-	TokenHash      string             `json:"token_hash"`
+	Token          string             `json:"token"`
 	ExpiresAt      pgtype.Timestamptz `json:"expires_at"`
 	Used           bool               `json:"used"`
 	CreatedAt      pgtype.Timestamptz `json:"created_at"`
@@ -115,12 +115,12 @@ type UpdateUserPasswordFromTokenRow struct {
 }
 
 func (q *Queries) UpdateUserPasswordFromToken(ctx context.Context, arg UpdateUserPasswordFromTokenParams) (UpdateUserPasswordFromTokenRow, error) {
-	row := q.db.QueryRow(ctx, updateUserPasswordFromToken, arg.TokenHash, arg.HashedPassword)
+	row := q.db.QueryRow(ctx, updateUserPasswordFromToken, arg.Token, arg.HashedPassword)
 	var i UpdateUserPasswordFromTokenRow
 	err := row.Scan(
 		&i.ID,
 		&i.UserID,
-		&i.TokenHash,
+		&i.Token,
 		&i.ExpiresAt,
 		&i.Used,
 		&i.CreatedAt,

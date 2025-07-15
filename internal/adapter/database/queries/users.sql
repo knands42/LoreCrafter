@@ -18,7 +18,7 @@ UPDATE users AS u
 SET hashed_password = $2
 FROM password_reset_tokens AS ptr
 WHERE u.id = ptr.user_id
-AND ptr.token_hash = $1
+AND ptr.token = $1
 AND ptr.expires_at > NOW()
 AND ptr.used = false
 RETURNING *;

@@ -61,11 +61,7 @@ func (uc *PasswordResetUseCase) RequestPasswordReset(input domain.ForgotPassword
 	if err != nil {
 		return ErrFailedToGenerateToken
 	}
-	tokenHash, err := uc.argon2Hash.HashPassword(token)
-	if err != nil {
-		return ErrFailedToGenerateToken
-	}
-	tokenInput := domain.NewCreatePasswordResetTokenInput(input.Email, tokenHash)
+	tokenInput := domain.NewCreatePasswordResetTokenInput(input.Email, token)
 	params, err := tokenInput.PrepareToInsert()
 	if err != nil {
 		return ErrFailedToCreatePasswordResetToken
@@ -96,7 +92,7 @@ func (uc *PasswordResetUseCase) ResetPassword(input domain.PasswordResetInput) e
 	}
 
 	_, err = uc.repo.UpdateUserPasswordFromToken(uc.ctx, sqlc.UpdateUserPasswordFromTokenParams{
-		TokenHash:      input.Token,
+		Token:          input.Token,
 		HashedPassword: hashedPassword,
 	})
 	if err != nil && err.Error() == "no rows in result set" {

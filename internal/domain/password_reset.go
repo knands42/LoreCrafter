@@ -15,14 +15,14 @@ type ForgotPasswordInput struct {
 
 type CreatePasswordResetTokenInput struct {
 	Email     string `json:"email" example:"johndoe@mail.com"`
-	TokenHash string `json:"token_hash"`
+	Token     string `json:"token"`
 	expiresAt time.Time
 }
 
 func NewCreatePasswordResetTokenInput(email, token string) *CreatePasswordResetTokenInput {
 	return &CreatePasswordResetTokenInput{
 		Email:     email,
-		TokenHash: token,
+		Token:     token,
 		expiresAt: time.Now().Add(24 * time.Hour), // Token expires in 24 hours
 	}
 }
@@ -37,7 +37,7 @@ func (input *CreatePasswordResetTokenInput) PrepareToInsert() (sqlc.CreatePasswo
 	return sqlc.CreatePasswordResetTokenParams{
 		ID:        newUUID,
 		Email:     input.Email,
-		TokenHash: input.TokenHash,
+		Token:     input.Token,
 		ExpiresAt: pgtype.Timestamptz{Time: input.expiresAt, Valid: true},
 	}, nil
 }
@@ -59,7 +59,7 @@ func FromSqlcPasswordResetToken(token sqlc.PasswordResetToken) PasswordResetToke
 	return PasswordResetToken{
 		ID:        token.ID.Bytes,
 		UserID:    token.UserID.Bytes,
-		TokenHash: token.TokenHash,
+		TokenHash: token.Token,
 		ExpiresAt: token.ExpiresAt.Time,
 		Used:      token.Used,
 		CreatedAt: token.CreatedAt.Time,

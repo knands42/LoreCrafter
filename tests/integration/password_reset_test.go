@@ -41,21 +41,21 @@ func TestMultipleForgotPasswordRequests_InvalidatesPreviousTokens(t *testing.T) 
 
 	// Get the latest token from the database (should be the only valid one)
 	var tokens []struct {
-		TokenHash string    `db:"token_hash"`
+		TokenHash string    `db:"token"`
 		ExpiresAt time.Time `db:"expires_at"`
 		Used      bool      `db:"used"`
 	}
 
 	rows, err := TestDB.Query(
 		context.Background(),
-		`SELECT token_hash, expires_at, used FROM password_reset_tokens AS prt LEFT JOIN users AS u ON u.id = prt.user_id WHERE u.email = $1 ORDER BY prt.created_at DESC`,
+		`SELECT token, expires_at, used FROM password_reset_tokens AS prt LEFT JOIN users AS u ON u.id = prt.user_id WHERE u.email = $1 ORDER BY prt.created_at DESC`,
 		email,
 	)
 	require.NoError(t, err)
 
 	for rows.Next() {
 		var token struct {
-			TokenHash string    `db:"token_hash"`
+			TokenHash string    `db:"token"`
 			ExpiresAt time.Time `db:"expires_at"`
 			Used      bool      `db:"used"`
 		}
@@ -80,26 +80,26 @@ func TestResetPassword_Success(t *testing.T) {
 
 	// Get the latest token from the database
 	var token struct {
-		TokenHash string `db:"token_hash"`
+		Token string `db:"token"`
 	}
 	row := TestDB.QueryRow(
 		context.Background(),
-		`SELECT token_hash FROM password_reset_tokens WHERE user_id = $1 ORDER BY created_at DESC LIMIT 1`,
+		`SELECT token FROM password_reset_tokens WHERE user_id = $1 ORDER BY created_at DESC LIMIT 1`,
 		user.ID,
 	)
-	require.NoError(t, row.Scan(&token.TokenHash))
+	require.NoError(t, row.Scan(&token.Token))
 
 	// Reset password with the token
 	newPassword := "NewPassword123!"
-	statusCode, _ = ResetPassword(t, token.TokenHash, email, newPassword)
+	statusCode, _ = ResetPassword(t, token.Token, email, newPassword)
 	assert.Equal(t, http.StatusNoContent, statusCode)
 
 	// Verify the token is marked as used
 	var isUsed bool
 	row = TestDB.QueryRow(
 		context.Background(),
-		`SELECT used FROM password_reset_tokens WHERE token_hash = $1`,
-		token.TokenHash,
+		`SELECT used FROM password_reset_tokens WHERE token = $1`,
+		token.Token,
 	)
 	require.NoError(t, row.Scan(&isUsed))
 	assert.True(t, isUsed, "token should be marked as used after password reset")
@@ -138,7 +138,7 @@ func TestResetPassword_ExpiredToken(t *testing.T) {
 	expiredToken := "expired-token-123"
 	_, err := TestDB.Exec(
 		context.Background(),
-		`INSERT INTO password_reset_tokens (id, user_id, token_hash, expires_at, used)
+		`INSERT INTO password_reset_tokens (id, user_id, token, expires_at, used)
 		 VALUES ($1, $2, $3, $4, $5)`,
 		uuid.New(),
 		user.ID,
@@ -164,7 +164,7 @@ func TestResetPassword_UsedToken(t *testing.T) {
 	usedToken := "used-token-123"
 	_, err := TestDB.Exec(
 		context.Background(),
-		`INSERT INTO password_reset_tokens (id, user_id, token_hash, expires_at, used)
+		`INSERT INTO password_reset_tokens (id, user_id, token, expires_at, used)
 		 VALUES ($1, $2, $3, $4, $5)`,
 		uuid.New(),
 		user.ID,
