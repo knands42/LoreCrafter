@@ -31,11 +31,12 @@ type Server struct {
 
 	cfg config.Config
 
-	authUseCase          *usecases.AuthUseCase
-	emailUseCase         *usecases.EmailUseCase
-	aiCampaignUseCase    *usecases.AICampaignUseCase
-	passwordResetUseCase *usecases.PasswordResetUseCase
-	campaignUseCase      *usecases.CampaignUseCase
+	authUseCase               *usecases.AuthUseCase
+	emailUseCase              *usecases.EmailUseCase
+	aiCampaignUseCase         *usecases.AICampaignUseCase
+	passwordResetUseCase      *usecases.PasswordResetUseCase
+	campaignUseCase           *usecases.CampaignUseCase
+	campaignInvitationUseCase *usecases.CampaignInvitationUseCase
 
 	authHandler     *routes.AuthHandler
 	userHandler     *routes.UserHandler
@@ -51,6 +52,7 @@ func NewServer(
 	authUseCase *usecases.AuthUseCase,
 	campaignUseCase *usecases.CampaignUseCase,
 	passwordResetUseCase *usecases.PasswordResetUseCase,
+	campaignInvitationUseCase *usecases.CampaignInvitationUseCase,
 ) *Server {
 	router := chi.NewRouter()
 
@@ -89,13 +91,14 @@ func NewServer(
 		cfg:  cfg,
 		repo: repo,
 
-		authUseCase:          authUseCase,
-		campaignUseCase:      campaignUseCase,
-		passwordResetUseCase: passwordResetUseCase,
+		authUseCase:               authUseCase,
+		campaignUseCase:           campaignUseCase,
+		passwordResetUseCase:      passwordResetUseCase,
+		campaignInvitationUseCase: campaignInvitationUseCase,
 
 		authHandler:     routes.NewAuthHandler(authUseCase, passwordResetUseCase),
 		userHandler:     routes.NewUserHandler(),
-		campaignHandler: routes.NewCampaignHandler(campaignUseCase),
+		campaignHandler: routes.NewCampaignHandler(campaignUseCase, campaignInvitationUseCase),
 	}
 
 	server.setupRoutes()

@@ -15,13 +15,15 @@ import (
 
 // CampaignHandler handles campaign-related HTTP requests
 type CampaignHandler struct {
-	campaignUseCase *usecases.CampaignUseCase
+	campaignUseCase           *usecases.CampaignUseCase
+	campaignInvitationUseCase *usecases.CampaignInvitationUseCase
 }
 
 // NewCampaignHandler creates a new CampaignHandler
-func NewCampaignHandler(campaignUseCase *usecases.CampaignUseCase) *CampaignHandler {
+func NewCampaignHandler(campaignUseCase *usecases.CampaignUseCase, campaignInvitationUseCase *usecases.CampaignInvitationUseCase) *CampaignHandler {
 	return &CampaignHandler{
-		campaignUseCase: campaignUseCase,
+		campaignUseCase:           campaignUseCase,
+		campaignInvitationUseCase: campaignInvitationUseCase,
 	}
 }
 
@@ -30,6 +32,7 @@ func (h *CampaignHandler) RegisterRoutes(r chi.Router) {
 	r.Route("/campaigns", func(r chi.Router) {
 		r.Post("/", middleware.ErrorHandlerMiddleware(h.CreateCampaign))
 		r.Get("/", middleware.ErrorHandlerMiddleware(h.ListUserCampaigns))
+		r.Post("/{campaignID}/invitations", middleware.ErrorHandlerMiddleware(h.CreateCampaignInvitation))
 
 		r.Route("/{campaignID}", func(r chi.Router) {
 			r.Get("/", middleware.ErrorHandlerMiddleware(h.GetCampaign))
@@ -478,4 +481,53 @@ func (h *CampaignHandler) GetCampaignMembers(w http.ResponseWriter, r *http.Requ
 
 	w.Header().Set("Content-Type", "application/json")
 	return json.NewEncoder(w).Encode(members)
+}
+
+// CreateCampaignInvitation handles creating a campaign invitation
+// @Summary Create a campaign invitation
+// @Description Create a campaign invitation if the user has GM permissions
+// @Tags campaigns
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param campaignID path string true "Campaign ID"
+// @Param input body domain.CampaignInvitationInput true "Campaign invitation details"
+// @Success 201 {object} sqlc.CampaignInvitation "Campaign invitation created successfully"
+// @Failure 400 {object} utils.ErrorResponse "Invalid request body or campaign ID"
+// @Failure 401 {object} utils.ErrorResponse "Unauthorized"
+// @Failure 403 {object} utils.ErrorResponse "Insufficient permissions"
+// @Failure 500 {object} utils.ErrorResponse "Internal server error"
+// @Router /api/campaigns/{campaignID}/invitations [post]
+func (h *CampaignHandler) CreateCampaignInvitation(w http.ResponseWriter, r *http.Request) error {
+	// Parse request body
+	var input domain.CampaignInvitationInput
+	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+		return utils.WriteJSONError(w, http.StatusBadRequest, "Invalid request body")
+	}
+
+	// Parse url param
+	campaignID, err := uuid.Parse(chi.URLParam(r, "campaignID"))
+	input.CampaignID = campaignID
+
+	// Get user ID from context
+	userIDStr, ok := r.Context().Value(middleware.UserIDContextKey).(string)
+	if !ok {
+		return utils.WriteJSONError(w, http.StatusUnauthorized, "User ID not found")
+	}
+
+	userID, err := uuid.Parse(userIDStr)
+	if err != nil {
+		return utils.WriteJSONError(w, http.StatusBadRequest, "Invalid user ID")
+	}
+
+	input.InvitedBy = userID
+
+	createdInvitation, err := h.campaignInvitationUseCase.CreateAnInvite(input)
+	if err != nil {
+		return err
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	return json.NewEncoder(w).Encode(createdInvitation)
 }

@@ -71,6 +71,12 @@ definitions:
         example: Chronicles of the Fall
         type: string
     type: object
+  domain.CampaignInvitationInput:
+    properties:
+      username:
+        example: johndoe2
+        type: string
+    type: object
   domain.ForgotPasswordInput:
     properties:
       email:
@@ -231,6 +237,27 @@ definitions:
       updated_at:
         $ref: '#/definitions/pgtype.Timestamptz'
     type: object
+  sqlc.CampaignInvitation:
+    properties:
+      campaign_id:
+        type: string
+      created_at:
+        $ref: '#/definitions/pgtype.Timestamptz'
+      expires_at:
+        $ref: '#/definitions/pgtype.Timestamptz'
+      id:
+        type: string
+      invited_by:
+        type: string
+      status:
+        $ref: '#/definitions/sqlc.InvitationStatus'
+      token:
+        type: string
+      updated_at:
+        $ref: '#/definitions/pgtype.Timestamptz'
+      user_id:
+        type: string
+    type: object
   sqlc.CampaignMember:
     properties:
       campaign_id:
@@ -276,6 +303,18 @@ definitions:
     - GameSystemEnumPATHFINDER2E
     - GameSystemEnumCOC7E
     - GameSystemEnumOTHER
+  sqlc.InvitationStatus:
+    enum:
+    - pending
+    - accepted
+    - rejected
+    - expired
+    type: string
+    x-enum-varnames:
+    - InvitationStatusPending
+    - InvitationStatusAccepted
+    - InvitationStatusRejected
+    - InvitationStatusExpired
   sqlc.MemberRole:
     enum:
     - gm
@@ -624,6 +663,51 @@ paths:
       security:
       - BearerAuth: []
       summary: Update a campaign
+      tags:
+      - campaigns
+  /api/campaigns/{campaignID}/invitations:
+    post:
+      consumes:
+      - application/json
+      description: Create a campaign invitation if the user has GM permissions
+      parameters:
+      - description: Campaign ID
+        in: path
+        name: campaignID
+        required: true
+        type: string
+      - description: Campaign invitation details
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/domain.CampaignInvitationInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Campaign invitation created successfully
+          schema:
+            $ref: '#/definitions/sqlc.CampaignInvitation'
+        "400":
+          description: Invalid request body or campaign ID
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "403":
+          description: Insufficient permissions
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a campaign invitation
       tags:
       - campaigns
   /api/campaigns/{campaignID}/members:

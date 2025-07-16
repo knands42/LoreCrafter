@@ -66,6 +66,7 @@ func main() {
 	aiCampaignUseCase := usecases.NewAICampaignUseCase(ctx, repo, llmFactory)
 	campaignUseCase := usecases.NewCampaignUseCase(ctx, repo, aiCampaignUseCase)
 	passwordResetUseCase := usecases.NewPasswordResetUseCase(ctx, repo, emailUseCase, templateManager, argon2Adapter, cfg.TokenExpiry)
+	campaignInvitationUseCase := usecases.NewCampaignInvitationUseCase(ctx, repo)
 
 	// Set up the HTTP server
 	server := api.NewServer(
@@ -74,6 +75,7 @@ func main() {
 		authUseCase,
 		campaignUseCase,
 		passwordResetUseCase,
+		campaignInvitationUseCase,
 	)
 
 	// Start the server with or without TLS

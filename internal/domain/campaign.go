@@ -2,7 +2,6 @@ package domain
 
 import (
 	"encoding/json"
-	"errors"
 	"strings"
 	"time"
 
@@ -10,12 +9,6 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/knands42/lorecrafter/internal/utils"
 	sqlc "github.com/knands42/lorecrafter/pkg/sqlc/generated"
-)
-
-// Campaign permission errors
-var (
-	ErrNotCampaignMember      = errors.New("user is not a member of this campaign")
-	ErrInsufficientPermission = errors.New("user does not have sufficient permissions for this action")
 )
 
 // CampaignCreationInput represents the input for creating a new campaign

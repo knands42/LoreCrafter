@@ -64,6 +64,10 @@ podman-up:
 	$(MAKE) podman-build
 	podman compose up --build --force-recreate
 
+podman-up-dbs:
+	podman rm -f db db-test || true
+	podman compose up --build --force-recreate db db-test
+
 podman-down:
 	podman compose down
 
