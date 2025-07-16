@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"encoding/json"
 	"errors"
 	"strings"
 	"time"
@@ -30,15 +31,27 @@ type CampaignCreationInput struct {
 	SettingsAIMetadata SettingsAIMetadata  `json:"settings_ai_metadata"`
 }
 
-func NewCampaignCreationInput(title string, settingSummary string, setting string, gameSystem sqlc.GameSystemEnum, numberOfPlayers int16, imageURL string, isPublic bool) *CampaignCreationInput {
+func NewCampaignCreationInput(
+	title string,
+	settingSummary string,
+	setting string,
+	gameSystem sqlc.GameSystemEnum,
+	numberOfPlayers int16,
+	imageURL string,
+	isPublic bool,
+	settingsMetadata SettingsMetadata,
+	settingAIMetadata SettingsAIMetadata,
+) *CampaignCreationInput {
 	return &CampaignCreationInput{
-		Title:           title,
-		SettingSummary:  settingSummary,
-		Setting:         setting,
-		GameSystem:      gameSystem,
-		NumberOfPlayers: numberOfPlayers,
-		ImageURL:        imageURL,
-		IsPublic:        isPublic,
+		Title:              title,
+		SettingSummary:     settingSummary,
+		Setting:            setting,
+		GameSystem:         gameSystem,
+		NumberOfPlayers:    numberOfPlayers,
+		ImageURL:           imageURL,
+		IsPublic:           isPublic,
+		SettingsMetadata:   settingsMetadata,
+		SettingsAIMetadata: settingAIMetadata,
 	}
 }
 
@@ -70,6 +83,15 @@ func (campaign *CampaignCreationInput) PrepareToInsert(creatorID uuid.UUID) (sql
 		return sqlc.CreateCampaignParams{}, err
 	}
 
+	settingsMetadataBytes, err := json.Marshal(campaign.SettingsMetadata)
+	if err != nil {
+		return sqlc.CreateCampaignParams{}, err
+	}
+	settingsAIMetadataBytes, err := json.Marshal(campaign.SettingsAIMetadata)
+	if err != nil {
+		return sqlc.CreateCampaignParams{}, err
+	}
+
 	return sqlc.CreateCampaignParams{
 		ID:    newUUUIDV7,
 		Title: campaign.Title,
@@ -86,9 +108,11 @@ func (campaign *CampaignCreationInput) PrepareToInsert(creatorID uuid.UUID) (sql
 			String: campaign.Setting,
 			Valid:  true,
 		},
-		Status:    sqlc.CampaignStatusEnumPLANNING,
-		IsPublic:  campaign.IsPublic,
-		CreatedBy: creatorUUUIDV7,
+		Status:            sqlc.CampaignStatusEnumPLANNING,
+		IsPublic:          campaign.IsPublic,
+		CreatedBy:         creatorUUUIDV7,
+		SettingMetadata:   settingsMetadataBytes,
+		SettingAiMetadata: settingsAIMetadataBytes,
 	}, nil
 }
 

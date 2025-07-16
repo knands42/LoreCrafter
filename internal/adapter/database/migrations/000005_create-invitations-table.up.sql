@@ -5,7 +5,7 @@ CREATE TABLE "invitations" (
     campaign_id UUID NOT NULL REFERENCES "campaigns"("id") ON DELETE CASCADE,
     email VARCHAR(120) NOT NULL,
     invited_by UUID NOT NULL REFERENCES "users"("id") ON DELETE CASCADE,
-    token VARCHAR(64) NOT NULL UNIQUE,
+    token VARCHAR(32) NOT NULL UNIQUE,
     status invitation_status NOT NULL DEFAULT 'pending',
     expires_at TIMESTAMPTZ NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
