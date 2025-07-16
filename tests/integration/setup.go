@@ -48,12 +48,10 @@ func SetupIntegrationTest() error {
 	repo := sqlc.New(pgConn)
 
 	// Set up the LLM models
-	llm, err := llms.GetGeminiLlmFactory(ctx, cfg)
-	
+	llmFactory, err := llms.NewLlmFactory(ctx, cfg)
 	if err != nil {
 		log.Fatalf("failed to create OpenAI client: %v", err)
 	}
-	llmFactory := llms.NewLlmFactory(llm)
 
 	// setup adapters
 	tokenMakerAdapter, err := security.NewTokenMakerAdapter(cfg.PrivateKey, cfg.PublicKey)

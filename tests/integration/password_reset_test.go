@@ -2,6 +2,7 @@ package integration
 
 import (
 	"context"
+	"github.com/knands42/lorecrafter/internal/utils"
 	"net/http"
 	"testing"
 	"time"
@@ -94,6 +95,9 @@ func TestResetPassword_Success(t *testing.T) {
 	statusCode, _ = ResetPassword(t, token.Token, email, newPassword)
 	assert.Equal(t, http.StatusNoContent, statusCode)
 
+	// give it time to invalidate all previous tokens
+	time.Sleep(2 * time.Second)
+
 	// Verify the token is marked as used
 	var isUsed bool
 	row = TestDB.QueryRow(
@@ -135,8 +139,9 @@ func TestResetPassword_ExpiredToken(t *testing.T) {
 	email := user.Email
 
 	// Insert an expired token directly into the database
-	expiredToken := "expired-token-123"
-	_, err := TestDB.Exec(
+	expiredToken, err := utils.GenerateRandomToken(32)
+	assert.NoError(t, err)
+	_, err = TestDB.Exec(
 		context.Background(),
 		`INSERT INTO password_reset_tokens (id, user_id, token, expires_at, used)
 		 VALUES ($1, $2, $3, $4, $5)`,
@@ -161,8 +166,8 @@ func TestResetPassword_UsedToken(t *testing.T) {
 	email := user.Email
 
 	// Insert an already used token directly into the database
-	usedToken := "used-token-123"
-	_, err := TestDB.Exec(
+	usedToken, err := utils.GenerateRandomToken(32)
+	_, err = TestDB.Exec(
 		context.Background(),
 		`INSERT INTO password_reset_tokens (id, user_id, token, expires_at, used)
 		 VALUES ($1, $2, $3, $4, $5)`,

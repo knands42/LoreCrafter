@@ -2,7 +2,7 @@
 CREATE TABLE "users_email_verification" (
     "id" UUID NOT NULL,
     "user_id" UUID NOT NULL REFERENCES "users"("id") ON DELETE CASCADE,
-    "email_verification_token" VARCHAR(255) UNIQUE,
+    "email_verification_token" VARCHAR(64) UNIQUE,
     "email_verification_sent_at" TIMESTAMPTZ NOT NULL,
     "email_verification_expires_at" TIMESTAMPTZ NOT NULL,
     "email_verified_at" TIMESTAMPTZ NULL,

@@ -41,12 +41,10 @@ func main() {
 	repo := sqlc.New(pgConn)
 
 	// Set up the LLM models
-	llm, err := llms.GetGeminiLlmFactory(ctx, cfg)
-
+	llmFactory, err := llms.NewLlmFactory(ctx, cfg)
 	if err != nil {
-		log.Fatalf("failed to create LLM client: %v", err)
+		log.Fatalf("Failed to initialize llms: %v", err)
 	}
-	llmFactory := llms.NewLlmFactory(llm)
 
 	// setup adapters
 	//worker := worker2.NewValkeyAdapter(cfg)

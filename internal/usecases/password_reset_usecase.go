@@ -57,7 +57,7 @@ func (uc *PasswordResetUseCase) RequestPasswordReset(input domain.ForgotPassword
 	}
 
 	// Create new token
-	token, err := utils.GenerateRandomHexString(32)
+	token, err := utils.GenerateRandomToken(32)
 	if err != nil {
 		return ErrFailedToGenerateToken
 	}
