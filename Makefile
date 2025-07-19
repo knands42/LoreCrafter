@@ -49,9 +49,14 @@ test:
 
 # Run tests with coverage
 test-coverage:
-	go test -v -coverprofile=coverage.out -covermode=atomic $(shell go list ./... | grep -v "docs\|pkg")
+	go test -v ./... -coverprofile=coverage.out -covermode=atomic $(shell go list ./... | grep -v "docs\|pkg")
 	go tool cover -html=coverage.out -o coverage.html
 	go tool cover -func=coverage.out
+
+# Submit coverage report to codacity
+test-send-coverage:
+	bash <(curl -Ls https://coverage.codacy.com/get.sh) report \
+                  --force-coverage-parser go -r coverage.out
 
 # Clean build artifacts
 clean:
