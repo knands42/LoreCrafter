@@ -923,6 +923,11 @@ paths:
         name: campaignID
         required: true
         type: string
+      - description: Invite Token
+        in: path
+        name: token
+        required: true
+        type: string
       produces:
       - application/json
       responses:

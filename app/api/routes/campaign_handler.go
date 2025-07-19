@@ -599,6 +599,7 @@ func (h *CampaignHandler) CreateCampaignInvitation(w http.ResponseWriter, r *htt
 // @Produce json
 // @Security BearerAuth
 // @Param campaignID path string true "Campaign ID"
+// @Param token path string true "Invite Token"
 // @Success 204 "Campaign invitation received successfully"
 // @Failure 400 {object} utils.ErrorResponse "Invalid campaign ID"
 // @Failure 401 {object} utils.ErrorResponse "Unauthorized"
