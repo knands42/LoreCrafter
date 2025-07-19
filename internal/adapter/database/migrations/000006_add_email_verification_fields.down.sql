@@ -4,5 +4,3 @@ DROP INDEX IF EXISTS "idx_users_email_verification_token";
 DROP INDEX IF EXISTS "idx_users_email_verification_user_id";
 
 DROP TABLE IF EXISTS "users_email_verification";
-
-ALTER TABLE "users" DROP COLUMN IF EXISTS "email_verified";
