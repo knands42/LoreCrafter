@@ -70,8 +70,37 @@ func LoginUser(t *testing.T, input domain.LoginInput, output interface{}) (int, 
 }
 
 // CreateCampaign creates a new campaign
-func CreateCampaign(t *testing.T, cookie http.Cookie, input domain.CampaignCreationInput, output interface{}) (int, []*http.Cookie) {
-	return SendAuthenticatedRequest(t, "POST", "/api/campaigns", cookie, input, output)
+func CreateCampaign(t *testing.T, queryParams map[string]string, cookie http.Cookie, input domain.CampaignCreationInput, output interface{}) (int, []*http.Cookie) {
+	if queryParams == nil {
+		return SendAuthenticatedRequest(t, "POST", "/api/campaigns", cookie, input, output)
+	}
+
+	formatedUrl := "/api/campaigns?"
+	for k, v := range queryParams {
+		formatedUrl += fmt.Sprintf("%s=%s&", k, v)
+	}
+
+	return SendAuthenticatedRequest(t, "POST", formatedUrl, cookie, input, output)
+}
+
+// CreateCampaignInvitation creates a new campaign invitation
+func CreateCampaignInvitation(t *testing.T, cookie http.Cookie, campaignID uuid.UUID, input domain.CreateCampaignInvitationInput, output interface{}) (int, []*http.Cookie) {
+	return SendAuthenticatedRequest(t, "POST", fmt.Sprintf("/api/campaigns/%s/invitations", campaignID), cookie, input, output)
+}
+
+// ReceiveCampaignInvitation accepts or rejects a campaign invitation
+func ReceiveCampaignInvitation(t *testing.T, cookie http.Cookie, token string, input domain.ReceiveCampaignInvite, output interface{}) (int, []*http.Cookie) {
+	return SendAuthenticatedRequest(t, "PATCH", fmt.Sprintf("/api/campaigns/invitations/%s", token), cookie, input, output)
+}
+
+// GetCampaignMember gets a campaign member by ID
+func GetCampaignMember(t *testing.T, cookie http.Cookie, campaignID uuid.UUID, memberID uuid.UUID, output interface{}) (int, []*http.Cookie) {
+	return SendAuthenticatedRequest(t, "GET", fmt.Sprintf("/api/campaigns/%s/members/%s", campaignID, memberID), cookie, nil, output)
+}
+
+// GetCampaignMember gets a campaign member by ID
+func GetCampaignMembers(t *testing.T, cookie http.Cookie, campaignID uuid.UUID, output interface{}) (int, []*http.Cookie) {
+	return SendAuthenticatedRequest(t, "GET", fmt.Sprintf("/api/campaigns/%s/members", campaignID), cookie, nil, output)
 }
 
 // GetCampaign gets a campaign by ID

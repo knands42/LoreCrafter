@@ -10,13 +10,9 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/knands42/lorecrafter/internal/adapter/email"
-	llms2 "github.com/knands42/lorecrafter/internal/adapter/llms"
-
 	_ "github.com/knands42/lorecrafter/app/api/docs" // Import the docs package
 	middleware2 "github.com/knands42/lorecrafter/app/api/middleware"
 	"github.com/knands42/lorecrafter/app/api/routes"
-	"github.com/knands42/lorecrafter/internal/adapter/security"
 	"github.com/knands42/lorecrafter/internal/config"
 	"github.com/knands42/lorecrafter/internal/usecases"
 	sqlc "github.com/knands42/lorecrafter/pkg/sqlc/generated"
@@ -35,7 +31,12 @@ type Server struct {
 
 	cfg config.Config
 
-	authUseCase *usecases.AuthUseCase
+	authUseCase               *usecases.AuthUseCase
+	emailUseCase              *usecases.EmailUseCase
+	aiCampaignUseCase         *usecases.AICampaignUseCase
+	passwordResetUseCase      *usecases.PasswordResetUseCase
+	campaignUseCase           *usecases.CampaignUseCase
+	campaignInvitationUseCase *usecases.CampaignInvitationUseCase
 
 	authHandler     *routes.AuthHandler
 	userHandler     *routes.UserHandler
@@ -44,7 +45,17 @@ type Server struct {
 }
 
 // NewServer creates a new HTTP server
-func NewServer(cfg config.Config, repo sqlc.Querier, llmFactory *llms2.LlmFactory) *Server {
+func NewServer(
+	cfg config.Config,
+	repo sqlc.Querier,
+
+	authUseCase *usecases.AuthUseCase,
+	userUseCase *usecases.UserUseCase,
+	campaignUseCase *usecases.CampaignUseCase,
+	passwordResetUseCase *usecases.PasswordResetUseCase,
+	campaignInvitationUseCase *usecases.CampaignInvitationUseCase,
+	campaignMembersUseCase *usecases.CampaignMembersUseCase,
+) *Server {
 	router := chi.NewRouter()
 
 	// Set up middleware
@@ -70,7 +81,7 @@ func NewServer(cfg config.Config, repo sqlc.Querier, llmFactory *llms2.LlmFactor
 
 	router.Use(corsMiddleware.Handler)
 
-	// Create the HTTP server with HTTP/2 support
+	// Create the HTTP server
 	httpServer := &http.Server{
 		Addr:    fmt.Sprintf(":%s", cfg.ServerPort),
 		Handler: router,
@@ -78,35 +89,23 @@ func NewServer(cfg config.Config, repo sqlc.Querier, llmFactory *llms2.LlmFactor
 	server := &Server{
 		Router:     router,
 		httpServer: httpServer,
-	}
 
-	// Set up adapters
-	tokenMakerAdapter, err := security.NewTokenMakerAdapter(cfg.PrivateKey, cfg.PublicKey)
-	if err != nil {
-		log.Fatalf("Failed to create token maker: %v", err)
-	}
-	argon2Adapter := security.NewArgon2Adapter(cfg.PasswordSalt)
-	emailSender := email.NewSMTPSenderAdapter(cfg.EmailAPIKEY, cfg.EmailDomain)
-	templateManager, err := email.NewTemplateManagerAdapter()
-	if err != nil {
-		log.Fatalf("Failed to create template manager: %v", err)
-	}
+		cfg:  cfg,
+		repo: repo,
 
-	// Set up use cases
-	ctx := context.Background()
-	emailUseCase := usecases.NewEmailUseCase(ctx, emailSender, templateManager, repo, "")
-	authUseCase := usecases.NewAuthUseCase(ctx, repo, tokenMakerAdapter, argon2Adapter, cfg.TokenExpiry, emailUseCase)
-	aiCampaignUseCase := usecases.NewAICampaignUseCase(ctx, repo, llmFactory)
-	campaignUseCase := usecases.NewCampaignUseCase(ctx, repo, aiCampaignUseCase)
-	passwordResetUseCase := usecases.NewPasswordResetUseCase(ctx, repo, emailUseCase, templateManager, argon2Adapter, cfg.TokenExpiry)
-	server.authUseCase = authUseCase
+		authUseCase:               authUseCase,
+		campaignUseCase:           campaignUseCase,
+		passwordResetUseCase:      passwordResetUseCase,
+		campaignInvitationUseCase: campaignInvitationUseCase,
 
-	// Set up HTTP handlers
-	server.authHandler = routes.NewAuthHandler(authUseCase, passwordResetUseCase)
-	server.userHandler = routes.NewUserHandler()
-	server.campaignHandler = routes.NewCampaignHandler(campaignUseCase)
-	server.repo = repo
-	server.cfg = cfg
+		authHandler: routes.NewAuthHandler(authUseCase, passwordResetUseCase),
+		userHandler: routes.NewUserHandler(userUseCase),
+		campaignHandler: routes.NewCampaignHandler(
+			campaignUseCase,
+			campaignInvitationUseCase,
+			campaignMembersUseCase,
+		),
+	}
 
 	server.setupRoutes()
 

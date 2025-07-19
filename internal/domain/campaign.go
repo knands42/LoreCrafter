@@ -1,7 +1,7 @@
 package domain
 
 import (
-	"errors"
+	"encoding/json"
 	"strings"
 	"time"
 
@@ -9,12 +9,6 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/knands42/lorecrafter/internal/utils"
 	sqlc "github.com/knands42/lorecrafter/pkg/sqlc/generated"
-)
-
-// Campaign permission errors
-var (
-	ErrNotCampaignMember      = errors.New("user is not a member of this campaign")
-	ErrInsufficientPermission = errors.New("user does not have sufficient permissions for this action")
 )
 
 // CampaignCreationInput represents the input for creating a new campaign
@@ -30,15 +24,27 @@ type CampaignCreationInput struct {
 	SettingsAIMetadata SettingsAIMetadata  `json:"settings_ai_metadata"`
 }
 
-func NewCampaignCreationInput(title string, settingSummary string, setting string, gameSystem sqlc.GameSystemEnum, numberOfPlayers int16, imageURL string, isPublic bool) *CampaignCreationInput {
+func NewCampaignCreationInput(
+	title string,
+	settingSummary string,
+	setting string,
+	gameSystem sqlc.GameSystemEnum,
+	numberOfPlayers int16,
+	imageURL string,
+	isPublic bool,
+	settingsMetadata SettingsMetadata,
+	settingAIMetadata SettingsAIMetadata,
+) *CampaignCreationInput {
 	return &CampaignCreationInput{
-		Title:           title,
-		SettingSummary:  settingSummary,
-		Setting:         setting,
-		GameSystem:      gameSystem,
-		NumberOfPlayers: numberOfPlayers,
-		ImageURL:        imageURL,
-		IsPublic:        isPublic,
+		Title:              title,
+		SettingSummary:     settingSummary,
+		Setting:            setting,
+		GameSystem:         gameSystem,
+		NumberOfPlayers:    numberOfPlayers,
+		ImageURL:           imageURL,
+		IsPublic:           isPublic,
+		SettingsMetadata:   settingsMetadata,
+		SettingsAIMetadata: settingAIMetadata,
 	}
 }
 
@@ -70,6 +76,15 @@ func (campaign *CampaignCreationInput) PrepareToInsert(creatorID uuid.UUID) (sql
 		return sqlc.CreateCampaignParams{}, err
 	}
 
+	settingsMetadataBytes, err := json.Marshal(campaign.SettingsMetadata)
+	if err != nil {
+		return sqlc.CreateCampaignParams{}, err
+	}
+	settingsAIMetadataBytes, err := json.Marshal(campaign.SettingsAIMetadata)
+	if err != nil {
+		return sqlc.CreateCampaignParams{}, err
+	}
+
 	return sqlc.CreateCampaignParams{
 		ID:    newUUUIDV7,
 		Title: campaign.Title,
@@ -86,9 +101,11 @@ func (campaign *CampaignCreationInput) PrepareToInsert(creatorID uuid.UUID) (sql
 			String: campaign.Setting,
 			Valid:  true,
 		},
-		Status:    sqlc.CampaignStatusEnumPLANNING,
-		IsPublic:  campaign.IsPublic,
-		CreatedBy: creatorUUUIDV7,
+		Status:            sqlc.CampaignStatusEnumPLANNING,
+		IsPublic:          campaign.IsPublic,
+		CreatedBy:         creatorUUUIDV7,
+		SettingMetadata:   settingsMetadataBytes,
+		SettingAiMetadata: settingsAIMetadataBytes,
 	}, nil
 }
 
@@ -231,7 +248,7 @@ type SettingsAIMetadata struct {
 	WrittenTone string `json:"written_tone" example:"Dramatic"`
 }
 
-func ToDomain(campaignSqlc sqlc.Campaign) Campaign {
+func NewCampaignFromSqlc(campaignSqlc sqlc.Campaign) Campaign {
 	return Campaign{
 		ID:              campaignSqlc.ID.Bytes,
 		Title:           campaignSqlc.Title,

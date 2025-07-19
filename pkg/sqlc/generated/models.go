@@ -213,6 +213,18 @@ type Campaign struct {
 	UpdatedAt         pgtype.Timestamptz `json:"updated_at"`
 }
 
+type CampaignInvitation struct {
+	ID         pgtype.UUID        `json:"id"`
+	CampaignID pgtype.UUID        `json:"campaign_id"`
+	UserID     pgtype.UUID        `json:"user_id"`
+	InvitedBy  pgtype.UUID        `json:"invited_by"`
+	Token      string             `json:"token"`
+	Status     InvitationStatus   `json:"status"`
+	ExpiresAt  pgtype.Timestamptz `json:"expires_at"`
+	CreatedAt  pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt  pgtype.Timestamptz `json:"updated_at"`
+}
+
 type CampaignMember struct {
 	ID           pgtype.UUID        `json:"id"`
 	CampaignID   pgtype.UUID        `json:"campaign_id"`
@@ -240,18 +252,6 @@ type Character struct {
 	Metadata    []byte             `json:"metadata"`
 	CreatedAt   pgtype.Timestamptz `json:"created_at"`
 	UpdatedAt   pgtype.Timestamptz `json:"updated_at"`
-}
-
-type Invitation struct {
-	ID         pgtype.UUID        `json:"id"`
-	CampaignID pgtype.UUID        `json:"campaign_id"`
-	Email      string             `json:"email"`
-	InvitedBy  pgtype.UUID        `json:"invited_by"`
-	Token      string             `json:"token"`
-	Status     InvitationStatus   `json:"status"`
-	ExpiresAt  pgtype.Timestamptz `json:"expires_at"`
-	CreatedAt  pgtype.Timestamptz `json:"created_at"`
-	UpdatedAt  pgtype.Timestamptz `json:"updated_at"`
 }
 
 type PasswordResetToken struct {

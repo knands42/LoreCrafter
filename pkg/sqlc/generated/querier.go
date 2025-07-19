@@ -12,24 +12,28 @@ import (
 
 type Querier interface {
 	CreateCampaign(ctx context.Context, arg CreateCampaignParams) (Campaign, error)
-	CreateCampaignMember(ctx context.Context, arg CreateCampaignMemberParams) (CampaignMember, error)
+	CreateCampaignInvitation(ctx context.Context, arg CreateCampaignInvitationParams) (CampaignInvitation, error)
+	CreateCampaignPlayerMember(ctx context.Context, arg CreateCampaignPlayerMemberParams) (CampaignMember, error)
 	CreateEmailVerificationToken(ctx context.Context, arg CreateEmailVerificationTokenParams) (UsersEmailVerification, error)
+	CreateFirstCampaignMember(ctx context.Context, arg CreateFirstCampaignMemberParams) (CampaignMember, error)
 	CreatePasswordResetToken(ctx context.Context, arg CreatePasswordResetTokenParams) (PasswordResetToken, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
 	DeleteCampaign(ctx context.Context, arg DeleteCampaignParams) error
-	DeleteCampaignMember(ctx context.Context, arg DeleteCampaignMemberParams) error
 	GenerateInviteCode(ctx context.Context, arg GenerateInviteCodeParams) (Campaign, error)
 	GetCampaignByID(ctx context.Context, arg GetCampaignByIDParams) (Campaign, error)
 	GetCampaignByInviteCode(ctx context.Context, inviteCode pgtype.Text) (Campaign, error)
 	GetCampaignMember(ctx context.Context, arg GetCampaignMemberParams) (CampaignMember, error)
+	GetCampaignMembers(ctx context.Context, arg GetCampaignMembersParams) ([]CampaignMember, error)
+	GetUserByID(ctx context.Context, userID pgtype.UUID) (User, error)
 	GetUserByUsernameOrEmail(ctx context.Context, arg GetUserByUsernameOrEmailParams) (User, error)
 	GetValidPasswordResetToken(ctx context.Context, token string) (PasswordResetToken, error)
+	InvalidateAllCampaignInvitations(ctx context.Context, userID pgtype.UUID) error
 	InvalidateAllUserTokens(ctx context.Context, email string) error
 	InvalidatePasswordResetToken(ctx context.Context, token string) error
 	ListCampaignMembers(ctx context.Context, campaignID pgtype.UUID) ([]CampaignMember, error)
 	ListCampaignsByUserID(ctx context.Context, userID pgtype.UUID) ([]Campaign, error)
 	UpdateCampaign(ctx context.Context, arg UpdateCampaignParams) (Campaign, error)
-	UpdateCampaignMember(ctx context.Context, arg UpdateCampaignMemberParams) (CampaignMember, error)
+	UpdateCampaignInviteStatus(ctx context.Context, arg UpdateCampaignInviteStatusParams) (CampaignInvitation, error)
 	UpdateUserPasswordFromToken(ctx context.Context, arg UpdateUserPasswordFromTokenParams) (UpdateUserPasswordFromTokenRow, error)
 }
 

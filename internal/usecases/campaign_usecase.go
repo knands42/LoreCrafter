@@ -12,17 +12,17 @@ import (
 )
 
 var (
-	ErrCampaignCreation        = errors.New("error creating campaign")
-	ErrCampaignNotFound        = errors.New("campaign not found")
-	ErrCampaignMemberCreation  = errors.New("error creating campaign member")
-	ErrInsufficientPermissions = errors.New("insufficient permissions")
+	ErrCampaignCreation       = errors.New("error creating campaign")
+	ErrCampaignNotFound       = errors.New("campaign not found")
+	ErrCampaignMemberCreation = errors.New("error creating campaign member")
 )
 
 // CampaignUseCase implements the campaign business logic
 type CampaignUseCase struct {
-	ctx               context.Context
-	aiCampaignUseCase *AICampaignUseCase
-	repo              sqlc.Querier
+	ctx                    context.Context
+	aiCampaignUseCase      *AICampaignUseCase
+	repo                   sqlc.Querier
+	campaignMembersUseCase *CampaignMembersUseCase
 }
 
 // NewCampaignUseCase creates a new campaign use case
@@ -30,11 +30,13 @@ func NewCampaignUseCase(
 	ctx context.Context,
 	repo sqlc.Querier,
 	aiCampaignUseCase *AICampaignUseCase,
+	campaignMembersUseCase *CampaignMembersUseCase,
 ) *CampaignUseCase {
 	return &CampaignUseCase{
-		ctx:               ctx,
-		aiCampaignUseCase: aiCampaignUseCase,
-		repo:              repo,
+		ctx:                    ctx,
+		aiCampaignUseCase:      aiCampaignUseCase,
+		repo:                   repo,
+		campaignMembersUseCase: campaignMembersUseCase,
 	}
 }
 
@@ -67,22 +69,16 @@ func (uc *CampaignUseCase) CreateCampaign(creatorID uuid.UUID, useGenAI bool, in
 	}
 
 	// Add the creator as a GM
-	newUUIDV7, err := utils.GeneratePGUUID()
-	if err != nil {
-		return domain.Campaign{}, err
-	}
-	createCampaignMemberParams := sqlc.CreateCampaignMemberParams{
-		ID:         newUUIDV7,
-		CampaignID: createdCampaign.ID,
-		UserID:     createdCampaign.CreatedBy,
+	_, err = uc.campaignMembersUseCase.CreateGMMember(domain.CreateCampaignMemberInput{
+		UserID:     createdCampaign.CreatedBy.Bytes,
 		Role:       sqlc.MemberRoleGm,
-	}
-	if _, err := uc.repo.CreateCampaignMember(uc.ctx, createCampaignMemberParams); err != nil {
-		log.Printf("Error saving campaign member: %v", err)
+		CampaignID: createdCampaign.ID.Bytes,
+	})
+	if err != nil {
 		return domain.Campaign{}, ErrCampaignMemberCreation
 	}
 
-	return domain.ToDomain(createdCampaign), nil
+	return domain.NewCampaignFromSqlc(createdCampaign), nil
 }
 
 // GetCampaign retrieves a campaign by ID if the user has access
@@ -130,25 +126,4 @@ func (uc *CampaignUseCase) ListUserCampaigns(userID uuid.UUID) ([]sqlc.Campaign,
 	}
 
 	return uc.repo.ListCampaignsByUserID(uc.ctx, userPGUUID)
-}
-
-// AddCampaignMember adds a user to a campaign if the requester has GM permissions
-func (uc *CampaignUseCase) AddCampaignMember(campaignID, userID, requesterID uuid.UUID, role string) error {
-	return nil
-}
-
-// RemoveCampaignMember removes a user from a campaign if the requester has GM permissions
-func (uc *CampaignUseCase) RemoveCampaignMember(campaignID, userID, requesterID uuid.UUID) error {
-	return nil
-
-}
-
-// LeaveCampaign allows a user to leave a campaign
-func (uc *CampaignUseCase) LeaveCampaign(campaignID, userID uuid.UUID) error {
-	return nil
-}
-
-// GetCampaignMembers lists all members of a campaign if the user has access
-func (uc *CampaignUseCase) GetCampaignMembers(campaignID, userID uuid.UUID) ([]sqlc.CampaignMember, error) {
-	return []sqlc.CampaignMember{}, nil
 }

@@ -87,12 +87,7 @@ jobs:
           CODACY_USERNAME: ${{ secrets.CODACY_USERNAME }}
         run: |
           PACKAGES=$(go list ./... | grep -v "docs\|pkg")
-          go test -coverprofile=unit.coverage.out -covermode=atomic $(shell go list ./... | grep -v "docs\|pkg")
+          go test -v ./... -coverprofile=coverage.out -covermode=atomic $(shell go list ./... | grep -v "docs\|pkg")
           bash <(curl -Ls https://coverage.codacy.com/get.sh) report \
-              --force-coverage-parser go -r unit.coverage.out
+              --force-coverage-parser go -r coverage.out
 
-#      - name: Upload coverage to Codecov
-#        uses: codecov/codecov-action@v3
-#        with:
-#          file: ./coverage.out
-#          fail_ci_if_error: false

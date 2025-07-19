@@ -18,9 +18,9 @@ type Config struct {
 	PasswordSalt string        `mapstructure:"PASSWORD_SALT"`
 
 	// API Keys
-	GoogleAPIKey    string `mapstructure:"GOOGLE_API_KEY"`
-	OpenAIAPIKey    string `mapstructure:"OPENAI_API_KEY"`
-	AntropicAPIKey  string `mapstructure:"ANTROPIC_API_KEY"`
+	GoogleAPIKey   string `mapstructure:"GOOGLE_API_KEY"`
+	OpenAIAPIKey   string `mapstructure:"OPENAI_API_KEY"`
+	AntropicAPIKey string `mapstructure:"ANTROPIC_API_KEY"`
 
 	// Database configuration
 	PostgresURL string `mapstructure:"POSTGRES_URL"`
@@ -28,6 +28,9 @@ type Config struct {
 	// Email configuration
 	EmailAPIKEY string `mapstructure:"EMAIL_API_KEY"`
 	EmailDomain string `mapstructure:"EMAIL_DOMAIN"`
+
+	// Valkey configuration
+	VALKEY_ADDRESS string `mapstructure:"VALKEY_ADDRESS"`
 }
 
 // LoadConfig loads the configuration from .env file and environment variables
@@ -58,6 +61,7 @@ func LoadConfig(path string) (config Config, err error) {
 		"POSTGRES_URL",
 		"EMAIL_API_KEY",
 		"EMAIL_DOMAIN",
+		"VALKEY_ADDRESS",
 	}
 	for _, key := range keys {
 		err := v.BindEnv(key)

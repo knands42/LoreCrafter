@@ -2,9 +2,9 @@ package usecases
 
 import (
 	"context"
-	"crypto/rand"
 	"errors"
 	"fmt"
+	"github.com/knands42/lorecrafter/internal/utils"
 	"log"
 	"time"
 
@@ -57,7 +57,7 @@ func (uc *PasswordResetUseCase) RequestPasswordReset(input domain.ForgotPassword
 	}
 
 	// Create new token
-	token, err := generateSecureToken(32)
+	token, err := utils.GenerateRandomToken(32)
 	if err != nil {
 		return ErrFailedToGenerateToken
 	}
@@ -67,7 +67,7 @@ func (uc *PasswordResetUseCase) RequestPasswordReset(input domain.ForgotPassword
 		return ErrFailedToCreatePasswordResetToken
 	}
 
-	dbToken, err := uc.repo.CreatePasswordResetToken(uc.ctx, params)
+	_, err = uc.repo.CreatePasswordResetToken(uc.ctx, params)
 	if err != nil {
 		return ErrFailedToCreatePasswordResetToken
 	}
@@ -79,7 +79,7 @@ func (uc *PasswordResetUseCase) RequestPasswordReset(input domain.ForgotPassword
 		}
 	}()
 
-	log.Printf("Password reset token created for user %s (token ID: %v)", input.Email, dbToken.ID)
+	log.Printf("Password reset token created for user %s", input.Email)
 	return nil
 }
 
@@ -108,14 +108,4 @@ func (uc *PasswordResetUseCase) ResetPassword(input domain.PasswordResetInput) e
 
 	log.Printf("Password reset successful for user ID: %s", input.Email)
 	return nil
-}
-
-// generateSecureToken generates a secure random token
-func generateSecureToken(length int) (string, error) {
-	b := make([]byte, length)
-	_, err := rand.Read(b)
-	if err != nil {
-		return "", err
-	}
-	return fmt.Sprintf("%x", b), nil
 }

@@ -51,6 +51,29 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 	return i, err
 }
 
+const getUserByID = `-- name: GetUserByID :one
+SELECT id, username, email, hashed_password, is_active, avatar_url, last_login_at, created_at, updated_at from users
+WHERE id = $1::uuid
+LIMIT 1
+`
+
+func (q *Queries) GetUserByID(ctx context.Context, userID pgtype.UUID) (User, error) {
+	row := q.db.QueryRow(ctx, getUserByID, userID)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Username,
+		&i.Email,
+		&i.HashedPassword,
+		&i.IsActive,
+		&i.AvatarUrl,
+		&i.LastLoginAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const getUserByUsernameOrEmail = `-- name: GetUserByUsernameOrEmail :one
 SELECT id, username, email, hashed_password, is_active, avatar_url, last_login_at, created_at, updated_at FROM users
 WHERE username = $1 OR email = $2

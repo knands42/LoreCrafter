@@ -1,0 +1,319 @@
+FAIL	github.com/knands42/lorecrafter [build failed]
+?   	github.com/knands42/lorecrafter/app/api	[no test files]
+?   	github.com/knands42/lorecrafter/app/api/docs	[no test files]
+?   	github.com/knands42/lorecrafter/app/api/middleware	[no test files]
+?   	github.com/knands42/lorecrafter/app/api/routes	[no test files]
+?   	github.com/knands42/lorecrafter/app/api/utils	[no test files]
+?   	github.com/knands42/lorecrafter/examples	[no test files]
+?   	github.com/knands42/lorecrafter/internal/adapter/database	[no test files]
+?   	github.com/knands42/lorecrafter/internal/adapter/database/migrations	[no test files]
+?   	github.com/knands42/lorecrafter/internal/adapter/email	[no test files]
+?   	github.com/knands42/lorecrafter/internal/adapter/llms	[no test files]
+?   	github.com/knands42/lorecrafter/internal/adapter/security	[no test files]
+?   	github.com/knands42/lorecrafter/internal/adapter/worker	[no test files]
+?   	github.com/knands42/lorecrafter/internal/config	[no test files]
+?   	github.com/knands42/lorecrafter/internal/domain	[no test files]
+?   	github.com/knands42/lorecrafter/internal/interfaces	[no test files]
+?   	github.com/knands42/lorecrafter/internal/prompts/dnd_5e	[no test files]
+?   	github.com/knands42/lorecrafter/internal/usecases	[no test files]
+?   	github.com/knands42/lorecrafter/internal/utils	[no test files]
+?   	github.com/knands42/lorecrafter/pkg/sqlc/generated	[no test files]
+2025/07/18 23:17:04 Successfully migrated database
+=== RUN   TestRegister_Success
+2025/07/18 23:17:04 "POST http://127.0.0.1:46383/api/auth/register HTTP/1.1" from 127.0.0.1:38600 - 201 263B in 84.556031ms
+--- PASS: TestRegister_Success (0.09s)
+=== RUN   TestRegister_Failure_UserAlreadyExists
+2025/07/18 23:17:04 "POST http://127.0.0.1:46383/api/auth/register HTTP/1.1" from 127.0.0.1:38600 - 201 267B in 70.487377ms
+2025/07/18 23:17:04 "POST http://127.0.0.1:46383/api/auth/register HTTP/1.1" from 127.0.0.1:38600 - 409 40B in 319.962µs
+--- PASS: TestRegister_Failure_UserAlreadyExists (0.08s)
+=== RUN   TestRegister_Failure_InvalidInput
+=== RUN   TestRegister_Failure_InvalidInput/Empty_username
+2025/07/18 23:17:04 validation errors: validation errors: [username is required]
+2025/07/18 23:17:04 "POST http://127.0.0.1:46383/api/auth/register HTTP/1.1" from 127.0.0.1:38612 - 400 65B in 78.364µs
+=== RUN   TestRegister_Failure_InvalidInput/Empty_email
+2025/07/18 23:17:04 validation errors: validation errors: [email is required]
+2025/07/18 23:17:04 "POST http://127.0.0.1:46383/api/auth/register HTTP/1.1" from 127.0.0.1:38626 - 400 62B in 66.881µs
+=== RUN   TestRegister_Failure_InvalidInput/Empty_password
+2025/07/18 23:17:04 validation errors: validation errors: [password must be at least 8 characters]
+2025/07/18 23:17:04 "POST http://127.0.0.1:46383/api/auth/register HTTP/1.1" from 127.0.0.1:38636 - 400 83B in 58.297µs
+=== RUN   TestRegister_Failure_InvalidInput/Invalid_email_format
+2025/07/18 23:17:04 validation errors: validation errors: [email is invalid]
+2025/07/18 23:17:04 "POST http://127.0.0.1:46383/api/auth/register HTTP/1.1" from 127.0.0.1:38642 - 400 61B in 46.72µs
+=== RUN   TestRegister_Failure_InvalidInput/Password_too_short
+2025/07/18 23:17:04 validation errors: validation errors: [password must be at least 8 characters]
+2025/07/18 23:17:04 "POST http://127.0.0.1:46383/api/auth/register HTTP/1.1" from 127.0.0.1:38656 - 400 83B in 94.379µs
+--- PASS: TestRegister_Failure_InvalidInput (0.00s)
+    --- PASS: TestRegister_Failure_InvalidInput/Empty_username (0.00s)
+    --- PASS: TestRegister_Failure_InvalidInput/Empty_email (0.00s)
+    --- PASS: TestRegister_Failure_InvalidInput/Empty_password (0.00s)
+    --- PASS: TestRegister_Failure_InvalidInput/Invalid_email_format (0.00s)
+    --- PASS: TestRegister_Failure_InvalidInput/Password_too_short (0.00s)
+=== RUN   TestLogin_Success
+2025/07/18 23:17:04 "POST http://127.0.0.1:46383/api/auth/register HTTP/1.1" from 127.0.0.1:38660 - 201 255B in 70.109587ms
+2025/07/18 23:17:04 "POST http://127.0.0.1:46383/api/auth/login HTTP/1.1" from 127.0.0.1:38660 - 200 966B in 54.393802ms
+--- PASS: TestLogin_Success (0.13s)
+=== RUN   TestLogin_Failure_InvalidCredentials
+2025/07/18 23:17:04 "POST http://127.0.0.1:46383/api/auth/register HTTP/1.1" from 127.0.0.1:38660 - 201 257B in 69.51613ms
+=== RUN   TestLogin_Failure_InvalidCredentials/Wrong_username
+2025/07/18 23:17:04 error getting user: no rows in result set
+2025/07/18 23:17:04 "POST http://127.0.0.1:46383/api/auth/login HTTP/1.1" from 127.0.0.1:38660 - 401 32B in 472.189µs
+=== RUN   TestLogin_Failure_InvalidCredentials/Wrong_password
+2025/07/18 23:17:04 "POST http://127.0.0.1:46383/api/auth/login HTTP/1.1" from 127.0.0.1:38662 - 401 32B in 51.256554ms
+=== RUN   TestLogin_Failure_InvalidCredentials/Empty_username
+2025/07/18 23:17:04 "POST http://127.0.0.1:46383/api/auth/login HTTP/1.1" from 127.0.0.1:38666 - 400 88B in 36.154µs
+=== RUN   TestLogin_Failure_InvalidCredentials/Empty_password
+2025/07/18 23:17:04 "POST http://127.0.0.1:46383/api/auth/login HTTP/1.1" from 127.0.0.1:38668 - 400 88B in 9.192µs
+--- PASS: TestLogin_Failure_InvalidCredentials (0.13s)
+    --- PASS: TestLogin_Failure_InvalidCredentials/Wrong_username (0.00s)
+    --- PASS: TestLogin_Failure_InvalidCredentials/Wrong_password (0.05s)
+    --- PASS: TestLogin_Failure_InvalidCredentials/Empty_username (0.00s)
+    --- PASS: TestLogin_Failure_InvalidCredentials/Empty_password (0.00s)
+=== RUN   TestMe_Success
+2025/07/18 23:17:04 "POST http://127.0.0.1:46383/api/auth/register HTTP/1.1" from 127.0.0.1:38680 - 201 247B in 51.489871ms
+2025/07/18 23:17:04 Failed to send verification email: UnexpectedResponseError Method=POST URL=https://api.mailgun.net/v3/sandbox4439591d27a744838408ace0e2f95316.mailgun.org/messages ExpectedOneOf=[]int{200, 202, 204} Got=403 Error: {"message":"Domain sandbox4439591d27a744838408ace0e2f95316.mailgun.org is not allowed to send: Free accounts are for test purposes only. Please upgrade or add the address to your authorized recipients."}
+2025/07/18 23:17:04 Error sending verification email: failed to send email
+2025/07/18 23:17:04 Failed to send verification email: UnexpectedResponseError Method=POST URL=https://api.mailgun.net/v3/sandbox4439591d27a744838408ace0e2f95316.mailgun.org/messages ExpectedOneOf=[]int{200, 202, 204} Got=403 Error: {"message":"Domain sandbox4439591d27a744838408ace0e2f95316.mailgun.org is not allowed to send: Free accounts are for test purposes only. Please upgrade or add the address to your authorized recipients."}
+2025/07/18 23:17:04 Error sending verification email: failed to send email
+2025/07/18 23:17:04 Failed to send verification email: UnexpectedResponseError Method=POST URL=https://api.mailgun.net/v3/sandbox4439591d27a744838408ace0e2f95316.mailgun.org/messages ExpectedOneOf=[]int{200, 202, 204} Got=403 Error: {"message":"Domain sandbox4439591d27a744838408ace0e2f95316.mailgun.org is not allowed to send: Free accounts are for test purposes only. Please upgrade or add the address to your authorized recipients."}
+2025/07/18 23:17:04 Error sending verification email: failed to send email
+2025/07/18 23:17:04 Failed to send verification email: UnexpectedResponseError Method=POST URL=https://api.mailgun.net/v3/sandbox4439591d27a744838408ace0e2f95316.mailgun.org/messages ExpectedOneOf=[]int{200, 202, 204} Got=403 Error: {"message":"Domain sandbox4439591d27a744838408ace0e2f95316.mailgun.org is not allowed to send: Free accounts are for test purposes only. Please upgrade or add the address to your authorized recipients."}
+2025/07/18 23:17:04 Error sending verification email: failed to send email
+2025/07/18 23:17:05 "POST http://127.0.0.1:46383/api/auth/login HTTP/1.1" from 127.0.0.1:38680 - 200 947B in 43.80764ms
+2025/07/18 23:17:05 "GET http://127.0.0.1:46383/api/me HTTP/1.1" from 127.0.0.1:38682 - 200 51B in 225.15µs
+--- PASS: TestMe_Success (0.10s)
+=== RUN   TestMe_Failure_Unauthorized
+2025/07/18 23:17:05 "GET http://127.0.0.1:46383/api/me HTTP/1.1" from 127.0.0.1:38688 - 401 47B in 20.647µs
+2025/07/18 23:17:05 "GET http://127.0.0.1:46383/api/me HTTP/1.1" from 127.0.0.1:38690 - 401 47B in 14.107µs
+--- PASS: TestMe_Failure_Unauthorized (0.00s)
+=== RUN   TestCreateCampaignInvitation_Success
+2025/07/18 23:17:05 "POST http://127.0.0.1:46383/api/auth/register HTTP/1.1" from 127.0.0.1:38698 - 201 247B in 54.909226ms
+2025/07/18 23:17:05 Failed to send verification email: UnexpectedResponseError Method=POST URL=https://api.mailgun.net/v3/sandbox4439591d27a744838408ace0e2f95316.mailgun.org/messages ExpectedOneOf=[]int{200, 202, 204} Got=403 Error: {"message":"Domain sandbox4439591d27a744838408ace0e2f95316.mailgun.org is not allowed to send: Free accounts are for test purposes only. Please upgrade or add the address to your authorized recipients."}
+2025/07/18 23:17:05 Error sending verification email: failed to send email
+2025/07/18 23:17:05 "POST http://127.0.0.1:46383/api/auth/login HTTP/1.1" from 127.0.0.1:38698 - 200 947B in 48.984242ms
+2025/07/18 23:17:05 "POST http://127.0.0.1:46383/api/auth/register HTTP/1.1" from 127.0.0.1:38700 - 201 245B in 53.461747ms
+2025/07/18 23:17:05 Failed to send verification email: UnexpectedResponseError Method=POST URL=https://api.mailgun.net/v3/sandbox4439591d27a744838408ace0e2f95316.mailgun.org/messages ExpectedOneOf=[]int{200, 202, 204} Got=403 Error: {"message":"Domain sandbox4439591d27a744838408ace0e2f95316.mailgun.org is not allowed to send: Free accounts are for test purposes only. Please upgrade or add the address to your authorized recipients."}
+2025/07/18 23:17:05 Error sending verification email: failed to send email
+2025/07/18 23:17:05 "POST http://127.0.0.1:46383/api/auth/login HTTP/1.1" from 127.0.0.1:38700 - 200 943B in 41.089118ms
+2025/07/18 23:17:05 "POST http://127.0.0.1:46383/api/campaigns HTTP/1.1" from 127.0.0.1:38706 - 201 545B in 12.712574ms
+2025/07/18 23:17:05 "POST http://127.0.0.1:46383/api/campaigns/01982078-81bb-7cfd-b599-e9f56a17bbac/invitations HTTP/1.1" from 127.0.0.1:38706 - 201 438B in 6.797738ms
+--- PASS: TestCreateCampaignInvitation_Success (0.22s)
+=== RUN   TestCreateCampaignInvitation_Failure_Unauthorized
+2025/07/18 23:17:05 "POST http://127.0.0.1:46383/api/auth/register HTTP/1.1" from 127.0.0.1:38706 - 201 247B in 52.645056ms
+2025/07/18 23:17:05 Failed to send verification email: UnexpectedResponseError Method=POST URL=https://api.mailgun.net/v3/sandbox4439591d27a744838408ace0e2f95316.mailgun.org/messages ExpectedOneOf=[]int{200, 202, 204} Got=403 Error: {"message":"Domain sandbox4439591d27a744838408ace0e2f95316.mailgun.org is not allowed to send: Free accounts are for test purposes only. Please upgrade or add the address to your authorized recipients."}
+2025/07/18 23:17:05 Error sending verification email: failed to send email
+2025/07/18 23:17:05 "POST http://127.0.0.1:46383/api/auth/login HTTP/1.1" from 127.0.0.1:38706 - 200 947B in 46.713973ms
+2025/07/18 23:17:05 "POST http://127.0.0.1:46383/api/auth/register HTTP/1.1" from 127.0.0.1:38712 - 201 247B in 56.944349ms
+2025/07/18 23:17:05 Failed to send verification email: UnexpectedResponseError Method=POST URL=https://api.mailgun.net/v3/sandbox4439591d27a744838408ace0e2f95316.mailgun.org/messages ExpectedOneOf=[]int{200, 202, 204} Got=403 Error: {"message":"Domain sandbox4439591d27a744838408ace0e2f95316.mailgun.org is not allowed to send: Free accounts are for test purposes only. Please upgrade or add the address to your authorized recipients."}
+2025/07/18 23:17:05 Error sending verification email: failed to send email
+2025/07/18 23:17:05 "POST http://127.0.0.1:46383/api/auth/login HTTP/1.1" from 127.0.0.1:38712 - 200 947B in 54.481612ms
+2025/07/18 23:17:05 "POST http://127.0.0.1:46383/api/campaigns HTTP/1.1" from 127.0.0.1:38716 - 201 545B in 11.588326ms
+2025/07/18 23:17:05 "POST http://127.0.0.1:46383/api/campaigns/01982078-82a3-79f0-a56f-fdc83f790f9e/invitations HTTP/1.1" from 127.0.0.1:38716 - 401 47B in 7.312µs
+--- PASS: TestCreateCampaignInvitation_Failure_Unauthorized (0.22s)
+=== RUN   TestCreateCampaignInvitation_Failure_InvalidInput
+2025/07/18 23:17:05 "POST http://127.0.0.1:46383/api/auth/register HTTP/1.1" from 127.0.0.1:38718 - 201 247B in 53.39461ms
+2025/07/18 23:17:05 Failed to send verification email: UnexpectedResponseError Method=POST URL=https://api.mailgun.net/v3/sandbox4439591d27a744838408ace0e2f95316.mailgun.org/messages ExpectedOneOf=[]int{200, 202, 204} Got=403 Error: {"message":"Domain sandbox4439591d27a744838408ace0e2f95316.mailgun.org is not allowed to send: Free accounts are for test purposes only. Please upgrade or add the address to your authorized recipients."}
+2025/07/18 23:17:05 Error sending verification email: failed to send email
+2025/07/18 23:17:05 "POST http://127.0.0.1:46383/api/auth/login HTTP/1.1" from 127.0.0.1:38718 - 200 947B in 41.530325ms
+2025/07/18 23:17:05 "POST http://127.0.0.1:46383/api/auth/register HTTP/1.1" from 127.0.0.1:38732 - 201 247B in 56.806673ms
+2025/07/18 23:17:05 Failed to send verification email: UnexpectedResponseError Method=POST URL=https://api.mailgun.net/v3/sandbox4439591d27a744838408ace0e2f95316.mailgun.org/messages ExpectedOneOf=[]int{200, 202, 204} Got=403 Error: {"message":"Domain sandbox4439591d27a744838408ace0e2f95316.mailgun.org is not allowed to send: Free accounts are for test purposes only. Please upgrade or add the address to your authorized recipients."}
+2025/07/18 23:17:05 Error sending verification email: failed to send email
+2025/07/18 23:17:05 "POST http://127.0.0.1:46383/api/auth/login HTTP/1.1" from 127.0.0.1:38732 - 200 947B in 43.688578ms
+2025/07/18 23:17:05 "POST http://127.0.0.1:46383/api/campaigns HTTP/1.1" from 127.0.0.1:38746 - 201 545B in 11.979701ms
+2025/07/18 23:17:05 "POST http://127.0.0.1:46383/api/campaigns/01982078-8374-70b3-82a8-45f94ad15b77/invitations HTTP/1.1" from 127.0.0.1:38746 - 400 65B in 62.526µs
+--- PASS: TestCreateCampaignInvitation_Failure_InvalidInput (0.21s)
+=== RUN   TestCreateCampaignInvitation_Failure_UserAlreadyMember
+--- PASS: TestCreateCampaignInvitation_Failure_UserAlreadyMember (0.00s)
+=== RUN   TestReceivingACampaignInvitation_Success
+2025/07/18 23:17:05 "POST http://127.0.0.1:46383/api/auth/register HTTP/1.1" from 127.0.0.1:38756 - 201 247B in 54.747306ms
+2025/07/18 23:17:05 Failed to send verification email: UnexpectedResponseError Method=POST URL=https://api.mailgun.net/v3/sandbox4439591d27a744838408ace0e2f95316.mailgun.org/messages ExpectedOneOf=[]int{200, 202, 204} Got=403 Error: {"message":"Domain sandbox4439591d27a744838408ace0e2f95316.mailgun.org is not allowed to send: Free accounts are for test purposes only. Please upgrade or add the address to your authorized recipients."}
+2025/07/18 23:17:05 Error sending verification email: failed to send email
+2025/07/18 23:17:05 "POST http://127.0.0.1:46383/api/auth/login HTTP/1.1" from 127.0.0.1:38756 - 200 947B in 44.593137ms
+2025/07/18 23:17:05 "POST http://127.0.0.1:46383/api/auth/register HTTP/1.1" from 127.0.0.1:38766 - 201 247B in 52.062922ms
+2025/07/18 23:17:05 Failed to send verification email: UnexpectedResponseError Method=POST URL=https://api.mailgun.net/v3/sandbox4439591d27a744838408ace0e2f95316.mailgun.org/messages ExpectedOneOf=[]int{200, 202, 204} Got=403 Error: {"message":"Domain sandbox4439591d27a744838408ace0e2f95316.mailgun.org is not allowed to send: Free accounts are for test purposes only. Please upgrade or add the address to your authorized recipients."}
+2025/07/18 23:17:05 Error sending verification email: failed to send email
+2025/07/18 23:17:05 "POST http://127.0.0.1:46383/api/auth/login HTTP/1.1" from 127.0.0.1:38766 - 200 947B in 47.129272ms
+2025/07/18 23:17:05 "POST http://127.0.0.1:46383/api/campaigns HTTP/1.1" from 127.0.0.1:38780 - 201 545B in 11.669501ms
+2025/07/18 23:17:05 "POST http://127.0.0.1:46383/api/campaigns/01982078-8448-7859-8798-6c2771dfaba8/invitations HTTP/1.1" from 127.0.0.1:38780 - 201 438B in 5.971803ms
+2025/07/18 23:17:05 "PATCH http://127.0.0.1:46383/api/campaigns/invitations/4f9dc40b8f476e698ef8deba11f57d649e82278a31fbc36aa9054c4a7d7414c8 HTTP/1.1" from 127.0.0.1:38780 - 204 0B in 12.994383ms
+2025/07/18 23:17:05 "GET http://127.0.0.1:46383/api/campaigns/01982078-8448-7859-8798-6c2771dfaba8/members/01982078-840d-75c4-8e0b-5323ffd0e7f5 HTTP/1.1" from 127.0.0.1:38780 - 200 253B in 2.793536ms
+--- PASS: TestReceivingACampaignInvitation_Success (0.23s)
+=== RUN   TestShouldInvalidatePreviousInvitationsByAcceptingOrRejecting
+--- PASS: TestShouldInvalidatePreviousInvitationsByAcceptingOrRejecting (0.00s)
+=== RUN   TestCreateCampaign_NO_AI_Success
+2025/07/18 23:17:05 Failed to send verification email: UnexpectedResponseError Method=POST URL=https://api.mailgun.net/v3/sandbox4439591d27a744838408ace0e2f95316.mailgun.org/messages ExpectedOneOf=[]int{200, 202, 204} Got=403 Error: {"message":"Domain sandbox4439591d27a744838408ace0e2f95316.mailgun.org is not allowed to send: Free accounts are for test purposes only. Please upgrade or add the address to your authorized recipients."}
+2025/07/18 23:17:05 Error sending verification email: failed to send email
+2025/07/18 23:17:05 "POST http://127.0.0.1:46383/api/auth/register HTTP/1.1" from 127.0.0.1:38780 - 201 247B in 65.146674ms
+2025/07/18 23:17:06 "POST http://127.0.0.1:46383/api/auth/login HTTP/1.1" from 127.0.0.1:38780 - 200 945B in 51.076019ms
+2025/07/18 23:17:06 "POST http://127.0.0.1:46383/api/campaigns HTTP/1.1" from 127.0.0.1:48290 - 201 500B in 11.215931ms
+--- PASS: TestCreateCampaign_NO_AI_Success (0.13s)
+=== RUN   TestCreateCampaign_WITH_AI_Success
+2025/07/18 23:17:06 "POST http://127.0.0.1:46383/api/auth/register HTTP/1.1" from 127.0.0.1:48290 - 201 247B in 57.003442ms
+2025/07/18 23:17:06 Failed to send verification email: UnexpectedResponseError Method=POST URL=https://api.mailgun.net/v3/sandbox4439591d27a744838408ace0e2f95316.mailgun.org/messages ExpectedOneOf=[]int{200, 202, 204} Got=403 Error: {"message":"Domain sandbox4439591d27a744838408ace0e2f95316.mailgun.org is not allowed to send: Free accounts are for test purposes only. Please upgrade or add the address to your authorized recipients."}
+2025/07/18 23:17:06 Error sending verification email: failed to send email
+2025/07/18 23:17:06 "POST http://127.0.0.1:46383/api/auth/login HTTP/1.1" from 127.0.0.1:48290 - 200 947B in 44.626666ms
+2025/07/18 23:17:06 Failed to send verification email: UnexpectedResponseError Method=POST URL=https://api.mailgun.net/v3/sandbox4439591d27a744838408ace0e2f95316.mailgun.org/messages ExpectedOneOf=[]int{200, 202, 204} Got=403 Error: {"message":"Domain sandbox4439591d27a744838408ace0e2f95316.mailgun.org is not allowed to send: Free accounts are for test purposes only. Please upgrade or add the address to your authorized recipients."}
+2025/07/18 23:17:06 Error sending verification email: failed to send email
+2025/07/18 23:17:30 "POST http://127.0.0.1:46383/api/campaigns?use_gen_ai=true& HTTP/1.1" from 127.0.0.1:48302 - 201 5835B in 24.791540676s
+--- PASS: TestCreateCampaign_WITH_AI_Success (24.90s)
+=== RUN   TestCreateCampaign_Failure_Unauthorized
+2025/07/18 23:17:30 "POST http://127.0.0.1:46383/api/campaigns HTTP/1.1" from 127.0.0.1:48302 - 401 47B in 44.93µs
+--- PASS: TestCreateCampaign_Failure_Unauthorized (0.00s)
+=== RUN   TestCreateCampaign_Failure_InvalidInput
+2025/07/18 23:17:30 "POST http://127.0.0.1:46383/api/auth/register HTTP/1.1" from 127.0.0.1:39228 - 201 247B in 58.504682ms
+2025/07/18 23:17:31 "POST http://127.0.0.1:46383/api/auth/login HTTP/1.1" from 127.0.0.1:39228 - 200 947B in 55.479649ms
+=== RUN   TestCreateCampaign_Failure_InvalidInput/Empty_title
+2025/07/18 23:17:31 "POST http://127.0.0.1:46383/api/campaigns HTTP/1.1" from 127.0.0.1:39244 - 400 62B in 90.363µs
+=== RUN   TestCreateCampaign_Failure_InvalidInput/Title_too_long
+2025/07/18 23:17:31 "POST http://127.0.0.1:46383/api/campaigns HTTP/1.1" from 127.0.0.1:39254 - 400 81B in 77.834µs
+--- PASS: TestCreateCampaign_Failure_InvalidInput (0.12s)
+    --- PASS: TestCreateCampaign_Failure_InvalidInput/Empty_title (0.00s)
+    --- PASS: TestCreateCampaign_Failure_InvalidInput/Title_too_long (0.00s)
+=== RUN   TestGetCampaign_Success
+2025/07/18 23:17:31 "POST http://127.0.0.1:46383/api/auth/register HTTP/1.1" from 127.0.0.1:39262 - 201 247B in 51.616905ms
+2025/07/18 23:17:31 Failed to send verification email: UnexpectedResponseError Method=POST URL=https://api.mailgun.net/v3/sandbox4439591d27a744838408ace0e2f95316.mailgun.org/messages ExpectedOneOf=[]int{200, 202, 204} Got=403 Error: {"message":"Domain sandbox4439591d27a744838408ace0e2f95316.mailgun.org is not allowed to send: Free accounts are for test purposes only. Please upgrade or add the address to your authorized recipients."}
+2025/07/18 23:17:31 Error sending verification email: failed to send email
+2025/07/18 23:17:31 "POST http://127.0.0.1:46383/api/auth/login HTTP/1.1" from 127.0.0.1:39262 - 200 947B in 43.521518ms
+2025/07/18 23:17:31 "POST http://127.0.0.1:46383/api/campaigns HTTP/1.1" from 127.0.0.1:39276 - 201 500B in 15.758734ms
+2025/07/18 23:17:31 "GET http://127.0.0.1:46383/api/campaigns/01982078-e6ff-7b78-90fe-144f1fc26c7f HTTP/1.1" from 127.0.0.1:39276 - 200 524B in 1.360418ms
+--- PASS: TestGetCampaign_Success (0.11s)
+=== RUN   TestGetCampaign_Failure_NotFound
+2025/07/18 23:17:31 "POST http://127.0.0.1:46383/api/auth/register HTTP/1.1" from 127.0.0.1:39276 - 201 247B in 55.058999ms
+2025/07/18 23:17:31 "POST http://127.0.0.1:46383/api/auth/login HTTP/1.1" from 127.0.0.1:39276 - 200 947B in 42.846868ms
+2025/07/18 23:17:31 "GET http://127.0.0.1:46383/api/campaigns/aa5c8a50-fe2b-4fcd-ad3e-ec82d6a4ad8d HTTP/1.1" from 127.0.0.1:39282 - 404 31B in 750.095µs
+--- PASS: TestGetCampaign_Failure_NotFound (0.10s)
+=== RUN   TestGetCampaign_Failure_Unauthorized
+2025/07/18 23:17:31 Failed to send verification email: UnexpectedResponseError Method=POST URL=https://api.mailgun.net/v3/sandbox4439591d27a744838408ace0e2f95316.mailgun.org/messages ExpectedOneOf=[]int{200, 202, 204} Got=403 Error: {"message":"Domain sandbox4439591d27a744838408ace0e2f95316.mailgun.org is not allowed to send: Free accounts are for test purposes only. Please upgrade or add the address to your authorized recipients."}
+2025/07/18 23:17:31 Error sending verification email: failed to send email
+2025/07/18 23:17:31 "POST http://127.0.0.1:46383/api/auth/register HTTP/1.1" from 127.0.0.1:39284 - 201 247B in 52.340383ms
+2025/07/18 23:17:31 Failed to send verification email: UnexpectedResponseError Method=POST URL=https://api.mailgun.net/v3/sandbox4439591d27a744838408ace0e2f95316.mailgun.org/messages ExpectedOneOf=[]int{200, 202, 204} Got=403 Error: {"message":"Domain sandbox4439591d27a744838408ace0e2f95316.mailgun.org is not allowed to send: Free accounts are for test purposes only. Please upgrade or add the address to your authorized recipients."}
+2025/07/18 23:17:31 Error sending verification email: failed to send email
+2025/07/18 23:17:31 "POST http://127.0.0.1:46383/api/auth/login HTTP/1.1" from 127.0.0.1:39284 - 200 947B in 39.435905ms
+2025/07/18 23:17:31 "POST http://127.0.0.1:46383/api/campaigns HTTP/1.1" from 127.0.0.1:39286 - 201 500B in 11.20192ms
+2025/07/18 23:17:31 "GET http://127.0.0.1:46383/api/campaigns/01982078-e7d1-705c-8168-b7c08eb1cc68 HTTP/1.1" from 127.0.0.1:39286 - 401 47B in 6.315µs
+--- PASS: TestGetCampaign_Failure_Unauthorized (0.10s)
+=== RUN   TestUpdateCampaign_Success
+2025/07/18 23:17:31 "POST http://127.0.0.1:46383/api/auth/register HTTP/1.1" from 127.0.0.1:39294 - 201 247B in 50.589559ms
+2025/07/18 23:17:31 "POST http://127.0.0.1:46383/api/auth/login HTTP/1.1" from 127.0.0.1:39294 - 200 945B in 46.102218ms
+2025/07/18 23:17:31 Failed to send verification email: UnexpectedResponseError Method=POST URL=https://api.mailgun.net/v3/sandbox4439591d27a744838408ace0e2f95316.mailgun.org/messages ExpectedOneOf=[]int{200, 202, 204} Got=403 Error: {"message":"Domain sandbox4439591d27a744838408ace0e2f95316.mailgun.org is not allowed to send: Free accounts are for test purposes only. Please upgrade or add the address to your authorized recipients."}
+2025/07/18 23:17:31 Error sending verification email: failed to send email
+2025/07/18 23:17:31 "POST http://127.0.0.1:46383/api/campaigns HTTP/1.1" from 127.0.0.1:39296 - 201 500B in 11.168772ms
+2025/07/18 23:17:31 "PUT http://127.0.0.1:46383/api/campaigns/01982078-e83d-7e09-83a1-cafddea9e79a HTTP/1.1" from 127.0.0.1:39296 - 200 269B in 6.128418ms
+2025/07/18 23:17:31 "GET http://127.0.0.1:46383/api/campaigns/01982078-e83d-7e09-83a1-cafddea9e79a HTTP/1.1" from 127.0.0.1:39310 - 200 533B in 652.411µs
+--- PASS: TestUpdateCampaign_Success (0.12s)
+=== RUN   TestUpdateCampaign_Failure_NotFound
+2025/07/18 23:17:31 "POST http://127.0.0.1:46383/api/auth/register HTTP/1.1" from 127.0.0.1:39310 - 201 247B in 65.312287ms
+2025/07/18 23:17:31 Failed to send verification email: UnexpectedResponseError Method=POST URL=https://api.mailgun.net/v3/sandbox4439591d27a744838408ace0e2f95316.mailgun.org/messages ExpectedOneOf=[]int{200, 202, 204} Got=403 Error: {"message":"Domain sandbox4439591d27a744838408ace0e2f95316.mailgun.org is not allowed to send: Free accounts are for test purposes only. Please upgrade or add the address to your authorized recipients."}
+2025/07/18 23:17:31 Error sending verification email: failed to send email
+2025/07/18 23:17:31 "POST http://127.0.0.1:46383/api/auth/login HTTP/1.1" from 127.0.0.1:39310 - 200 947B in 45.712434ms
+2025/07/18 23:17:31 "PUT http://127.0.0.1:46383/api/campaigns/4d63c43e-d866-482c-91f5-3fe895e8c3e2 HTTP/1.1" from 127.0.0.1:39324 - 404 31B in 711.667µs
+--- PASS: TestUpdateCampaign_Failure_NotFound (0.11s)
+=== RUN   TestUpdateCampaign_Failure_Unauthorized
+2025/07/18 23:17:31 "POST http://127.0.0.1:46383/api/auth/register HTTP/1.1" from 127.0.0.1:39338 - 201 247B in 54.354241ms
+2025/07/18 23:17:31 Failed to send verification email: UnexpectedResponseError Method=POST URL=https://api.mailgun.net/v3/sandbox4439591d27a744838408ace0e2f95316.mailgun.org/messages ExpectedOneOf=[]int{200, 202, 204} Got=403 Error: {"message":"Domain sandbox4439591d27a744838408ace0e2f95316.mailgun.org is not allowed to send: Free accounts are for test purposes only. Please upgrade or add the address to your authorized recipients."}
+2025/07/18 23:17:31 Error sending verification email: failed to send email
+2025/07/18 23:17:31 "POST http://127.0.0.1:46383/api/auth/login HTTP/1.1" from 127.0.0.1:39338 - 200 947B in 56.400753ms
+2025/07/18 23:17:31 "POST http://127.0.0.1:46383/api/campaigns HTTP/1.1" from 127.0.0.1:39348 - 201 500B in 11.489162ms
+2025/07/18 23:17:31 "PUT http://127.0.0.1:46383/api/campaigns/01982078-e930-750c-8cf8-ef80f18ce0ea HTTP/1.1" from 127.0.0.1:39348 - 401 47B in 13.223µs
+--- PASS: TestUpdateCampaign_Failure_Unauthorized (0.12s)
+=== RUN   TestDeleteCampaign_Success
+2025/07/18 23:17:31 "POST http://127.0.0.1:46383/api/auth/register HTTP/1.1" from 127.0.0.1:39364 - 201 247B in 55.674757ms
+2025/07/18 23:17:31 Failed to send verification email: UnexpectedResponseError Method=POST URL=https://api.mailgun.net/v3/sandbox4439591d27a744838408ace0e2f95316.mailgun.org/messages ExpectedOneOf=[]int{200, 202, 204} Got=403 Error: {"message":"Domain sandbox4439591d27a744838408ace0e2f95316.mailgun.org is not allowed to send: Free accounts are for test purposes only. Please upgrade or add the address to your authorized recipients."}
+2025/07/18 23:17:31 Error sending verification email: failed to send email
+2025/07/18 23:17:31 "POST http://127.0.0.1:46383/api/auth/login HTTP/1.1" from 127.0.0.1:39364 - 200 947B in 39.812608ms
+2025/07/18 23:17:31 "POST http://127.0.0.1:46383/api/campaigns HTTP/1.1" from 127.0.0.1:39370 - 201 500B in 11.541112ms
+2025/07/18 23:17:31 "DELETE http://127.0.0.1:46383/api/campaigns/01982078-e99c-7b07-8701-a0506b047b6b HTTP/1.1" from 127.0.0.1:39370 - 204 0B in 6.803756ms
+2025/07/18 23:17:31 "GET http://127.0.0.1:46383/api/campaigns/01982078-e99c-7b07-8701-a0506b047b6b HTTP/1.1" from 127.0.0.1:39370 - 404 31B in 748.891µs
+--- PASS: TestDeleteCampaign_Success (0.12s)
+=== RUN   TestDeleteCampaign_Success_NotFound
+2025/07/18 23:17:31 "POST http://127.0.0.1:46383/api/auth/register HTTP/1.1" from 127.0.0.1:39382 - 201 247B in 70.739373ms
+2025/07/18 23:17:31 Failed to send verification email: UnexpectedResponseError Method=POST URL=https://api.mailgun.net/v3/sandbox4439591d27a744838408ace0e2f95316.mailgun.org/messages ExpectedOneOf=[]int{200, 202, 204} Got=403 Error: {"message":"Domain sandbox4439591d27a744838408ace0e2f95316.mailgun.org is not allowed to send: Free accounts are for test purposes only. Please upgrade or add the address to your authorized recipients."}
+2025/07/18 23:17:31 Error sending verification email: failed to send email
+2025/07/18 23:17:31 "POST http://127.0.0.1:46383/api/auth/login HTTP/1.1" from 127.0.0.1:39382 - 200 945B in 54.257032ms
+2025/07/18 23:17:31 "DELETE http://127.0.0.1:46383/api/campaigns/c0f85ffe-02e5-458d-be4a-e7d23f7b6669 HTTP/1.1" from 127.0.0.1:39388 - 204 0B in 661.66µs
+--- PASS: TestDeleteCampaign_Success_NotFound (0.13s)
+=== RUN   TestDeleteCampaign_Failure_Unauthorized
+2025/07/18 23:17:32 "POST http://127.0.0.1:46383/api/auth/register HTTP/1.1" from 127.0.0.1:39388 - 201 247B in 52.927699ms
+2025/07/18 23:17:32 Failed to send verification email: UnexpectedResponseError Method=POST URL=https://api.mailgun.net/v3/sandbox4439591d27a744838408ace0e2f95316.mailgun.org/messages ExpectedOneOf=[]int{200, 202, 204} Got=403 Error: {"message":"Domain sandbox4439591d27a744838408ace0e2f95316.mailgun.org is not allowed to send: Free accounts are for test purposes only. Please upgrade or add the address to your authorized recipients."}
+2025/07/18 23:17:32 Error sending verification email: failed to send email
+2025/07/18 23:17:32 "POST http://127.0.0.1:46383/api/auth/login HTTP/1.1" from 127.0.0.1:39388 - 200 947B in 42.262546ms
+2025/07/18 23:17:32 "POST http://127.0.0.1:46383/api/campaigns HTTP/1.1" from 127.0.0.1:39396 - 201 500B in 11.354853ms
+2025/07/18 23:17:32 "DELETE http://127.0.0.1:46383/api/campaigns/01982078-ea8f-70c6-847f-86797b4fb296 HTTP/1.1" from 127.0.0.1:39396 - 401 47B in 7.344µs
+--- PASS: TestDeleteCampaign_Failure_Unauthorized (0.11s)
+=== RUN   TestListUserCampaigns_Success
+2025/07/18 23:17:32 "POST http://127.0.0.1:46383/api/auth/register HTTP/1.1" from 127.0.0.1:39398 - 201 247B in 56.11885ms
+2025/07/18 23:17:32 Failed to send verification email: UnexpectedResponseError Method=POST URL=https://api.mailgun.net/v3/sandbox4439591d27a744838408ace0e2f95316.mailgun.org/messages ExpectedOneOf=[]int{200, 202, 204} Got=403 Error: {"message":"Domain sandbox4439591d27a744838408ace0e2f95316.mailgun.org is not allowed to send: Free accounts are for test purposes only. Please upgrade or add the address to your authorized recipients."}
+2025/07/18 23:17:32 Error sending verification email: failed to send email
+2025/07/18 23:17:32 "POST http://127.0.0.1:46383/api/auth/login HTTP/1.1" from 127.0.0.1:39398 - 200 947B in 46.071092ms
+2025/07/18 23:17:32 "POST http://127.0.0.1:46383/api/campaigns HTTP/1.1" from 127.0.0.1:39408 - 201 502B in 11.793539ms
+2025/07/18 23:17:32 "POST http://127.0.0.1:46383/api/campaigns HTTP/1.1" from 127.0.0.1:39408 - 201 502B in 11.222274ms
+2025/07/18 23:17:32 "POST http://127.0.0.1:46383/api/campaigns HTTP/1.1" from 127.0.0.1:39408 - 201 502B in 11.988136ms
+2025/07/18 23:17:32 "GET http://127.0.0.1:46383/api/campaigns HTTP/1.1" from 127.0.0.1:39408 - 200 1580B in 2.360207ms
+--- PASS: TestListUserCampaigns_Success (0.14s)
+=== RUN   TestListUserCampaigns_Failure_Unauthorized
+2025/07/18 23:17:32 "GET http://127.0.0.1:46383/api/campaigns HTTP/1.1" from 127.0.0.1:39408 - 401 47B in 34.024µs
+--- PASS: TestListUserCampaigns_Failure_Unauthorized (0.00s)
+=== RUN   TestForgotPassword_Success
+2025/07/18 23:17:32 Failed to send verification email: UnexpectedResponseError Method=POST URL=https://api.mailgun.net/v3/sandbox4439591d27a744838408ace0e2f95316.mailgun.org/messages ExpectedOneOf=[]int{200, 202, 204} Got=403 Error: {"message":"Domain sandbox4439591d27a744838408ace0e2f95316.mailgun.org is not allowed to send: Free accounts are for test purposes only. Please upgrade or add the address to your authorized recipients."}
+2025/07/18 23:17:32 Error sending verification email: failed to send email
+2025/07/18 23:17:32 "POST http://127.0.0.1:46383/api/auth/register HTTP/1.1" from 127.0.0.1:39412 - 201 247B in 62.815844ms
+2025/07/18 23:17:32 "POST http://127.0.0.1:46383/api/auth/login HTTP/1.1" from 127.0.0.1:39412 - 200 947B in 45.329131ms
+2025/07/18 23:17:32 Password reset token created for user testuser_22962d03@example.com (token ID: {[1 152 32 120 235 150 115 7 140 139 146 243 74 103 249 93] true})
+2025/07/18 23:17:32 "POST http://127.0.0.1:46383/api/auth/forgot-password HTTP/1.1" from 127.0.0.1:39414 - 204 0B in 6.835143ms
+2025/07/18 23:17:32 Failed to send verification email: UnexpectedResponseError Method=POST URL=https://api.mailgun.net/v3/sandbox4439591d27a744838408ace0e2f95316.mailgun.org/messages ExpectedOneOf=[]int{200, 202, 204} Got=403 Error: {"message":"Domain sandbox4439591d27a744838408ace0e2f95316.mailgun.org is not allowed to send: Free accounts are for test purposes only. Please upgrade or add the address to your authorized recipients."}
+2025/07/18 23:17:32 Error sending verification email: failed to send email
+--- PASS: TestForgotPassword_Success (0.22s)
+=== RUN   TestMultipleForgotPasswordRequests_InvalidatesPreviousTokens
+2025/07/18 23:17:32 Failed to send password reset email: UnexpectedResponseError Method=POST URL=https://api.mailgun.net/v3/sandbox4439591d27a744838408ace0e2f95316.mailgun.org/messages ExpectedOneOf=[]int{200, 202, 204} Got=403 Error: {"message":"Domain sandbox4439591d27a744838408ace0e2f95316.mailgun.org is not allowed to send: Free accounts are for test purposes only. Please upgrade or add the address to your authorized recipients."}
+2025/07/18 23:17:32 Failed to send password reset email: failed to send email
+2025/07/18 23:17:32 "POST http://127.0.0.1:46383/api/auth/register HTTP/1.1" from 127.0.0.1:39414 - 201 247B in 74.483261ms
+2025/07/18 23:17:32 "POST http://127.0.0.1:46383/api/auth/login HTTP/1.1" from 127.0.0.1:39414 - 200 945B in 52.235601ms
+2025/07/18 23:17:32 Password reset token created for user testuser_ae03bbeb@example.com (token ID: {[1 152 32 120 236 128 124 47 138 47 70 116 113 18 131 36] true})
+2025/07/18 23:17:32 "POST http://127.0.0.1:46383/api/auth/forgot-password HTTP/1.1" from 127.0.0.1:39428 - 204 0B in 6.581015ms
+2025/07/18 23:17:32 Failed to send verification email: UnexpectedResponseError Method=POST URL=https://api.mailgun.net/v3/sandbox4439591d27a744838408ace0e2f95316.mailgun.org/messages ExpectedOneOf=[]int{200, 202, 204} Got=420 Error: {"message":"Domain sandbox4439591d27a744838408ace0e2f95316.mailgun.org is not allowed to send: recipient limit exceeded, try again after Sat, 19 Jul 2025 02:17:34 UTC"}
+2025/07/18 23:17:32 Error sending verification email: failed to send email
+2025/07/18 23:17:32 Failed to send password reset email: UnexpectedResponseError Method=POST URL=https://api.mailgun.net/v3/sandbox4439591d27a744838408ace0e2f95316.mailgun.org/messages ExpectedOneOf=[]int{200, 202, 204} Got=420 Error: {"message":"Domain sandbox4439591d27a744838408ace0e2f95316.mailgun.org is not allowed to send: recipient limit exceeded, try again after Sat, 19 Jul 2025 02:17:34 UTC"}
+2025/07/18 23:17:32 Failed to send password reset email: failed to send email
+2025/07/18 23:17:32 Password reset token created for user testuser_ae03bbeb@example.com (token ID: {[1 152 32 120 237 95 125 31 148 248 201 137 250 42 247 33] true})
+2025/07/18 23:17:32 "POST http://127.0.0.1:46383/api/auth/forgot-password HTTP/1.1" from 127.0.0.1:39428 - 204 0B in 22.828529ms
+2025/07/18 23:17:32 Failed to send password reset email: UnexpectedResponseError Method=POST URL=https://api.mailgun.net/v3/sandbox4439591d27a744838408ace0e2f95316.mailgun.org/messages ExpectedOneOf=[]int{200, 202, 204} Got=420 Error: {"message":"Domain sandbox4439591d27a744838408ace0e2f95316.mailgun.org is not allowed to send: recipient limit exceeded, try again after Sat, 19 Jul 2025 02:17:34 UTC"}
+2025/07/18 23:17:32 Failed to send password reset email: failed to send email
+2025/07/18 23:17:32 Password reset token created for user testuser_ae03bbeb@example.com (token ID: {[1 152 32 120 238 64 116 130 186 87 61 31 242 158 45 242] true})
+2025/07/18 23:17:32 "POST http://127.0.0.1:46383/api/auth/forgot-password HTTP/1.1" from 127.0.0.1:39428 - 204 0B in 22.652947ms
+2025/07/18 23:17:33 Failed to send password reset email: UnexpectedResponseError Method=POST URL=https://api.mailgun.net/v3/sandbox4439591d27a744838408ace0e2f95316.mailgun.org/messages ExpectedOneOf=[]int{200, 202, 204} Got=420 Error: {"message":"Domain sandbox4439591d27a744838408ace0e2f95316.mailgun.org is not allowed to send: recipient limit exceeded, try again after Sat, 19 Jul 2025 02:17:34 UTC"}
+2025/07/18 23:17:33 Failed to send password reset email: failed to send email
+--- PASS: TestMultipleForgotPasswordRequests_InvalidatesPreviousTokens (0.79s)
+=== RUN   TestResetPassword_Success
+2025/07/18 23:17:33 "POST http://127.0.0.1:46383/api/auth/register HTTP/1.1" from 127.0.0.1:39428 - 201 247B in 88.664069ms
+2025/07/18 23:17:33 "POST http://127.0.0.1:46383/api/auth/login HTTP/1.1" from 127.0.0.1:39428 - 200 947B in 50.70936ms
+2025/07/18 23:17:33 Password reset token created for user testuser_7dca7d61@example.com (token ID: {[1 152 32 120 239 160 117 186 169 181 221 174 18 39 158 1] true})
+2025/07/18 23:17:33 "POST http://127.0.0.1:46383/api/auth/forgot-password HTTP/1.1" from 127.0.0.1:39430 - 204 0B in 6.350822ms
+2025/07/18 23:17:33 Password reset successful for user ID: testuser_7dca7d61@example.com
+2025/07/18 23:17:33 "POST http://127.0.0.1:46383/api/auth/reset-password HTTP/1.1" from 127.0.0.1:39430 - 204 0B in 48.37359ms
+2025/07/18 23:17:33 Failed to send verification email: UnexpectedResponseError Method=POST URL=https://api.mailgun.net/v3/sandbox4439591d27a744838408ace0e2f95316.mailgun.org/messages ExpectedOneOf=[]int{200, 202, 204} Got=420 Error: {"message":"Domain sandbox4439591d27a744838408ace0e2f95316.mailgun.org is not allowed to send: recipient limit exceeded, try again after Sat, 19 Jul 2025 02:17:34 UTC"}
+2025/07/18 23:17:33 Error sending verification email: failed to send email
+2025/07/18 23:17:33 Failed to send password reset email: UnexpectedResponseError Method=POST URL=https://api.mailgun.net/v3/sandbox4439591d27a744838408ace0e2f95316.mailgun.org/messages ExpectedOneOf=[]int{200, 202, 204} Got=420 Error: {"message":"Domain sandbox4439591d27a744838408ace0e2f95316.mailgun.org is not allowed to send: recipient limit exceeded, try again after Sat, 19 Jul 2025 02:17:34 UTC"}
+2025/07/18 23:17:33 Failed to send password reset email: failed to send email
+2025/07/18 23:17:35 "POST http://127.0.0.1:46383/api/auth/login HTTP/1.1" from 127.0.0.1:39430 - 200 947B in 53.821322ms
+--- PASS: TestResetPassword_Success (2.25s)
+=== RUN   TestResetPassword_InvalidToken
+2025/07/18 23:17:35 "POST http://127.0.0.1:46383/api/auth/register HTTP/1.1" from 127.0.0.1:39430 - 201 247B in 60.82087ms
+2025/07/18 23:17:35 "POST http://127.0.0.1:46383/api/auth/login HTTP/1.1" from 127.0.0.1:39430 - 200 945B in 47.672365ms
+2025/07/18 23:17:35 "POST http://127.0.0.1:46383/api/auth/reset-password HTTP/1.1" from 127.0.0.1:39446 - 404 52B in 40.496771ms
+--- PASS: TestResetPassword_InvalidToken (0.15s)
+=== RUN   TestResetPassword_ExpiredToken
+2025/07/18 23:17:35 "POST http://127.0.0.1:46383/api/auth/register HTTP/1.1" from 127.0.0.1:39452 - 201 247B in 60.494108ms
+2025/07/18 23:17:35 Failed to send verification email: UnexpectedResponseError Method=POST URL=https://api.mailgun.net/v3/sandbox4439591d27a744838408ace0e2f95316.mailgun.org/messages ExpectedOneOf=[]int{200, 202, 204} Got=403 Error: {"message":"Domain sandbox4439591d27a744838408ace0e2f95316.mailgun.org is not allowed to send: Free accounts are for test purposes only. Please upgrade or add the address to your authorized recipients."}
+2025/07/18 23:17:35 Error sending verification email: failed to send email
+2025/07/18 23:17:35 "POST http://127.0.0.1:46383/api/auth/login HTTP/1.1" from 127.0.0.1:39452 - 200 947B in 44.331715ms
+2025/07/18 23:17:35 "POST http://127.0.0.1:46383/api/auth/reset-password HTTP/1.1" from 127.0.0.1:39462 - 404 52B in 44.019825ms
+--- PASS: TestResetPassword_ExpiredToken (0.16s)
+=== RUN   TestResetPassword_UsedToken
+2025/07/18 23:17:35 "POST http://127.0.0.1:46383/api/auth/register HTTP/1.1" from 127.0.0.1:39468 - 201 247B in 53.404304ms
+2025/07/18 23:17:35 Failed to send verification email: UnexpectedResponseError Method=POST URL=https://api.mailgun.net/v3/sandbox4439591d27a744838408ace0e2f95316.mailgun.org/messages ExpectedOneOf=[]int{200, 202, 204} Got=403 Error: {"message":"Domain sandbox4439591d27a744838408ace0e2f95316.mailgun.org is not allowed to send: Free accounts are for test purposes only. Please upgrade or add the address to your authorized recipients."}
+2025/07/18 23:17:35 Error sending verification email: failed to send email
+2025/07/18 23:17:35 "POST http://127.0.0.1:46383/api/auth/login HTTP/1.1" from 127.0.0.1:39468 - 200 947B in 41.607827ms
+2025/07/18 23:17:35 "POST http://127.0.0.1:46383/api/auth/reset-password HTTP/1.1" from 127.0.0.1:39482 - 404 52B in 41.058589ms
+--- PASS: TestResetPassword_UsedToken (0.14s)
+PASS
+ok  	github.com/knands42/lorecrafter/tests/integration	(cached)
+FAIL

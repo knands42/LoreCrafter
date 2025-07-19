@@ -71,6 +71,33 @@ definitions:
         example: Chronicles of the Fall
         type: string
     type: object
+  domain.CampaignInvitation:
+    properties:
+      campaign_id:
+        type: string
+      created_at:
+        type: string
+      expires_at:
+        type: string
+      id:
+        type: string
+      invited_by:
+        type: string
+      status:
+        $ref: '#/definitions/sqlc.InvitationStatus'
+      token:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: string
+    type: object
+  domain.CreateCampaignInvitationInput:
+    properties:
+      username:
+        example: johndoe2
+        type: string
+    type: object
   domain.ForgotPasswordInput:
     properties:
       email:
@@ -97,6 +124,11 @@ definitions:
       token:
         type: string
     type: object
+  domain.ReceiveCampaignInvite:
+    properties:
+      accepted:
+        type: boolean
+    type: object
   domain.SettingsAIMetadata:
     properties:
       world_theme:
@@ -107,6 +139,32 @@ definitions:
         type: string
     type: object
   domain.SettingsMetadata:
+    type: object
+  domain.UpdateCampaignInput:
+    properties:
+      campaign_id:
+        type: string
+      game_system:
+        allOf:
+        - $ref: '#/definitions/sqlc.GameSystemEnum'
+        example: DND_5E
+      image_url:
+        type: string
+      is_public:
+        type: boolean
+      number_of_players:
+        example: 6
+        type: integer
+      setting:
+        type: string
+      setting_summary:
+        type: string
+      status:
+        allOf:
+        - $ref: '#/definitions/sqlc.CampaignStatusEnum'
+        example: PLANNING
+      title:
+        type: string
     type: object
   domain.User:
     properties:
@@ -271,6 +329,18 @@ definitions:
     - GameSystemEnumPATHFINDER2E
     - GameSystemEnumCOC7E
     - GameSystemEnumOTHER
+  sqlc.InvitationStatus:
+    enum:
+    - pending
+    - accepted
+    - rejected
+    - expired
+    type: string
+    x-enum-varnames:
+    - InvitationStatusPending
+    - InvitationStatusAccepted
+    - InvitationStatusRejected
+    - InvitationStatusExpired
   sqlc.MemberRole:
     enum:
     - gm
@@ -588,14 +658,14 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/sqlc.Campaign'
+          $ref: '#/definitions/domain.UpdateCampaignInput'
       produces:
       - application/json
       responses:
         "200":
           description: Campaign updated successfully
           schema:
-            $ref: '#/definitions/sqlc.Campaign'
+            $ref: '#/definitions/domain.Campaign'
         "400":
           description: Invalid request body or campaign ID
           schema:
@@ -619,6 +689,51 @@ paths:
       security:
       - BearerAuth: []
       summary: Update a campaign
+      tags:
+      - campaigns
+  /api/campaigns/{campaignID}/invitations:
+    post:
+      consumes:
+      - application/json
+      description: Create a campaign invitation if the user has GM permissions
+      parameters:
+      - description: Campaign ID
+        in: path
+        name: campaignID
+        required: true
+        type: string
+      - description: Campaign invitation details
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/domain.CreateCampaignInvitationInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Campaign invitation created successfully
+          schema:
+            $ref: '#/definitions/domain.CampaignInvitation'
+        "400":
+          description: Invalid request body or campaign ID
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "403":
+          description: Insufficient permissions
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a campaign invitation
       tags:
       - campaigns
   /api/campaigns/{campaignID}/members:
@@ -710,6 +825,47 @@ paths:
       summary: Add a user to a campaign
       tags:
       - campaigns
+  /api/campaigns/{campaignID}/members/{memberID}:
+    get:
+      consumes:
+      - application/json
+      description: List all members of a campaign if the user has access
+      parameters:
+      - description: Campaign ID
+        in: path
+        name: campaignID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Campaign members retrieved successfully
+          schema:
+            items:
+              $ref: '#/definitions/sqlc.CampaignMember'
+            type: array
+        "400":
+          description: Invalid campaign ID
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "403":
+          description: Insufficient permissions
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: List campaign members
+      tags:
+      - campaigns
   /api/campaigns/{campaignID}/members/{userID}:
     delete:
       consumes:
@@ -754,6 +910,49 @@ paths:
       security:
       - BearerAuth: []
       summary: Remove a user from a campaign
+      tags:
+      - campaigns
+  /api/campaigns/invitations/{token}:
+    patch:
+      consumes:
+      - application/json
+      description: Receive a campaign invitation if the user has GM permissions
+      parameters:
+      - description: Invite Token
+        in: path
+        name: token
+        required: true
+        type: string
+      - description: Confirm or reject the campaign invite
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/domain.ReceiveCampaignInvite'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Campaign invitation received successfully
+        "400":
+          description: Invalid campaign ID
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "403":
+          description: Insufficient permissions
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Receive a campaign invitation
       tags:
       - campaigns
   /api/campaigns/leave/{campaignID}:
@@ -802,11 +1001,15 @@ paths:
       - application/json
       responses:
         "200":
-          description: User information
+          description: User Info
           schema:
-            type: string
+            $ref: '#/definitions/domain.User'
         "401":
           description: Missing or invalid authorization header
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "404":
+          description: User not found
           schema:
             $ref: '#/definitions/utils.ErrorResponse'
       security:

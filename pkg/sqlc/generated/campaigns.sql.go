@@ -81,45 +81,6 @@ func (q *Queries) CreateCampaign(ctx context.Context, arg CreateCampaignParams) 
 	return i, err
 }
 
-const createCampaignMember = `-- name: CreateCampaignMember :one
-INSERT INTO campaign_members (
-    id,
-    campaign_id,
-    user_id,
-    role
-) VALUES (
-    $1, $2, $3, $4
-) RETURNING id, campaign_id, user_id, role, joined_at, last_accessed, created_at, updated_at
-`
-
-type CreateCampaignMemberParams struct {
-	ID         pgtype.UUID `json:"id"`
-	CampaignID pgtype.UUID `json:"campaign_id"`
-	UserID     pgtype.UUID `json:"user_id"`
-	Role       MemberRole  `json:"role"`
-}
-
-func (q *Queries) CreateCampaignMember(ctx context.Context, arg CreateCampaignMemberParams) (CampaignMember, error) {
-	row := q.db.QueryRow(ctx, createCampaignMember,
-		arg.ID,
-		arg.CampaignID,
-		arg.UserID,
-		arg.Role,
-	)
-	var i CampaignMember
-	err := row.Scan(
-		&i.ID,
-		&i.CampaignID,
-		&i.UserID,
-		&i.Role,
-		&i.JoinedAt,
-		&i.LastAccessed,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return i, err
-}
-
 const deleteCampaign = `-- name: DeleteCampaign :exec
 DELETE FROM campaigns AS c
 USING campaign_members AS cm
@@ -138,21 +99,6 @@ type DeleteCampaignParams struct {
 
 func (q *Queries) DeleteCampaign(ctx context.Context, arg DeleteCampaignParams) error {
 	_, err := q.db.Exec(ctx, deleteCampaign, arg.ID, arg.UserID)
-	return err
-}
-
-const deleteCampaignMember = `-- name: DeleteCampaignMember :exec
-DELETE FROM campaign_members
-WHERE campaign_id = $1 AND user_id = $2
-`
-
-type DeleteCampaignMemberParams struct {
-	CampaignID pgtype.UUID `json:"campaign_id"`
-	UserID     pgtype.UUID `json:"user_id"`
-}
-
-func (q *Queries) DeleteCampaignMember(ctx context.Context, arg DeleteCampaignMemberParams) error {
-	_, err := q.db.Exec(ctx, deleteCampaignMember, arg.CampaignID, arg.UserID)
 	return err
 }
 
@@ -193,27 +139,13 @@ func (q *Queries) GenerateInviteCode(ctx context.Context, arg GenerateInviteCode
 
 const getCampaignByID = `-- name: GetCampaignByID :one
 SELECT
-    c.id,
-    c.title,
-    c.setting_summary,
-    c.setting,
-    c.game_system,
-    c.number_of_players,
-    c.status,
-    c.image_url,
-    c.is_public,
-    c.invite_code,
-    c.setting_metadata,
-    c.setting_ai_metadata,
-    c.created_by,
-    c.created_at,
-    c.updated_at
+    c.id, c.title, c.setting_summary, c.setting, c.game_system, c.number_of_players, c.status, c.image_url, c.is_public, c.invite_code, c.setting_metadata, c.setting_ai_metadata, c.created_by, c.created_at, c.updated_at
     FROM campaigns as c
-                  LEFT JOIN campaign_members as cm
-                            ON c.id = cm.campaign_id AND cm.user_id = $2
+                  INNER JOIN campaign_members as cm
+                            ON c.id = cm.campaign_id
 WHERE c.id = $1 AND (
-    c.is_public = true OR cm.user_id IS NOT NULL
-    )
+    c.is_public = true OR cm.user_id = $2
+)
 LIMIT 1
 `
 
@@ -268,33 +200,6 @@ func (q *Queries) GetCampaignByInviteCode(ctx context.Context, inviteCode pgtype
 		&i.SettingMetadata,
 		&i.SettingAiMetadata,
 		&i.CreatedBy,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return i, err
-}
-
-const getCampaignMember = `-- name: GetCampaignMember :one
-SELECT id, campaign_id, user_id, role, joined_at, last_accessed, created_at, updated_at FROM campaign_members
-WHERE campaign_id = $1 AND user_id = $2
-LIMIT 1
-`
-
-type GetCampaignMemberParams struct {
-	CampaignID pgtype.UUID `json:"campaign_id"`
-	UserID     pgtype.UUID `json:"user_id"`
-}
-
-func (q *Queries) GetCampaignMember(ctx context.Context, arg GetCampaignMemberParams) (CampaignMember, error) {
-	row := q.db.QueryRow(ctx, getCampaignMember, arg.CampaignID, arg.UserID)
-	var i CampaignMember
-	err := row.Scan(
-		&i.ID,
-		&i.CampaignID,
-		&i.UserID,
-		&i.Role,
-		&i.JoinedAt,
-		&i.LastAccessed,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -455,37 +360,6 @@ func (q *Queries) UpdateCampaign(ctx context.Context, arg UpdateCampaignParams) 
 		&i.SettingMetadata,
 		&i.SettingAiMetadata,
 		&i.CreatedBy,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return i, err
-}
-
-const updateCampaignMember = `-- name: UpdateCampaignMember :one
-UPDATE campaign_members
-SET 
-    role = $3,
-    last_accessed = CURRENT_TIMESTAMP
-WHERE campaign_id = $1 AND user_id = $2
-RETURNING id, campaign_id, user_id, role, joined_at, last_accessed, created_at, updated_at
-`
-
-type UpdateCampaignMemberParams struct {
-	CampaignID pgtype.UUID `json:"campaign_id"`
-	UserID     pgtype.UUID `json:"user_id"`
-	Role       MemberRole  `json:"role"`
-}
-
-func (q *Queries) UpdateCampaignMember(ctx context.Context, arg UpdateCampaignMemberParams) (CampaignMember, error) {
-	row := q.db.QueryRow(ctx, updateCampaignMember, arg.CampaignID, arg.UserID, arg.Role)
-	var i CampaignMember
-	err := row.Scan(
-		&i.ID,
-		&i.CampaignID,
-		&i.UserID,
-		&i.Role,
-		&i.JoinedAt,
-		&i.LastAccessed,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)

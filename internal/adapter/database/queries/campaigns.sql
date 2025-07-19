@@ -18,27 +18,13 @@ INSERT INTO campaigns (
 
 -- name: GetCampaignByID :one
 SELECT
-    c.id,
-    c.title,
-    c.setting_summary,
-    c.setting,
-    c.game_system,
-    c.number_of_players,
-    c.status,
-    c.image_url,
-    c.is_public,
-    c.invite_code,
-    c.setting_metadata,
-    c.setting_ai_metadata,
-    c.created_by,
-    c.created_at,
-    c.updated_at
+    c.*
     FROM campaigns as c
-                  LEFT JOIN campaign_members as cm
-                            ON c.id = cm.campaign_id AND cm.user_id = $2
+                  INNER JOIN campaign_members as cm
+                            ON c.id = cm.campaign_id
 WHERE c.id = $1 AND (
-    c.is_public = true OR cm.user_id IS NOT NULL
-    )
+    c.is_public = true OR cm.user_id = $2
+)
 LIMIT 1;
 
 -- name: UpdateCampaign :one
@@ -91,33 +77,6 @@ WHERE cm.campaign_id = c.id
 SELECT c.* FROM campaigns c
 JOIN campaign_members cm ON c.id = cm.campaign_id
 WHERE cm.user_id = $1;
-
--- name: CreateCampaignMember :one
-INSERT INTO campaign_members (
-    id,
-    campaign_id,
-    user_id,
-    role
-) VALUES (
-    $1, $2, $3, $4
-) RETURNING *;
-
--- name: GetCampaignMember :one
-SELECT * FROM campaign_members
-WHERE campaign_id = $1 AND user_id = $2
-LIMIT 1;
-
--- name: UpdateCampaignMember :one
-UPDATE campaign_members
-SET 
-    role = $3,
-    last_accessed = CURRENT_TIMESTAMP
-WHERE campaign_id = $1 AND user_id = $2
-RETURNING *;
-
--- name: DeleteCampaignMember :exec
-DELETE FROM campaign_members
-WHERE campaign_id = $1 AND user_id = $2;
 
 -- name: ListCampaignMembers :many
 SELECT * FROM campaign_members

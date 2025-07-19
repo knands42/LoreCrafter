@@ -5,11 +5,13 @@ SHELL := /bin/bash
 ####### setup commands
 
 # Generate Ed25519 key pair for PASETO tokens
+setup-env:
+	@if [ ! -f .env ]; then cp .env.example .env; fi
+
 setup-paseto-keys:
 	openssl genpkey -algorithm Ed25519 -out private_key.pem
 	openssl pkey -in private_key.pem -pubout -out public_key.pem
 	@echo "Base64 encoding keys and updating .env file..."
-	@if [ ! -f .env ]; then cp .env.example .env; fi
 	@PRIVATE_KEY_BASE64=$$(cat private_key.pem | base64 -w 0) && \
 	PUBLIC_KEY_BASE64=$$(cat public_key.pem | base64 -w 0) && \
 	sed -i "s|PASETO_PRIVATE_KEY=.*|PASETO_PRIVATE_KEY=$$PRIVATE_KEY_BASE64|" .env && \
@@ -24,22 +26,22 @@ setup-password-salt:
 	sed -i "s|PASSWORD_SALT=.*|PASSWORD_SALT=$$PASSWORD_SALT|" .env
 	@echo "Password salt generated and set in .env file"
 
-# Setup all required configurations
-setup: setup-paseto-keys setup-password-salt
+setup-git-hooks:
+	@echo "Setting up git hooks..."
+	@mkdir -p .git/hooks
+	@cp scripts/pre-commit .git/hooks/pre-commit
+	@chmod +x .git/hooks/pre-commit
+	@echo "Git hooks setup complete!"
+
+setup: setup-env setup-paseto-keys setup-password-salt setup-git-hooks
 
 ####### application commands #######
 # Build the application
 build:
 	go build -o bin/lorecrafter .
 
-# Run the application with HTTP/2 and TLS
+# Run the application
 run: build
-	@echo "Starting server with HTTP/2 and TLS on https://localhost:$(SERVER_PORT)"
-	@echo "Note: You may need to accept the self-signed certificate in your browser"
-	./bin/lorecrafter --tls
-
-# Run the application without TLS (HTTP only)
-run-http: build
 	@echo "Starting server without TLS on http://localhost:$(SERVER_PORT)"
 	./bin/lorecrafter
 
@@ -49,32 +51,41 @@ test:
 
 # Run tests with coverage
 test-coverage:
-	go test -v -coverprofile=coverage.out -covermode=atomic $(shell go list ./... | grep -v "docs\|pkg")
+	go test -v ./... -coverprofile=coverage.out -covermode=atomic $(shell go list ./... | grep -v "docs\|pkg")
 	go tool cover -html=coverage.out -o coverage.html
 	go tool cover -func=coverage.out
+
+# Submit coverage report to codacity
+test-send-coverage:
+	bash <(curl -Ls https://coverage.codacy.com/get.sh) report \
+                  --force-coverage-parser go -r coverage.out
 
 # Clean build artifacts
 clean:
 	rm -rf bin/
 
-####### docker commands #######
-docker-build:
-	docker rmi lorecrafter || true
-	docker build -t lorecrafter:latest .
+####### podman commands #######
+podman-build:
+	podman rmi lorecrafter || true
+	podman build -t lorecrafter:latest .
 
-docker-run:
-	docker run -p 8000:8000 --env-file .env lorecrafter:latest
+podman-run:
+	podman run -p 8000:8000 --env-file .env lorecrafter:latest
 
-docker-up:
-	docker rmi lorecrafter || true
-	$(MAKE) docker-build
-	docker-compose up --build --force-recreate
+podman-up:
+	podman rmi lorecrafter || true
+	$(MAKE) podman-build
+	podman compose up --build --force-recreate
 
-docker-down:
-	docker-compose down
+podman-up-dbs:
+	podman rm -f db db-test || true
+	podman compose up --build --force-recreate db db-test
 
-docker-logs:
-	docker-compose logs -f
+podman-down:
+	podman compose down
+
+podman-logs:
+	podman compose logs -f
 
 ####### migration commands #######
 # e.g., make migration-create NAME=create-users
@@ -101,4 +112,4 @@ sqlc-generate:
 swagger-generate:
 	swag init -g app/api/docs.go -o app/api/docs --parseDependency
 
-.PHONY: sqlc-generate, swagger-generate, migration-down, migration-down1, migration-up1, migration-up, migration-create, docker-build, setup-ssl
+.PHONY: sqlc-generate, swagger-generate, migration-down, migration-down1, migration-up1, migration-up, migration-create, podman-build, setup-ssl, test

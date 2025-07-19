@@ -31,7 +31,7 @@ func (input *CreateEmailVerificationTokenInput) PrepareToInsert() (sqlc.CreateEm
 	}
 
 	if input.Token == "" {
-		input.Token, err = utils.GenerateRandomHexString(32)
+		input.Token, err = utils.GenerateRandomToken(32)
 		if err != nil {
 			return sqlc.CreateEmailVerificationTokenParams{}, err
 		}
