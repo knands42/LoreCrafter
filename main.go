@@ -2,6 +2,10 @@ package main
 
 import (
 	"context"
+	"log"
+	"os"
+	"path/filepath"
+
 	"github.com/knands42/lorecrafter/app/api"
 	"github.com/knands42/lorecrafter/internal/adapter/database"
 	"github.com/knands42/lorecrafter/internal/adapter/database/migrations"
@@ -11,9 +15,6 @@ import (
 	"github.com/knands42/lorecrafter/internal/config"
 	"github.com/knands42/lorecrafter/internal/usecases"
 	sqlc "github.com/knands42/lorecrafter/pkg/sqlc/generated"
-	"log"
-	"os"
-	"path/filepath"
 )
 
 func main() {
@@ -67,6 +68,7 @@ func main() {
 	campaignUseCase := usecases.NewCampaignUseCase(ctx, repo, aiCampaignUseCase)
 	passwordResetUseCase := usecases.NewPasswordResetUseCase(ctx, repo, emailUseCase, templateManager, argon2Adapter, cfg.TokenExpiry)
 	campaignInvitationUseCase := usecases.NewCampaignInvitationUseCase(ctx, repo)
+	campaignMembersUseCase := usecases.NewCampaignMembersUseCase(ctx, repo)
 
 	// Set up the HTTP server
 	server := api.NewServer(
@@ -76,6 +78,7 @@ func main() {
 		campaignUseCase,
 		passwordResetUseCase,
 		campaignInvitationUseCase,
+		campaignMembersUseCase,
 	)
 
 	// Start the server with or without TLS

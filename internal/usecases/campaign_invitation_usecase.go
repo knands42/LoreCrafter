@@ -3,16 +3,22 @@ package usecases
 import (
 	"context"
 	"errors"
+	"github.com/jackc/pgx/v5/pgtype"
+	"log"
+
+	"github.com/google/uuid"
 	"github.com/knands42/lorecrafter/internal/domain"
 	"github.com/knands42/lorecrafter/internal/utils"
 	sqlc "github.com/knands42/lorecrafter/pkg/sqlc/generated"
-	"log"
 )
 
 var (
 	ErrUserIsAlreadyAMember          = errors.New("user is already a member of this campaign")
 	ErrGeneratingTheToken            = errors.New("could not generate a token")
 	ErrCreatingTheCampaignInvitation = errors.New("could not create the campaign invitation")
+
+	ErrInviteIsNoLongerValid   = errors.New("the campaign invite is no longer valid")
+	ErrAddingTheCampaignMember = errors.New("fail to add the new member to the campaign")
 )
 
 type CampaignInvitationUseCase struct {
@@ -29,7 +35,7 @@ func NewCampaignInvitationUseCase(
 	}
 }
 
-func (c *CampaignInvitationUseCase) CreateAnInvite(input domain.CampaignInvitationInput) (domain.CampaignInvitation, error) {
+func (c *CampaignInvitationUseCase) CreateAnInvite(input domain.CreateCampaignInvitationInput) (domain.CampaignInvitation, error) {
 	if err := input.Validate(); err != nil {
 		return domain.CampaignInvitation{}, err
 	}
@@ -54,7 +60,52 @@ func (c *CampaignInvitationUseCase) CreateAnInvite(input domain.CampaignInvitati
 		return domain.CampaignInvitation{}, ErrCreatingTheCampaignInvitation
 	}
 
-	return *domain.NewCampaignInvitation(createdCampaignInvitation), nil
+	return *domain.NewCampaignInvitationFromSqlc(createdCampaignInvitation), nil
 }
 
-func (c *CampaignInvitationUseCase) ReceiveAnInvite() {}
+func (c *CampaignInvitationUseCase) ReceiveAnInvite(userId uuid.UUID, input domain.ReceiveCampaignInvite) error {
+	err := input.Validate()
+	if err != nil {
+		return err
+	}
+
+	// update & check invitation token
+	var params sqlc.UpdateCampaignInviteStatusParams
+	if input.Accepted {
+		params = input.PrepareToInsert(userId, sqlc.InvitationStatusAccepted)
+	} else {
+		params = input.PrepareToInsert(userId, sqlc.InvitationStatusRejected)
+	}
+
+	updatedInviteStatus, err := c.repo.UpdateCampaignInviteStatus(c.ctx, params)
+	if err != nil && err.Error() == "no rows in result set" {
+		return ErrInviteIsNoLongerValid
+	}
+
+	// don't add the new member to the campaign if not accepted the invite
+	if !input.Accepted {
+		return err
+	}
+
+	// add player as a member of the campaign
+	// TODO: Move to campaignMemberUseCase
+	newUUIDV7, err := utils.GeneratePGUUID()
+	if err != nil {
+		return err
+	}
+	createCampaignMemberParams := sqlc.CreateCampaignMemberParams{
+		ID:         newUUIDV7,
+		CampaignID: updatedInviteStatus.CampaignID,
+		UserID: pgtype.UUID{
+			Bytes: userId,
+			Valid: true,
+		},
+		Role: sqlc.MemberRolePlayer,
+	}
+	if _, err := c.repo.CreateCampaignMember(c.ctx, createCampaignMemberParams); err != nil {
+		log.Printf("Error saving campaign member: %v", err)
+		return ErrAddingTheCampaignMember
+	}
+
+	return err
+}

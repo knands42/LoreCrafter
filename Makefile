@@ -24,8 +24,14 @@ setup-password-salt:
 	sed -i "s|PASSWORD_SALT=.*|PASSWORD_SALT=$$PASSWORD_SALT|" .env
 	@echo "Password salt generated and set in .env file"
 
-# Setup all required configurations
-setup: setup-paseto-keys setup-password-salt
+setup-git-hooks:
+	@echo "Setting up git hooks..."
+	@mkdir -p .git/hooks
+	@cp scripts/pre-commit .git/hooks/pre-commit
+	@chmod +x .git/hooks/pre-commit
+	@echo "Git hooks setup complete!"
+
+setup: setup-paseto-keys setup-password-salt setup-git-hooks
 
 ####### application commands #######
 # Build the application

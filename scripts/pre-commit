@@ -1,0 +1,11 @@
+#!/bin/sh
+
+# Run Go tests
+echo "Running tests before commit..."
+if ! go test ./...; then
+    echo "❌ Tests failed. Please fix the issues before committing."
+    exit 1
+fi
+
+echo "✅ All tests passed!"
+exit 0

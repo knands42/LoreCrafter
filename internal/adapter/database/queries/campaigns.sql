@@ -92,33 +92,6 @@ SELECT c.* FROM campaigns c
 JOIN campaign_members cm ON c.id = cm.campaign_id
 WHERE cm.user_id = $1;
 
--- name: CreateCampaignMember :one
-INSERT INTO campaign_members (
-    id,
-    campaign_id,
-    user_id,
-    role
-) VALUES (
-    $1, $2, $3, $4
-) RETURNING *;
-
--- name: GetCampaignMember :one
-SELECT * FROM campaign_members
-WHERE campaign_id = $1 AND user_id = $2
-LIMIT 1;
-
--- name: UpdateCampaignMember :one
-UPDATE campaign_members
-SET 
-    role = $3,
-    last_accessed = CURRENT_TIMESTAMP
-WHERE campaign_id = $1 AND user_id = $2
-RETURNING *;
-
--- name: DeleteCampaignMember :exec
-DELETE FROM campaign_members
-WHERE campaign_id = $1 AND user_id = $2;
-
 -- name: ListCampaignMembers :many
 SELECT * FROM campaign_members
 WHERE campaign_id = $1;

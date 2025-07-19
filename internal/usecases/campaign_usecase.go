@@ -12,10 +12,9 @@ import (
 )
 
 var (
-	ErrCampaignCreation        = errors.New("error creating campaign")
-	ErrCampaignNotFound        = errors.New("campaign not found")
-	ErrCampaignMemberCreation  = errors.New("error creating campaign member")
-	ErrInsufficientPermissions = errors.New("insufficient permissions")
+	ErrCampaignCreation       = errors.New("error creating campaign")
+	ErrCampaignNotFound       = errors.New("campaign not found")
+	ErrCampaignMemberCreation = errors.New("error creating campaign member")
 )
 
 // CampaignUseCase implements the campaign business logic
@@ -82,7 +81,7 @@ func (uc *CampaignUseCase) CreateCampaign(creatorID uuid.UUID, useGenAI bool, in
 		return domain.Campaign{}, ErrCampaignMemberCreation
 	}
 
-	return domain.ToDomain(createdCampaign), nil
+	return domain.NewCampaignFromSqlc(createdCampaign), nil
 }
 
 // GetCampaign retrieves a campaign by ID if the user has access
@@ -130,25 +129,4 @@ func (uc *CampaignUseCase) ListUserCampaigns(userID uuid.UUID) ([]sqlc.Campaign,
 	}
 
 	return uc.repo.ListCampaignsByUserID(uc.ctx, userPGUUID)
-}
-
-// AddCampaignMember adds a user to a campaign if the requester has GM permissions
-func (uc *CampaignUseCase) AddCampaignMember(campaignID, userID, requesterID uuid.UUID, role string) error {
-	return nil
-}
-
-// RemoveCampaignMember removes a user from a campaign if the requester has GM permissions
-func (uc *CampaignUseCase) RemoveCampaignMember(campaignID, userID, requesterID uuid.UUID) error {
-	return nil
-
-}
-
-// LeaveCampaign allows a user to leave a campaign
-func (uc *CampaignUseCase) LeaveCampaign(campaignID, userID uuid.UUID) error {
-	return nil
-}
-
-// GetCampaignMembers lists all members of a campaign if the user has access
-func (uc *CampaignUseCase) GetCampaignMembers(campaignID, userID uuid.UUID) ([]sqlc.CampaignMember, error) {
-	return []sqlc.CampaignMember{}, nil
 }

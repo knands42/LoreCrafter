@@ -76,18 +76,34 @@ func (q *Queries) InvalidateAllCampaignInvitations(ctx context.Context, userID p
 	return err
 }
 
-const updateCampaignInviteStatus = `-- name: UpdateCampaignInviteStatus :exec
+const updateCampaignInviteStatus = `-- name: UpdateCampaignInviteStatus :one
 UPDATE campaign_invitations AS ci
 SET status = $1
-AND ci.token = $2
+WHERE ci.token = $2
+AND ci.user_id = $3
+AND ci.expires_at > NOW()
+RETURNING id, campaign_id, user_id, invited_by, token, status, expires_at, created_at, updated_at
 `
 
 type UpdateCampaignInviteStatusParams struct {
 	Status InvitationStatus `json:"status"`
 	Token  string           `json:"token"`
+	UserID pgtype.UUID      `json:"user_id"`
 }
 
-func (q *Queries) UpdateCampaignInviteStatus(ctx context.Context, arg UpdateCampaignInviteStatusParams) error {
-	_, err := q.db.Exec(ctx, updateCampaignInviteStatus, arg.Status, arg.Token)
-	return err
+func (q *Queries) UpdateCampaignInviteStatus(ctx context.Context, arg UpdateCampaignInviteStatusParams) (CampaignInvitation, error) {
+	row := q.db.QueryRow(ctx, updateCampaignInviteStatus, arg.Status, arg.Token, arg.UserID)
+	var i CampaignInvitation
+	err := row.Scan(
+		&i.ID,
+		&i.CampaignID,
+		&i.UserID,
+		&i.InvitedBy,
+		&i.Token,
+		&i.Status,
+		&i.ExpiresAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
 }

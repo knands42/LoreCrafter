@@ -24,7 +24,10 @@ FROM users u
 WHERE u.id = ci.user_id
 AND ci.user_id = @user_id;
 
--- name: UpdateCampaignInviteStatus :exec
+-- name: UpdateCampaignInviteStatus :one
 UPDATE campaign_invitations AS ci
 SET status = $1
-AND ci.token = $2;
+WHERE ci.token = $2
+AND ci.user_id = $3
+AND ci.expires_at > NOW()
+RETURNING *;

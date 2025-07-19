@@ -53,6 +53,7 @@ func NewServer(
 	campaignUseCase *usecases.CampaignUseCase,
 	passwordResetUseCase *usecases.PasswordResetUseCase,
 	campaignInvitationUseCase *usecases.CampaignInvitationUseCase,
+	campaignMembersUseCase *usecases.CampaignMembersUseCase,
 ) *Server {
 	router := chi.NewRouter()
 
@@ -96,9 +97,13 @@ func NewServer(
 		passwordResetUseCase:      passwordResetUseCase,
 		campaignInvitationUseCase: campaignInvitationUseCase,
 
-		authHandler:     routes.NewAuthHandler(authUseCase, passwordResetUseCase),
-		userHandler:     routes.NewUserHandler(),
-		campaignHandler: routes.NewCampaignHandler(campaignUseCase, campaignInvitationUseCase),
+		authHandler: routes.NewAuthHandler(authUseCase, passwordResetUseCase),
+		userHandler: routes.NewUserHandler(),
+		campaignHandler: routes.NewCampaignHandler(
+			campaignUseCase,
+			campaignInvitationUseCase,
+			campaignMembersUseCase,
+		),
 	}
 
 	server.setupRoutes()

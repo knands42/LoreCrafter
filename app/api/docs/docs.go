@@ -319,6 +319,64 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/campaigns/invitations/{token}": {
+            "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Receive a campaign invitation if the user has GM permissions",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "campaigns"
+                ],
+                "summary": "Receive a campaign invitation",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Campaign ID",
+                        "name": "campaignID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Campaign invitation received successfully"
+                    },
+                    "400": {
+                        "description": "Invalid campaign ID",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Insufficient permissions",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/campaigns/leave/{campaignID}": {
             "delete": {
                 "security": [
@@ -474,7 +532,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/sqlc.Campaign"
+                            "$ref": "#/definitions/domain.UpdateCampaignInput"
                         }
                     }
                 ],
@@ -482,7 +540,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Campaign updated successfully",
                         "schema": {
-                            "$ref": "#/definitions/sqlc.Campaign"
+                            "$ref": "#/definitions/domain.Campaign"
                         }
                     },
                     "400": {
@@ -612,7 +670,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/domain.CampaignInvitationInput"
+                            "$ref": "#/definitions/domain.CreateCampaignInvitationInput"
                         }
                     }
                 ],
@@ -620,7 +678,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Campaign invitation created successfully",
                         "schema": {
-                            "$ref": "#/definitions/sqlc.CampaignInvitation"
+                            "$ref": "#/definitions/domain.CampaignInvitation"
                         }
                     },
                     "400": {
@@ -775,6 +833,70 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "Campaign not found",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/campaigns/{campaignID}/members/{memberID}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "List all members of a campaign if the user has access",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "campaigns"
+                ],
+                "summary": "List campaign members",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Campaign ID",
+                        "name": "campaignID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Campaign members retrieved successfully",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/sqlc.CampaignMember"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid campaign ID",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Insufficient permissions",
                         "schema": {
                             "$ref": "#/definitions/utils.ErrorResponse"
                         }
@@ -1002,7 +1124,39 @@ const docTemplate = `{
                 }
             }
         },
-        "domain.CampaignInvitationInput": {
+        "domain.CampaignInvitation": {
+            "type": "object",
+            "properties": {
+                "campaign_id": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "expires_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "invited_by": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/sqlc.InvitationStatus"
+                },
+                "token": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "domain.CreateCampaignInvitationInput": {
             "type": "object",
             "properties": {
                 "username": {
@@ -1064,6 +1218,49 @@ const docTemplate = `{
         },
         "domain.SettingsMetadata": {
             "type": "object"
+        },
+        "domain.UpdateCampaignInput": {
+            "type": "object",
+            "properties": {
+                "campaign_id": {
+                    "type": "string"
+                },
+                "game_system": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/sqlc.GameSystemEnum"
+                        }
+                    ],
+                    "example": "DND_5E"
+                },
+                "image_url": {
+                    "type": "string"
+                },
+                "is_public": {
+                    "type": "boolean"
+                },
+                "number_of_players": {
+                    "type": "integer",
+                    "example": 6
+                },
+                "setting": {
+                    "type": "string"
+                },
+                "setting_summary": {
+                    "type": "string"
+                },
+                "status": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/sqlc.CampaignStatusEnum"
+                        }
+                    ],
+                    "example": "PLANNING"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
         },
         "domain.User": {
             "type": "object",
@@ -1253,38 +1450,6 @@ const docTemplate = `{
                 },
                 "updated_at": {
                     "$ref": "#/definitions/pgtype.Timestamptz"
-                }
-            }
-        },
-        "sqlc.CampaignInvitation": {
-            "type": "object",
-            "properties": {
-                "campaign_id": {
-                    "type": "string"
-                },
-                "created_at": {
-                    "$ref": "#/definitions/pgtype.Timestamptz"
-                },
-                "expires_at": {
-                    "$ref": "#/definitions/pgtype.Timestamptz"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "invited_by": {
-                    "type": "string"
-                },
-                "status": {
-                    "$ref": "#/definitions/sqlc.InvitationStatus"
-                },
-                "token": {
-                    "type": "string"
-                },
-                "updated_at": {
-                    "$ref": "#/definitions/pgtype.Timestamptz"
-                },
-                "user_id": {
-                    "type": "string"
                 }
             }
         },

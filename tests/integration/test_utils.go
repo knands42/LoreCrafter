@@ -83,6 +83,21 @@ func CreateCampaign(t *testing.T, queryParams map[string]string, cookie http.Coo
 	return SendAuthenticatedRequest(t, "POST", formatedUrl, cookie, input, output)
 }
 
+// CreateCampaignInvitation creates a new campaign invitation
+func CreateCampaignInvitation(t *testing.T, cookie http.Cookie, campaignID uuid.UUID, input domain.CreateCampaignInvitationInput, output interface{}) (int, []*http.Cookie) {
+	return SendAuthenticatedRequest(t, "POST", fmt.Sprintf("/api/campaigns/%s/invitations", campaignID), cookie, input, output)
+}
+
+// ReceiveCampaignInvitation accepts or rejects a campaign invitation
+func ReceiveCampaignInvitation(t *testing.T, cookie http.Cookie, token string, input domain.ReceiveCampaignInvite, output interface{}) (int, []*http.Cookie) {
+	return SendAuthenticatedRequest(t, "PATCH", fmt.Sprintf("/api/campaigns/invitations/%s", token), cookie, input, output)
+}
+
+// GetCampaignMember gets a campaign member by ID
+func GetCampaignMember(t *testing.T, cookie http.Cookie, campaignID uuid.UUID, memberID uuid.UUID, output interface{}) (int, []*http.Cookie) {
+	return SendAuthenticatedRequest(t, "GET", fmt.Sprintf("/api/campaigns/%s/members/%s", campaignID, memberID), cookie, nil, output)
+}
+
 // GetCampaign gets a campaign by ID
 func GetCampaign(t *testing.T, cookie http.Cookie, campaignID uuid.UUID, output interface{}) (int, []*http.Cookie) {
 	return SendAuthenticatedRequest(t, "GET", fmt.Sprintf("/api/campaigns/%s", campaignID), cookie, nil, output)

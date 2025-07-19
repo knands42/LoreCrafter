@@ -18,7 +18,6 @@ type Querier interface {
 	CreatePasswordResetToken(ctx context.Context, arg CreatePasswordResetTokenParams) (PasswordResetToken, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
 	DeleteCampaign(ctx context.Context, arg DeleteCampaignParams) error
-	DeleteCampaignMember(ctx context.Context, arg DeleteCampaignMemberParams) error
 	GenerateInviteCode(ctx context.Context, arg GenerateInviteCodeParams) (Campaign, error)
 	GetCampaignByID(ctx context.Context, arg GetCampaignByIDParams) (Campaign, error)
 	GetCampaignByInviteCode(ctx context.Context, inviteCode pgtype.Text) (Campaign, error)
@@ -31,8 +30,7 @@ type Querier interface {
 	ListCampaignMembers(ctx context.Context, campaignID pgtype.UUID) ([]CampaignMember, error)
 	ListCampaignsByUserID(ctx context.Context, userID pgtype.UUID) ([]Campaign, error)
 	UpdateCampaign(ctx context.Context, arg UpdateCampaignParams) (Campaign, error)
-	UpdateCampaignInviteStatus(ctx context.Context, arg UpdateCampaignInviteStatusParams) error
-	UpdateCampaignMember(ctx context.Context, arg UpdateCampaignMemberParams) (CampaignMember, error)
+	UpdateCampaignInviteStatus(ctx context.Context, arg UpdateCampaignInviteStatusParams) (CampaignInvitation, error)
 	UpdateUserPasswordFromToken(ctx context.Context, arg UpdateUserPasswordFromTokenParams) (UpdateUserPasswordFromTokenRow, error)
 }
 

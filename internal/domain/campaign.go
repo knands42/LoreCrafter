@@ -248,7 +248,7 @@ type SettingsAIMetadata struct {
 	WrittenTone string `json:"written_tone" example:"Dramatic"`
 }
 
-func ToDomain(campaignSqlc sqlc.Campaign) Campaign {
+func NewCampaignFromSqlc(campaignSqlc sqlc.Campaign) Campaign {
 	return Campaign{
 		ID:              campaignSqlc.ID.Bytes,
 		Title:           campaignSqlc.Title,
