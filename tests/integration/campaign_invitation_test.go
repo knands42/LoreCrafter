@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func setupUserAndACampaign(t *testing.T) (
+func campaignInvitationSetup(t *testing.T) (
 	userGM domain.User,
 	userGMCookie http.Cookie,
 	userToBeInvited domain.User,
@@ -47,7 +47,7 @@ func setupUserAndACampaign(t *testing.T) (
 
 func TestCreateCampaignInvitation_Success(t *testing.T) {
 	// setup user & campaign
-	userGM, userGMCookie, userToBeInvited, _, campaign := setupUserAndACampaign(t)
+	userGM, userGMCookie, userToBeInvited, _, campaign := campaignInvitationSetup(t)
 
 	// create the campaign invitation
 	invitationInput := domain.CreateCampaignInvitationInput{
@@ -72,7 +72,7 @@ func TestCreateCampaignInvitation_Success(t *testing.T) {
 
 func TestCreateCampaignInvitation_Failure_Unauthorized(t *testing.T) {
 	// setup user & campaign
-	_, _, _, _, campaign := setupUserAndACampaign(t)
+	_, _, _, _, campaign := campaignInvitationSetup(t)
 
 	// And a valid invitation input
 	invitationInput := domain.CreateCampaignInvitationInput{
@@ -88,7 +88,7 @@ func TestCreateCampaignInvitation_Failure_Unauthorized(t *testing.T) {
 
 func TestCreateCampaignInvitation_Failure_InvalidInput(t *testing.T) {
 	// setup user & campaign
-	_, userGMCookie, _, _, campaign := setupUserAndACampaign(t)
+	_, userGMCookie, _, _, campaign := campaignInvitationSetup(t)
 
 	// And an invalid invitation input (empty username)
 	invitationInput := domain.CreateCampaignInvitationInput{
@@ -107,7 +107,7 @@ func TestCreateCampaignInvitation_Failure_UserAlreadyMember(t *testing.T) {}
 
 func TestReceivingACampaignInvitation_Success(t *testing.T) {
 	// setup user & campaign
-	_, userGMCookie, userToBeInvited, userToBeInvitedCookie, campaign := setupUserAndACampaign(t)
+	_, userGMCookie, userToBeInvited, userToBeInvitedCookie, campaign := campaignInvitationSetup(t)
 
 	// create the campaign invitation
 	invitationInput := domain.CreateCampaignInvitationInput{

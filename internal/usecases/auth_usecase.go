@@ -150,3 +150,8 @@ func (uc *AuthUseCase) Login(req domain.LoginInput) (domain.AuthOutput, error) {
 func (uc *AuthUseCase) VerifyToken(token string) (*domain.TokenPayload, error) {
 	return uc.tokenMaker.VerifyToken(token)
 }
+
+// TODO: implement
+func (uc *AuthUseCase) RefreshToken(token string) (domain.TokenPayload, error) {
+	return domain.TokenPayload{}, nil
+}

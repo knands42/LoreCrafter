@@ -67,7 +67,7 @@ func (uc *PasswordResetUseCase) RequestPasswordReset(input domain.ForgotPassword
 		return ErrFailedToCreatePasswordResetToken
 	}
 
-	dbToken, err := uc.repo.CreatePasswordResetToken(uc.ctx, params)
+	_, err = uc.repo.CreatePasswordResetToken(uc.ctx, params)
 	if err != nil {
 		return ErrFailedToCreatePasswordResetToken
 	}
@@ -79,7 +79,7 @@ func (uc *PasswordResetUseCase) RequestPasswordReset(input domain.ForgotPassword
 		}
 	}()
 
-	log.Printf("Password reset token created for user %s (token ID: %v)", input.Email, dbToken.ID)
+	log.Printf("Password reset token created for user %s", input.Email)
 	return nil
 }
 

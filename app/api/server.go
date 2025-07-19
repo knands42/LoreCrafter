@@ -50,6 +50,7 @@ func NewServer(
 	repo sqlc.Querier,
 
 	authUseCase *usecases.AuthUseCase,
+	userUseCase *usecases.UserUseCase,
 	campaignUseCase *usecases.CampaignUseCase,
 	passwordResetUseCase *usecases.PasswordResetUseCase,
 	campaignInvitationUseCase *usecases.CampaignInvitationUseCase,
@@ -98,7 +99,7 @@ func NewServer(
 		campaignInvitationUseCase: campaignInvitationUseCase,
 
 		authHandler: routes.NewAuthHandler(authUseCase, passwordResetUseCase),
-		userHandler: routes.NewUserHandler(),
+		userHandler: routes.NewUserHandler(userUseCase),
 		campaignHandler: routes.NewCampaignHandler(
 			campaignUseCase,
 			campaignInvitationUseCase,

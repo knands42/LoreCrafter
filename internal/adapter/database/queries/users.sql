@@ -13,6 +13,11 @@ SELECT * FROM users
 WHERE username = $1 OR email = $2
 LIMIT 1;
 
+-- name: GetUserByID :one
+SELECT * from users
+WHERE id = @user_id::uuid
+LIMIT 1;
+
 -- name: UpdateUserPasswordFromToken :one
 UPDATE users AS u
 SET hashed_password = $2

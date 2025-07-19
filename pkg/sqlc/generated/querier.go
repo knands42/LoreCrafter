@@ -13,8 +13,9 @@ import (
 type Querier interface {
 	CreateCampaign(ctx context.Context, arg CreateCampaignParams) (Campaign, error)
 	CreateCampaignInvitation(ctx context.Context, arg CreateCampaignInvitationParams) (CampaignInvitation, error)
-	CreateCampaignMember(ctx context.Context, arg CreateCampaignMemberParams) (CampaignMember, error)
+	CreateCampaignPlayerMember(ctx context.Context, arg CreateCampaignPlayerMemberParams) (CampaignMember, error)
 	CreateEmailVerificationToken(ctx context.Context, arg CreateEmailVerificationTokenParams) (UsersEmailVerification, error)
+	CreateFirstCampaignMember(ctx context.Context, arg CreateFirstCampaignMemberParams) (CampaignMember, error)
 	CreatePasswordResetToken(ctx context.Context, arg CreatePasswordResetTokenParams) (PasswordResetToken, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
 	DeleteCampaign(ctx context.Context, arg DeleteCampaignParams) error
@@ -22,6 +23,8 @@ type Querier interface {
 	GetCampaignByID(ctx context.Context, arg GetCampaignByIDParams) (Campaign, error)
 	GetCampaignByInviteCode(ctx context.Context, inviteCode pgtype.Text) (Campaign, error)
 	GetCampaignMember(ctx context.Context, arg GetCampaignMemberParams) (CampaignMember, error)
+	GetCampaignMembers(ctx context.Context, arg GetCampaignMembersParams) ([]CampaignMember, error)
+	GetUserByID(ctx context.Context, userID pgtype.UUID) (User, error)
 	GetUserByUsernameOrEmail(ctx context.Context, arg GetUserByUsernameOrEmailParams) (User, error)
 	GetValidPasswordResetToken(ctx context.Context, token string) (PasswordResetToken, error)
 	InvalidateAllCampaignInvitations(ctx context.Context, userID pgtype.UUID) error

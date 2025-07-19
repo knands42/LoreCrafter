@@ -23,6 +23,7 @@ import (
 var TestDB *pgxpool.Pool
 var TestServer *httptest.Server
 var TestClient *http.Client
+var campaignMembersUseCase *usecases.CampaignMembersUseCase
 
 // SetupIntegrationTest sets up the integration test environment
 func SetupIntegrationTest() error {
@@ -68,16 +69,18 @@ func SetupIntegrationTest() error {
 	// setup usecases
 	emailUseCase := usecases.NewEmailUseCase(ctx, emailSender, templateManager, repo, "")
 	authUseCase := usecases.NewAuthUseCase(ctx, repo, tokenMakerAdapter, argon2Adapter, cfg.TokenExpiry, emailUseCase)
+	userUseCase := usecases.NewUserUseCase(ctx, repo)
 	aiCampaignUseCase := usecases.NewAICampaignUseCase(ctx, repo, llmFactory)
-	campaignUseCase := usecases.NewCampaignUseCase(ctx, repo, aiCampaignUseCase)
+	campaignMembersUseCase = usecases.NewCampaignMembersUseCase(ctx, repo)
+	campaignUseCase := usecases.NewCampaignUseCase(ctx, repo, aiCampaignUseCase, campaignMembersUseCase)
 	passwordResetUseCase := usecases.NewPasswordResetUseCase(ctx, repo, emailUseCase, templateManager, argon2Adapter, cfg.TokenExpiry)
-	campaignInvitationUseCase := usecases.NewCampaignInvitationUseCase(ctx, repo)
-	campaignMembersUseCase := usecases.NewCampaignMembersUseCase(ctx, repo)
+	campaignInvitationUseCase := usecases.NewCampaignInvitationUseCase(ctx, repo, campaignMembersUseCase)
 
 	server := api.NewServer(
 		cfg,
 		repo,
 		authUseCase,
+		userUseCase,
 		campaignUseCase,
 		passwordResetUseCase,
 		campaignInvitationUseCase,

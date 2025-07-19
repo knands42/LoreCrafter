@@ -139,27 +139,13 @@ func (q *Queries) GenerateInviteCode(ctx context.Context, arg GenerateInviteCode
 
 const getCampaignByID = `-- name: GetCampaignByID :one
 SELECT
-    c.id,
-    c.title,
-    c.setting_summary,
-    c.setting,
-    c.game_system,
-    c.number_of_players,
-    c.status,
-    c.image_url,
-    c.is_public,
-    c.invite_code,
-    c.setting_metadata,
-    c.setting_ai_metadata,
-    c.created_by,
-    c.created_at,
-    c.updated_at
+    c.id, c.title, c.setting_summary, c.setting, c.game_system, c.number_of_players, c.status, c.image_url, c.is_public, c.invite_code, c.setting_metadata, c.setting_ai_metadata, c.created_by, c.created_at, c.updated_at
     FROM campaigns as c
-                  LEFT JOIN campaign_members as cm
-                            ON c.id = cm.campaign_id AND cm.user_id = $2
+                  INNER JOIN campaign_members as cm
+                            ON c.id = cm.campaign_id
 WHERE c.id = $1 AND (
-    c.is_public = true OR cm.user_id IS NOT NULL
-    )
+    c.is_public = true OR cm.user_id = $2
+)
 LIMIT 1
 `
 

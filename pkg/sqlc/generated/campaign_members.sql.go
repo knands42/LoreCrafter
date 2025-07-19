@@ -11,31 +11,74 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-const createCampaignMember = `-- name: CreateCampaignMember :one
+const createCampaignPlayerMember = `-- name: CreateCampaignPlayerMember :one
 INSERT INTO campaign_members (
     id,
     campaign_id,
     user_id,
     role
-) VALUES (
-             $1, $2, $3, $4
-         ) RETURNING id, campaign_id, user_id, role, joined_at, last_accessed, created_at, updated_at
+)
+SELECT
+    $1::uuid,
+    $2::uuid,
+    $3::uuid,
+    $4::member_role
+FROM campaign_members cm
+WHERE cm.user_id = $5::uuid
+  AND cm.campaign_id = $2::uuid
+RETURNING id, campaign_id, user_id, role, joined_at, last_accessed, created_at, updated_at
 `
 
-type CreateCampaignMemberParams struct {
-	ID         pgtype.UUID `json:"id"`
-	CampaignID pgtype.UUID `json:"campaign_id"`
-	UserID     pgtype.UUID `json:"user_id"`
-	Role       MemberRole  `json:"role"`
+type CreateCampaignPlayerMemberParams struct {
+	ID          pgtype.UUID `json:"id"`
+	CampaignID  pgtype.UUID `json:"campaign_id"`
+	UserID      pgtype.UUID `json:"user_id"`
+	Role        MemberRole  `json:"role"`
+	RequesterID pgtype.UUID `json:"requester_id"`
 }
 
-func (q *Queries) CreateCampaignMember(ctx context.Context, arg CreateCampaignMemberParams) (CampaignMember, error) {
-	row := q.db.QueryRow(ctx, createCampaignMember,
+func (q *Queries) CreateCampaignPlayerMember(ctx context.Context, arg CreateCampaignPlayerMemberParams) (CampaignMember, error) {
+	row := q.db.QueryRow(ctx, createCampaignPlayerMember,
 		arg.ID,
 		arg.CampaignID,
 		arg.UserID,
 		arg.Role,
+		arg.RequesterID,
 	)
+	var i CampaignMember
+	err := row.Scan(
+		&i.ID,
+		&i.CampaignID,
+		&i.UserID,
+		&i.Role,
+		&i.JoinedAt,
+		&i.LastAccessed,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const createFirstCampaignMember = `-- name: CreateFirstCampaignMember :one
+INSERT INTO campaign_members (
+    id,
+    campaign_id,
+    user_id,
+    role
+)VALUES (
+            $1, $2, $3, 'gm'
+        )
+RETURNING id, campaign_id, user_id, role, joined_at, last_accessed, created_at, updated_at
+`
+
+type CreateFirstCampaignMemberParams struct {
+	ID         pgtype.UUID `json:"id"`
+	CampaignID pgtype.UUID `json:"campaign_id"`
+	UserID     pgtype.UUID `json:"user_id"`
+}
+
+func (q *Queries) CreateFirstCampaignMember(ctx context.Context, arg CreateFirstCampaignMemberParams) (CampaignMember, error) {
+	row := q.db.QueryRow(ctx, createFirstCampaignMember, arg.ID, arg.CampaignID, arg.UserID)
 	var i CampaignMember
 	err := row.Scan(
 		&i.ID,
@@ -83,4 +126,50 @@ func (q *Queries) GetCampaignMember(ctx context.Context, arg GetCampaignMemberPa
 		&i.UpdatedAt,
 	)
 	return i, err
+}
+
+const getCampaignMembers = `-- name: GetCampaignMembers :many
+SELECT cm.id, cm.campaign_id, cm.user_id, cm.role, cm.joined_at, cm.last_accessed, cm.created_at, cm.updated_at
+FROM campaign_members cm
+WHERE cm.campaign_id = $1::uuid
+  AND EXISTS (
+    SELECT 1 FROM campaign_members cm2
+    WHERE cm2.campaign_id = cm.campaign_id
+      AND cm2.user_id = $2::uuid
+)
+LIMIT 10
+`
+
+type GetCampaignMembersParams struct {
+	CampaignID  pgtype.UUID `json:"campaign_id"`
+	RequesterID pgtype.UUID `json:"requester_id"`
+}
+
+func (q *Queries) GetCampaignMembers(ctx context.Context, arg GetCampaignMembersParams) ([]CampaignMember, error) {
+	rows, err := q.db.Query(ctx, getCampaignMembers, arg.CampaignID, arg.RequesterID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []CampaignMember{}
+	for rows.Next() {
+		var i CampaignMember
+		if err := rows.Scan(
+			&i.ID,
+			&i.CampaignID,
+			&i.UserID,
+			&i.Role,
+			&i.JoinedAt,
+			&i.LastAccessed,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }

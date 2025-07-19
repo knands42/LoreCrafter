@@ -230,11 +230,6 @@ definitions:
       valid:
         type: boolean
     type: object
-  routes.AboutMe:
-    properties:
-      user_id:
-        type: string
-    type: object
   sqlc.Campaign:
     properties:
       created_at:
@@ -1008,9 +1003,13 @@ paths:
         "200":
           description: User Info
           schema:
-            $ref: '#/definitions/routes.AboutMe'
+            $ref: '#/definitions/domain.User'
         "401":
           description: Missing or invalid authorization header
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "404":
+          description: User not found
           schema:
             $ref: '#/definitions/utils.ErrorResponse'
       security:

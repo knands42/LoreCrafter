@@ -64,17 +64,19 @@ func main() {
 	// setup usecases
 	emailUseCase := usecases.NewEmailUseCase(ctx, emailSender, templateManager, repo, "")
 	authUseCase := usecases.NewAuthUseCase(ctx, repo, tokenMakerAdapter, argon2Adapter, cfg.TokenExpiry, emailUseCase)
-	aiCampaignUseCase := usecases.NewAICampaignUseCase(ctx, repo, llmFactory)
-	campaignUseCase := usecases.NewCampaignUseCase(ctx, repo, aiCampaignUseCase)
-	passwordResetUseCase := usecases.NewPasswordResetUseCase(ctx, repo, emailUseCase, templateManager, argon2Adapter, cfg.TokenExpiry)
-	campaignInvitationUseCase := usecases.NewCampaignInvitationUseCase(ctx, repo)
+	userUseCase := usecases.NewUserUseCase(ctx, repo)
 	campaignMembersUseCase := usecases.NewCampaignMembersUseCase(ctx, repo)
+	aiCampaignUseCase := usecases.NewAICampaignUseCase(ctx, repo, llmFactory)
+	campaignUseCase := usecases.NewCampaignUseCase(ctx, repo, aiCampaignUseCase, campaignMembersUseCase)
+	passwordResetUseCase := usecases.NewPasswordResetUseCase(ctx, repo, emailUseCase, templateManager, argon2Adapter, cfg.TokenExpiry)
+	campaignInvitationUseCase := usecases.NewCampaignInvitationUseCase(ctx, repo, campaignMembersUseCase)
 
 	// Set up the HTTP server
 	server := api.NewServer(
 		cfg,
 		repo,
 		authUseCase,
+		userUseCase,
 		campaignUseCase,
 		passwordResetUseCase,
 		campaignInvitationUseCase,

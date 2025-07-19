@@ -19,9 +19,10 @@ var (
 
 // CampaignUseCase implements the campaign business logic
 type CampaignUseCase struct {
-	ctx               context.Context
-	aiCampaignUseCase *AICampaignUseCase
-	repo              sqlc.Querier
+	ctx                    context.Context
+	aiCampaignUseCase      *AICampaignUseCase
+	repo                   sqlc.Querier
+	campaignMembersUseCase *CampaignMembersUseCase
 }
 
 // NewCampaignUseCase creates a new campaign use case
@@ -29,11 +30,13 @@ func NewCampaignUseCase(
 	ctx context.Context,
 	repo sqlc.Querier,
 	aiCampaignUseCase *AICampaignUseCase,
+	campaignMembersUseCase *CampaignMembersUseCase,
 ) *CampaignUseCase {
 	return &CampaignUseCase{
-		ctx:               ctx,
-		aiCampaignUseCase: aiCampaignUseCase,
-		repo:              repo,
+		ctx:                    ctx,
+		aiCampaignUseCase:      aiCampaignUseCase,
+		repo:                   repo,
+		campaignMembersUseCase: campaignMembersUseCase,
 	}
 }
 
@@ -66,18 +69,12 @@ func (uc *CampaignUseCase) CreateCampaign(creatorID uuid.UUID, useGenAI bool, in
 	}
 
 	// Add the creator as a GM
-	newUUIDV7, err := utils.GeneratePGUUID()
-	if err != nil {
-		return domain.Campaign{}, err
-	}
-	createCampaignMemberParams := sqlc.CreateCampaignMemberParams{
-		ID:         newUUIDV7,
-		CampaignID: createdCampaign.ID,
-		UserID:     createdCampaign.CreatedBy,
+	_, err = uc.campaignMembersUseCase.CreateGMMember(domain.CreateCampaignMemberInput{
+		UserID:     createdCampaign.CreatedBy.Bytes,
 		Role:       sqlc.MemberRoleGm,
-	}
-	if _, err := uc.repo.CreateCampaignMember(uc.ctx, createCampaignMemberParams); err != nil {
-		log.Printf("Error saving campaign member: %v", err)
+		CampaignID: createdCampaign.ID.Bytes,
+	})
+	if err != nil {
 		return domain.Campaign{}, ErrCampaignMemberCreation
 	}
 

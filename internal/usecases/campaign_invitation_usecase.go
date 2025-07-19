@@ -3,7 +3,6 @@ package usecases
 import (
 	"context"
 	"errors"
-	"github.com/jackc/pgx/v5/pgtype"
 	"log"
 
 	"github.com/google/uuid"
@@ -22,16 +21,20 @@ var (
 )
 
 type CampaignInvitationUseCase struct {
-	ctx  context.Context
-	repo sqlc.Querier
+	ctx                    context.Context
+	repo                   sqlc.Querier
+	campaignMembersUseCase *CampaignMembersUseCase
 }
 
 func NewCampaignInvitationUseCase(
 	ctx context.Context,
-	repo sqlc.Querier) *CampaignInvitationUseCase {
+	repo sqlc.Querier,
+	campaignMembersUseCase *CampaignMembersUseCase,
+) *CampaignInvitationUseCase {
 	return &CampaignInvitationUseCase{
-		ctx:  ctx,
-		repo: repo,
+		ctx:                    ctx,
+		repo:                   repo,
+		campaignMembersUseCase: campaignMembersUseCase,
 	}
 }
 
@@ -88,24 +91,11 @@ func (c *CampaignInvitationUseCase) ReceiveAnInvite(userId uuid.UUID, input doma
 	}
 
 	// add player as a member of the campaign
-	// TODO: Move to campaignMemberUseCase
-	newUUIDV7, err := utils.GeneratePGUUID()
-	if err != nil {
-		return err
-	}
-	createCampaignMemberParams := sqlc.CreateCampaignMemberParams{
-		ID:         newUUIDV7,
-		CampaignID: updatedInviteStatus.CampaignID,
-		UserID: pgtype.UUID{
-			Bytes: userId,
-			Valid: true,
-		},
-		Role: sqlc.MemberRolePlayer,
-	}
-	if _, err := c.repo.CreateCampaignMember(c.ctx, createCampaignMemberParams); err != nil {
-		log.Printf("Error saving campaign member: %v", err)
-		return ErrAddingTheCampaignMember
-	}
+	_, err = c.campaignMembersUseCase.AddCampaignPlayerMember(updatedInviteStatus.InvitedBy.Bytes, domain.CreateCampaignMemberInput{
+		UserID:     userId,
+		CampaignID: updatedInviteStatus.CampaignID.Bytes,
+		Role:       sqlc.MemberRolePlayer,
+	})
 
 	return err
 }

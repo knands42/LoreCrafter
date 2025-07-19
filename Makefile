@@ -5,11 +5,13 @@ SHELL := /bin/bash
 ####### setup commands
 
 # Generate Ed25519 key pair for PASETO tokens
+setup-env:
+	@if [ ! -f .env ]; then cp .env.example .env; fi
+
 setup-paseto-keys:
 	openssl genpkey -algorithm Ed25519 -out private_key.pem
 	openssl pkey -in private_key.pem -pubout -out public_key.pem
 	@echo "Base64 encoding keys and updating .env file..."
-	@if [ ! -f .env ]; then cp .env.example .env; fi
 	@PRIVATE_KEY_BASE64=$$(cat private_key.pem | base64 -w 0) && \
 	PUBLIC_KEY_BASE64=$$(cat public_key.pem | base64 -w 0) && \
 	sed -i "s|PASETO_PRIVATE_KEY=.*|PASETO_PRIVATE_KEY=$$PRIVATE_KEY_BASE64|" .env && \
@@ -31,7 +33,7 @@ setup-git-hooks:
 	@chmod +x .git/hooks/pre-commit
 	@echo "Git hooks setup complete!"
 
-setup: setup-paseto-keys setup-password-salt setup-git-hooks
+setup: setup-env setup-paseto-keys setup-password-salt setup-git-hooks
 
 ####### application commands #######
 # Build the application

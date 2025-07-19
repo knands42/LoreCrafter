@@ -295,7 +295,7 @@ func (h *CampaignHandler) ListUserCampaigns(w http.ResponseWriter, r *http.Reque
 // @Produce json
 // @Security BearerAuth
 // @Param campaignID path string true "Campaign ID"
-// @Param input body map[string]string true "User ID and role"
+// @Param input body domain.CreateCampaignMemberInput "User ID and role"
 // @Success 204 "User added to campaign successfully"
 // @Failure 400 {object} utils.ErrorResponse "Invalid request body or campaign ID"
 // @Failure 401 {object} utils.ErrorResponse "Unauthorized"
@@ -304,24 +304,24 @@ func (h *CampaignHandler) ListUserCampaigns(w http.ResponseWriter, r *http.Reque
 // @Failure 500 {object} utils.ErrorResponse "Internal server error"
 // @Router /api/campaigns/{campaignID}/members [post]
 func (h *CampaignHandler) AddCampaignMember(w http.ResponseWriter, r *http.Request) error {
-	var input struct {
-		UserID string `json:"user_id"`
-		Role   string `json:"role"`
-	}
+	// parse payload
+	var input domain.CreateCampaignMemberInput
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
 		return utils.WriteJSONError(w, http.StatusBadRequest, "Invalid request body")
 	}
 
+	// parse url params
 	campaignID, err := uuid.Parse(chi.URLParam(r, "campaignID"))
 	if err != nil {
 		return utils.WriteJSONError(w, http.StatusBadRequest, "Invalid campaign ID")
 	}
 
-	userID, err := uuid.Parse(input.UserID)
+	userID, err := uuid.Parse(input.UserID.String())
 	if err != nil {
 		return utils.WriteJSONError(w, http.StatusBadRequest, "Invalid user ID")
 	}
 
+	// get requester id
 	requesterIDStr, ok := r.Context().Value(middleware.UserIDContextKey).(string)
 	if !ok {
 		return utils.WriteJSONError(w, http.StatusUnauthorized, "User ID not found in context")
@@ -332,7 +332,11 @@ func (h *CampaignHandler) AddCampaignMember(w http.ResponseWriter, r *http.Reque
 		return utils.WriteJSONError(w, http.StatusBadRequest, "Invalid requester ID")
 	}
 
-	err = h.campaignMembersUseCase.AddCampaignMember(campaignID, userID, requesterID, input.Role)
+	// create the member campaign
+	input.UserID = userID
+	input.CampaignID = campaignID
+
+	createdCampaignMember, err := h.campaignMembersUseCase.AddCampaignPlayerMember(requesterID, input)
 	if err != nil {
 		switch {
 		case errors.Is(err, usecases.ErrCampaignNotFound):
@@ -342,8 +346,8 @@ func (h *CampaignHandler) AddCampaignMember(w http.ResponseWriter, r *http.Reque
 		}
 	}
 
-	w.WriteHeader(http.StatusNoContent)
-	return nil
+	w.WriteHeader(http.StatusCreated)
+	return json.NewEncoder(w).Encode(createdCampaignMember)
 }
 
 // RemoveCampaignMember handles removing a user from a campaign
@@ -454,6 +458,7 @@ func (h *CampaignHandler) LeaveCampaign(w http.ResponseWriter, r *http.Request) 
 // @Failure 500 {object} utils.ErrorResponse "Internal server error"
 // @Router /api/campaigns/{campaignID}/members [get]
 func (h *CampaignHandler) GetCampaignMembers(w http.ResponseWriter, r *http.Request) error {
+	// parse url params
 	campaignID, err := uuid.Parse(chi.URLParam(r, "campaignID"))
 	if err != nil {
 		return utils.WriteJSONError(w, http.StatusBadRequest, "Invalid campaign ID")
@@ -464,12 +469,17 @@ func (h *CampaignHandler) GetCampaignMembers(w http.ResponseWriter, r *http.Requ
 		return utils.WriteJSONError(w, http.StatusUnauthorized, "User ID not found in context")
 	}
 
-	userID, err := uuid.Parse(userIDStr)
+	requesterID, err := uuid.Parse(userIDStr)
 	if err != nil {
 		return utils.WriteJSONError(w, http.StatusBadRequest, "Invalid user ID")
 	}
 
-	members, err := h.campaignMembersUseCase.GetCampaignMembers(campaignID, userID)
+	// get members
+	input := domain.GetCampaignMembersInput{
+		CampaignID:  campaignID,
+		RequesterID: requesterID,
+	}
+	members, err := h.campaignMembersUseCase.GetCampaignMembers(input)
 	if err != nil {
 		if errors.Is(err, usecases.ErrFailedToRetrieveAMember) {
 			return utils.WriteJSONError(w, http.StatusNotFound, "Insufficient permissions")
@@ -520,13 +530,13 @@ func (h *CampaignHandler) GetCampaignMember(w http.ResponseWriter, r *http.Reque
 
 	// get members
 	input := domain.NewGetCampaignMemberInput(campaignID, memberID, requesterID)
-	members, err := h.campaignMembersUseCase.GetCampaignMember(*input)
+	member, err := h.campaignMembersUseCase.GetCampaignMember(*input)
 	if err != nil {
 		return err
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	return json.NewEncoder(w).Encode(members)
+	return json.NewEncoder(w).Encode(member)
 }
 
 // CreateCampaignInvitation handles creating a campaign invitation

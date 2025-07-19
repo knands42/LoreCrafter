@@ -1012,11 +1012,17 @@ const docTemplate = `{
                     "200": {
                         "description": "User Info",
                         "schema": {
-                            "$ref": "#/definitions/routes.AboutMe"
+                            "$ref": "#/definitions/domain.User"
                         }
                     },
                     "401": {
                         "description": "Missing or invalid authorization header",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "User not found",
                         "schema": {
                             "$ref": "#/definitions/utils.ErrorResponse"
                         }
@@ -1371,14 +1377,6 @@ const docTemplate = `{
                 },
                 "valid": {
                     "type": "boolean"
-                }
-            }
-        },
-        "routes.AboutMe": {
-            "type": "object",
-            "properties": {
-                "user_id": {
-                    "type": "string"
                 }
             }
         },

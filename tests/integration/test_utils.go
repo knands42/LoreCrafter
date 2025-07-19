@@ -98,6 +98,11 @@ func GetCampaignMember(t *testing.T, cookie http.Cookie, campaignID uuid.UUID, m
 	return SendAuthenticatedRequest(t, "GET", fmt.Sprintf("/api/campaigns/%s/members/%s", campaignID, memberID), cookie, nil, output)
 }
 
+// GetCampaignMember gets a campaign member by ID
+func GetCampaignMembers(t *testing.T, cookie http.Cookie, campaignID uuid.UUID, output interface{}) (int, []*http.Cookie) {
+	return SendAuthenticatedRequest(t, "GET", fmt.Sprintf("/api/campaigns/%s/members", campaignID), cookie, nil, output)
+}
+
 // GetCampaign gets a campaign by ID
 func GetCampaign(t *testing.T, cookie http.Cookie, campaignID uuid.UUID, output interface{}) (int, []*http.Cookie) {
 	return SendAuthenticatedRequest(t, "GET", fmt.Sprintf("/api/campaigns/%s", campaignID), cookie, nil, output)
