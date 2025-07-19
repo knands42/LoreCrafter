@@ -124,6 +124,11 @@ definitions:
       token:
         type: string
     type: object
+  domain.ReceiveCampaignInvite:
+    properties:
+      accepted:
+        type: boolean
+    type: object
   domain.SettingsAIMetadata:
     properties:
       world_theme:
@@ -918,16 +923,17 @@ paths:
       - application/json
       description: Receive a campaign invitation if the user has GM permissions
       parameters:
-      - description: Campaign ID
-        in: path
-        name: campaignID
-        required: true
-        type: string
       - description: Invite Token
         in: path
         name: token
         required: true
         type: string
+      - description: Confirm or reject the campaign invite
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/domain.ReceiveCampaignInvite'
       produces:
       - application/json
       responses:

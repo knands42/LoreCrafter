@@ -340,17 +340,19 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Campaign ID",
-                        "name": "campaignID",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
                         "description": "Invite Token",
                         "name": "token",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "description": "Confirm or reject the campaign invite",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.ReceiveCampaignInvite"
+                        }
                     }
                 ],
                 "responses": {
@@ -1207,6 +1209,14 @@ const docTemplate = `{
                 },
                 "token": {
                     "type": "string"
+                }
+            }
+        },
+        "domain.ReceiveCampaignInvite": {
+            "type": "object",
+            "properties": {
+                "accepted": {
+                    "type": "boolean"
                 }
             }
         },
