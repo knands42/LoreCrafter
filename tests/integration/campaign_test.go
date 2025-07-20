@@ -3,6 +3,7 @@ package integration
 import (
 	"context"
 	"net/http"
+	"os"
 	"testing"
 
 	"github.com/google/uuid"
@@ -46,6 +47,10 @@ func TestCreateCampaign_NO_AI_Success(t *testing.T) {
 }
 
 func TestCreateCampaign_WITH_AI_Success(t *testing.T) {
+	if os.Getenv("RUN_AI_TESTS") != "true" {
+		t.Skip("Skipping AI test. Set RUN_AI_TESTS=true to run")
+	}
+
 	// Given a registered and authenticated user
 	user, cookie := CreateTestUser(t)
 

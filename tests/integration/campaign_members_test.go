@@ -1,11 +1,12 @@
 package integration
 
 import (
+	"net/http"
+	"testing"
+
 	"github.com/knands42/lorecrafter/internal/domain"
 	sqlc "github.com/knands42/lorecrafter/pkg/sqlc/generated"
 	"github.com/stretchr/testify/require"
-	"net/http"
-	"testing"
 )
 
 func campaignMemberSetup(t *testing.T) (

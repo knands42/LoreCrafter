@@ -49,7 +49,6 @@ func (h *CampaignHandler) RegisterRoutes(r chi.Router) {
 			r.Route("/members", func(r chi.Router) {
 				r.Get("/", middleware.ErrorHandlerMiddleware(h.GetCampaignMembers))
 				r.Get("/{memberID}", middleware.ErrorHandlerMiddleware(h.GetCampaignMember))
-				r.Post("/", middleware.ErrorHandlerMiddleware(h.AddCampaignMember))
 				r.Delete("/{userID}", middleware.ErrorHandlerMiddleware(h.RemoveCampaignMember))
 			})
 		})
