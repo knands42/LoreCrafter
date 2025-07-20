@@ -1,11 +1,11 @@
 # LoreCrafter
 
-<center>
+<div style="text-align: center;">
 
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/890283cc4f7f4f04bac48f6f1a2a1f08)](https://app.codacy.com/gh/knands42/LoreCrafter/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
-[![Codacy Badge](https://app.codacy.com/project/badge/Coverage/890283cc4f7f4f04bac48f6f1a2a1f08)](https://app.codacy.com/gh/knands42/LoreCrafter/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_coverage)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/890283cc4f7f4f04bac48f6f1a2a1f08)](https://app.codacy.com/gh/knands42/lorecrafter/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
+[![Codacy Badge](https://app.codacy.com/project/badge/Coverage/890283cc4f7f4f04bac48f6f1a2a1f08)](https://app.codacy.com/gh/knands42/lorecrafter/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_coverage)
 
-</center>
+</div>
 
 ## 📘 Project Overview
 
