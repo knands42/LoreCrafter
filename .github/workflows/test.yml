@@ -82,6 +82,7 @@ jobs:
           PROFILE: ${{ secrets.PROFILE }}
           EMAIL_API_KEY: ${{ secrets.EMAIL_API_KEY }}
           EMAIL_DOMAIN: ${{ secrets.EMAIL_DOMAIN }}
+          RUN_AI_TESTS: false
         run: |
           PACKAGES=$(go list ./... | grep -v "docs\|pkg")
           go test -v ./... -coverprofile=coverage.out -covermode=atomic $(shell go list ./... | grep -v "docs\|pkg")
