@@ -47,21 +47,7 @@ WHERE cm.campaign_id = c.id
       cm.user_id = $2
     )
 RETURNING
-    c.id,
-    c.title,
-    c.setting_summary,
-    c.setting,
-    c.game_system,
-    c.number_of_players,
-    c.status,
-    c.image_url,
-    c.is_public,
-    c.invite_code,
-    c.setting_metadata,
-    c.setting_ai_metadata,
-    c.created_by,
-    c.created_at,
-    c.updated_at;
+    c.*;
 
 -- name: DeleteCampaign :exec
 DELETE FROM campaigns AS c

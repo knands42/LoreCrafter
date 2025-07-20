@@ -65,10 +65,9 @@ func (q *Queries) CreateCampaignInvitation(ctx context.Context, arg CreateCampai
 
 const invalidateAllCampaignInvitations = `-- name: InvalidateAllCampaignInvitations :exec
 UPDATE campaign_invitations AS ci
-SET status = 'rejected'
-FROM users u
-WHERE u.id = ci.user_id
-AND ci.user_id = $1
+SET status = 'rejected'::invitation_status
+WHERE ci.user_id = $1::uuid
+AND ci.status != 'accepted'::invitation_status
 `
 
 func (q *Queries) InvalidateAllCampaignInvitations(ctx context.Context, userID pgtype.UUID) error {

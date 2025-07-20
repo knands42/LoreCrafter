@@ -3,6 +3,8 @@ package usecases
 import (
 	"context"
 	"errors"
+	"fmt"
+	"github.com/jackc/pgx/v5/pgtype"
 	"log"
 
 	"github.com/google/uuid"
@@ -96,6 +98,16 @@ func (c *CampaignInvitationUseCase) ReceiveAnInvite(userId uuid.UUID, input doma
 		CampaignID: updatedInviteStatus.CampaignID.Bytes,
 		Role:       sqlc.MemberRolePlayer,
 	})
+
+	go func() {
+		err = c.repo.InvalidateAllCampaignInvitations(c.ctx, pgtype.UUID{
+			Bytes: userId,
+			Valid: true,
+		})
+		if err != nil && err.Error() != "no rows in result set" {
+			fmt.Printf("Error invalidating invites for %v user: %v", userId, err)
+		}
+	}()
 
 	return err
 }

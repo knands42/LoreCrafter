@@ -19,10 +19,9 @@ AND NOT EXISTS (
 
 -- name: InvalidateAllCampaignInvitations :exec
 UPDATE campaign_invitations AS ci
-SET status = 'rejected'
-FROM users u
-WHERE u.id = ci.user_id
-AND ci.user_id = @user_id;
+SET status = 'rejected'::invitation_status
+WHERE ci.user_id = @user_id::uuid
+AND ci.status != 'accepted'::invitation_status;
 
 -- name: UpdateCampaignInviteStatus :one
 UPDATE campaign_invitations AS ci
