@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"github.com/hibiken/asynq"
+	"github.com/knands42/lorecrafter/internal/adapter/worker"
 	"log"
 	"os"
 	"path/filepath"
@@ -41,15 +43,16 @@ func main() {
 
 	repo := sqlc.New(pgConn)
 
-	// Set up the LLM models
+	// setup the LLM models
 	llmFactory, err := llms.NewLlmFactory(ctx, cfg)
 	if err != nil {
 		log.Fatalf("Failed to initialize llms: %v", err)
 	}
 
 	// setup adapters
-	//worker := worker2.NewValkeyAdapter(cfg)
-	//worker.Close()
+	workerClient := asynq.NewClient(asynq.RedisClientOpt{Addr: cfg.VALKEY_ADDRESS})
+	workerServer := worker.NewWorker(cfg, repo, asynq.RedisClientOpt{Addr: cfg.VALKEY_ADDRESS})
+	workerServer.RegisterBackgroundWorkers()
 	tokenMakerAdapter, err := security.NewTokenMakerAdapter(cfg.PrivateKey, cfg.PublicKey)
 	if err != nil {
 		log.Fatalf("Failed to create token maker: %v", err)
@@ -71,7 +74,7 @@ func main() {
 	passwordResetUseCase := usecases.NewPasswordResetUseCase(ctx, repo, emailUseCase, templateManager, argon2Adapter, cfg.TokenExpiry)
 	campaignInvitationUseCase := usecases.NewCampaignInvitationUseCase(ctx, repo, campaignMembersUseCase)
 
-	// Set up the HTTP server
+	// set up the HTTP server
 	server := api.NewServer(
 		cfg,
 		repo,
@@ -82,8 +85,14 @@ func main() {
 		campaignInvitationUseCase,
 		campaignMembersUseCase,
 	)
-
-	// Start the server with or without TLS
 	server.Start()
-	//defer pgConn.Close()
+
+	// defer services
+	defer pgConn.Close()
+	defer func(workerClient *asynq.Client) {
+		err := workerClient.Close()
+		if err != nil {
+			log.Fatalf("Failed to close asynq worker: %v", err)
+		}
+	}(workerClient)
 }

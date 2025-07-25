@@ -106,3 +106,28 @@ func (q *Queries) UpdateCampaignInviteStatus(ctx context.Context, arg UpdateCamp
 	)
 	return i, err
 }
+
+const worker_UpdateStatusOfExpiredCampaignInvitation = `-- name: Worker_UpdateStatusOfExpiredCampaignInvitation :one
+UPDATE campaign_invitations AS ci
+SET status = 'expired'::invitation_status
+WHERE ci.expires_at < NOW()
+AND ci.status = 'pending'::invitation_status
+RETURNING id, campaign_id, user_id, invited_by, token, status, expires_at, created_at, updated_at
+`
+
+func (q *Queries) Worker_UpdateStatusOfExpiredCampaignInvitation(ctx context.Context) (CampaignInvitation, error) {
+	row := q.db.QueryRow(ctx, worker_UpdateStatusOfExpiredCampaignInvitation)
+	var i CampaignInvitation
+	err := row.Scan(
+		&i.ID,
+		&i.CampaignID,
+		&i.UserID,
+		&i.InvitedBy,
+		&i.Token,
+		&i.Status,
+		&i.ExpiresAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}

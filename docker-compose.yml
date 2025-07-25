@@ -12,7 +12,7 @@ services:
       - .env
     environment:
       - POSTGRES_URL=postgresql://postgres:postgres@db:5432/lorecrafter?sslmode=disable
-      - VALKEY_ADDRESS=valkey:6379
+      - VALKEY_ADDRESS=cache:6379
     depends_on:
       db:
         condition: service_healthy
@@ -56,19 +56,9 @@ services:
       retries: 5
       start_period: 10s
 
-  mailhog:
-    image: mailhog/mailhog
-    container_name: mailhog
-    ports:
-      - '1025:1025' # SMTP
-      - '8025:8025' # Web UI
-    restart: always
-    networks:
-      - app-network
-
-  valkey:
+  cache:
     image: valkey/valkey:7.2
-    container_name: valkey
+    container_name: cache
     ports:
       - '6379:6379'
     networks:
@@ -79,6 +69,16 @@ services:
       timeout: 5s
       retries: 5
     restart: unless-stopped
+
+  cache-ui:
+    image: docker.io/hibiken/asynqmon
+    container_name: cache-ui
+    networks:
+      - app-network
+    ports:
+      - '8001:8080'
+    environment:
+      - REDIS_URL=redis://cache:6379
 
 networks:
   app-network:

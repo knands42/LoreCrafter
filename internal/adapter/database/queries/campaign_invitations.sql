@@ -30,3 +30,10 @@ WHERE ci.token = $2
 AND ci.user_id = $3
 AND ci.expires_at > NOW()
 RETURNING *;
+
+-- name: Worker_UpdateStatusOfExpiredCampaignInvitation :one
+UPDATE campaign_invitations AS ci
+SET status = 'expired'::invitation_status
+WHERE ci.expires_at < NOW()
+AND ci.status = 'pending'::invitation_status
+RETURNING *;

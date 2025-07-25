@@ -35,6 +35,7 @@ type Querier interface {
 	UpdateCampaign(ctx context.Context, arg UpdateCampaignParams) (Campaign, error)
 	UpdateCampaignInviteStatus(ctx context.Context, arg UpdateCampaignInviteStatusParams) (CampaignInvitation, error)
 	UpdateUserPasswordFromToken(ctx context.Context, arg UpdateUserPasswordFromTokenParams) (UpdateUserPasswordFromTokenRow, error)
+	Worker_UpdateStatusOfExpiredCampaignInvitation(ctx context.Context) (CampaignInvitation, error)
 }
 
 var _ Querier = (*Queries)(nil)

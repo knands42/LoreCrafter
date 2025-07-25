@@ -2,6 +2,8 @@ package integration
 
 import (
 	"context"
+	"github.com/hibiken/asynq"
+	"github.com/knands42/lorecrafter/internal/adapter/worker"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -55,6 +57,9 @@ func SetupIntegrationTest() error {
 	}
 
 	// setup adapters
+	asynq.NewClient(asynq.RedisClientOpt{Addr: cfg.VALKEY_ADDRESS})
+	workerServer := worker.NewWorker(cfg, repo, asynq.RedisClientOpt{Addr: cfg.VALKEY_ADDRESS})
+	workerServer.RegisterBackgroundWorkers()
 	tokenMakerAdapter, err := security.NewTokenMakerAdapter(cfg.PrivateKey, cfg.PublicKey)
 	if err != nil {
 		log.Fatalf("Failed to create token maker: %v", err)
