@@ -33,17 +33,21 @@ func NewWorker(cfg config.Config, repo sqlc.Querier, redisOpt asynq.RedisClientO
 }
 
 func (w *Worker) RegisterBackgroundWorkers() {
-	err := background_jobs.RegisterCheckExpiredCampaignInvitationsTask(w.scheduler)
+	err := background_jobs.RegisterCheckExpiredCampaignInvitationsTask(
+		w.scheduler,
+		w.mux,
+		w.repo,
+	)
 	if err != nil {
 		log.Fatalf("Failed to register CheckExpiredCampaignInvitationsTask with err: %v", err)
 	}
-	w.mux.HandleFunc(
-		background_jobs.TypeCheckExpiredCampaignInvitations,
-		background_jobs.HandleCheckExpiredCampaignInvitationsTaskWrapper(w.repo),
-	)
 
 	err = w.server.Start(w.mux)
 	if err != nil {
-		log.Fatalf("Worker failed to start: %v", err)
+		log.Fatalf("Worker failed to start server: %v", err)
+	}
+	err = w.scheduler.Start()
+	if err != nil {
+		log.Fatalf("Worker failed to start scheduler: %v", err)
 	}
 }
