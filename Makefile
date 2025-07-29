@@ -72,6 +72,7 @@ podman-build:
 podman-run:
 	podman run -p 8000:8000 --env-file .env lorecrafter:latest
 
+.PHONY: podman-up-all
 podman-up-all:
 	podman rmi lorecrafter || true
 	$(MAKE) podman-build
@@ -80,7 +81,7 @@ podman-up-all:
 .PHONY: podman-up
 podman-up:
 	podman rm -f db db-test cache cache-ui || true
-	podman compose up --build --force-recreate db db-test cache cache-ui
+	podman compose up --build --force-recreate db db-test
 
 podman-down:
 	podman compose down

@@ -1,53 +1,23 @@
 package worker
 
 import (
-	"github.com/hibiken/asynq"
-	"github.com/knands42/lorecrafter/internal/adapter/worker/background_jobs"
 	"github.com/knands42/lorecrafter/internal/config"
 	sqlc "github.com/knands42/lorecrafter/pkg/sqlc/generated"
-	"log"
 )
 
 type Worker struct {
-	cfg       config.Config
-	repo      sqlc.Querier
-	scheduler *asynq.Scheduler
-	server    *asynq.Server
-	mux       *asynq.ServeMux
+	cfg  config.Config
+	repo sqlc.Querier
 }
 
-func NewWorker(cfg config.Config, repo sqlc.Querier, redisOpt asynq.RedisClientOpt) *Worker {
-	scheduler := asynq.NewScheduler(redisOpt, &asynq.SchedulerOpts{})
-	server := asynq.NewServer(redisOpt, asynq.Config{
-		Concurrency: 10,
-	})
-	mux := asynq.NewServeMux()
+func NewWorker(cfg config.Config, repo sqlc.Querier) *Worker {
 
 	return &Worker{
-		cfg:       cfg,
-		repo:      repo,
-		scheduler: scheduler,
-		server:    server,
-		mux:       mux,
+		cfg:  cfg,
+		repo: repo,
 	}
 }
 
-func (w *Worker) RegisterBackgroundWorkers() {
-	err := background_jobs.RegisterCheckExpiredCampaignInvitationsTask(
-		w.scheduler,
-		w.mux,
-		w.repo,
-	)
-	if err != nil {
-		log.Fatalf("Failed to register CheckExpiredCampaignInvitationsTask with err: %v", err)
-	}
+func (w *Worker) StartWorkers() {
 
-	err = w.server.Start(w.mux)
-	if err != nil {
-		log.Fatalf("Worker failed to start server: %v", err)
-	}
-	err = w.scheduler.Start()
-	if err != nil {
-		log.Fatalf("Worker failed to start scheduler: %v", err)
-	}
 }

@@ -21,14 +21,20 @@ services:
     restart: unless-stopped
 
   db:
-    image: postgres:17-alpine
+    build:
+      context: .
+      dockerfile: Dockerfile.postgres
     container_name: db
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=lorecrafter
+      - POSTGRES_DATABASE=lorecrafter
+      - POSTGRES_POSTGRES_PASSWORD=postgres
+      - POSTGRES_SHARED_PRELOAD_LIBRARIES=pg_cron
     ports:
       - '5432:5432'
+    restart: unless-stopped
     networks:
       - app-network
     healthcheck:
@@ -39,12 +45,17 @@ services:
       start_period: 10s
 
   db-test:
-    image: postgres:17-alpine
+    build:
+      context: .
+      dockerfile: Dockerfile.postgres-test
     container_name: db_test
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=lorecrafter_test
+      - POSTGRES_DATABASE=lorecrafter_test
+      - POSTGRES_POSTGRES_PASSWORD=postgres
+      - POSTGRES_SHARED_PRELOAD_LIBRARIES=pg_cron
     ports:
       - '5433:5432'
     networks:
@@ -69,16 +80,6 @@ services:
       timeout: 5s
       retries: 5
     restart: unless-stopped
-
-  cache-ui:
-    image: docker.io/hibiken/asynqmon
-    container_name: cache-ui
-    networks:
-      - app-network
-    ports:
-      - '8001:8080'
-    environment:
-      - REDIS_URL=redis://cache:6379
 
 networks:
   app-network:

@@ -1,3 +1,7 @@
+SELECT cron.unsubscribe('delete_expired_password_reset_tokens_job');
+
+DROP FUNCTION IF EXISTS "delete_expired_password_reset_tokens()";
+
 DROP TRIGGER IF EXISTS "update_password_reset_tokens_updated_at" ON "password_reset_tokens";
 
 -- Drop indexes

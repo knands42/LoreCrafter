@@ -4,7 +4,7 @@ CREATE TYPE game_system_enum AS ENUM (
     'PATHFINDER_2E',
     'COC_7E',
     'OTHER'
-);
+    );
 
 CREATE TYPE campaign_status_enum AS ENUM (
     'PLANNING',
@@ -14,32 +14,33 @@ CREATE TYPE campaign_status_enum AS ENUM (
     'ARCHIVED'
     );
 
-CREATE TABLE "campaigns" (
-    id UUID PRIMARY KEY,
-    title VARCHAR(100) NOT NULL,
-    setting_summary TEXT NULL,
-    setting TEXT NULL,
-    game_system game_system_enum NOT NULL,
-    number_of_players SMALLINT DEFAULT 1,
-    status campaign_status_enum NOT NULL DEFAULT 'PLANNING',
-    image_url VARCHAR(255),
-    is_public BOOLEAN NOT NULL DEFAULT false,
-    invite_code VARCHAR(12) UNIQUE,
-    setting_metadata JSONB DEFAULT '{}'::JSONB,
-    setting_ai_metadata JSONB DEFAULT '{}'::JSONB,
-    created_by UUID NOT NULL REFERENCES "users"("id") ON DELETE CASCADE,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+CREATE TABLE "campaigns"
+(
+    id                  UUID PRIMARY KEY,
+    title               VARCHAR(100)         NOT NULL,
+    setting_summary     TEXT                 NULL,
+    setting             TEXT                 NULL,
+    game_system         game_system_enum     NOT NULL,
+    number_of_players   SMALLINT                      DEFAULT 1,
+    status              campaign_status_enum NOT NULL DEFAULT 'PLANNING',
+    image_url           VARCHAR(255),
+    is_public           BOOLEAN              NOT NULL DEFAULT false,
+    invite_code         VARCHAR(12) UNIQUE,
+    setting_metadata    JSONB                         DEFAULT '{}'::JSONB,
+    setting_ai_metadata JSONB                         DEFAULT '{}'::JSONB,
+    created_by          UUID                 NOT NULL REFERENCES "users" ("id") ON DELETE CASCADE,
+    created_at          TIMESTAMPTZ          NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at          TIMESTAMPTZ          NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE INDEX "idx_campaigns_title_trgm" ON "campaigns" USING GIN ("title" gin_trgm_ops);
 
-CREATE INDEX IF NOT EXISTS "idx_campaigns_created_by" ON "campaigns"("created_by");
-CREATE INDEX IF NOT EXISTS "idx_campaigns_invite_code" ON "campaigns"("invite_code");
-CREATE INDEX IF NOT EXISTS "idx_campaigns_status" ON "campaigns"("status");
-CREATE INDEX IF NOT EXISTS "idx_campaigns_game_system" ON "campaigns"("game_system");
-CREATE INDEX IF NOT EXISTS "idx_campaigns_is_public" ON "campaigns"("is_public");
-CREATE INDEX IF NOT EXISTS "idx_campaigns_status_public_system" ON "campaigns"("status", "is_public", "game_system");
+CREATE INDEX IF NOT EXISTS "idx_campaigns_created_by" ON "campaigns" ("created_by");
+CREATE INDEX IF NOT EXISTS "idx_campaigns_invite_code" ON "campaigns" ("invite_code");
+CREATE INDEX IF NOT EXISTS "idx_campaigns_status" ON "campaigns" ("status");
+CREATE INDEX IF NOT EXISTS "idx_campaigns_game_system" ON "campaigns" ("game_system");
+CREATE INDEX IF NOT EXISTS "idx_campaigns_is_public" ON "campaigns" ("is_public");
+CREATE INDEX IF NOT EXISTS "idx_campaigns_status_public_system" ON "campaigns" ("status", "is_public", "game_system");
 
 COMMENT ON TABLE "campaigns" IS 'Campaigns are the main entity in the system. They are used to store the campaign data.';
 COMMENT ON COLUMN "campaigns"."setting_summary" IS 'A summary of the campaign setting.';
@@ -53,6 +54,7 @@ COMMENT ON COLUMN "campaigns"."setting_ai_metadata" IS 'Information used by LLMs
 
 -- Create a trigger to update the updated_at column
 CREATE TRIGGER update_campaigns_updated_at
-BEFORE UPDATE ON "campaigns"
-FOR EACH ROW
+    BEFORE UPDATE
+    ON "campaigns"
+    FOR EACH ROW
 EXECUTE FUNCTION update_updated_at_column();

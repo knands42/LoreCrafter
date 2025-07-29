@@ -51,8 +51,8 @@ func main() {
 
 	// setup adapters
 	workerClient := asynq.NewClient(asynq.RedisClientOpt{Addr: cfg.VALKEY_ADDRESS})
-	workerServer := worker.NewWorker(cfg, repo, asynq.RedisClientOpt{Addr: cfg.VALKEY_ADDRESS})
-	workerServer.RegisterBackgroundWorkers()
+	workerServer := worker.NewWorker(cfg, repo)
+	workerServer.StartWorkers()
 	tokenMakerAdapter, err := security.NewTokenMakerAdapter(cfg.PrivateKey, cfg.PublicKey)
 	if err != nil {
 		log.Fatalf("Failed to create token maker: %v", err)
