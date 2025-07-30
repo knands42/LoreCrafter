@@ -80,6 +80,7 @@ func SetupIntegrationTest() error {
 	campaignUseCase := usecases.NewCampaignUseCase(ctx, repo, aiCampaignUseCase, campaignMembersUseCase)
 	passwordResetUseCase := usecases.NewPasswordResetUseCase(ctx, repo, emailUseCase, templateManager, argon2Adapter, cfg.TokenExpiry)
 	campaignInvitationUseCase := usecases.NewCampaignInvitationUseCase(ctx, repo, campaignMembersUseCase)
+	notificationUseCase := usecases.NewNotificationUseCase(ctx, repo)
 
 	server := api.NewServer(
 		cfg,
@@ -90,6 +91,7 @@ func SetupIntegrationTest() error {
 		passwordResetUseCase,
 		campaignInvitationUseCase,
 		campaignMembersUseCase,
+		notificationUseCase,
 	)
 
 	TestDB = pgConn

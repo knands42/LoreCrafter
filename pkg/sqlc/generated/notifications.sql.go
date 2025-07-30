@@ -46,3 +46,37 @@ func (q *Queries) CreateNotification(ctx context.Context, arg CreateNotification
 	)
 	return i, err
 }
+
+const getNotifications = `-- name: GetNotifications :many
+SELECT id, user_id, type, payload, status, created_at, read_at FROM notifications
+WHERE user_id = $1
+LIMIT 10
+`
+
+func (q *Queries) GetNotifications(ctx context.Context, userID pgtype.UUID) ([]Notification, error) {
+	rows, err := q.db.Query(ctx, getNotifications, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Notification{}
+	for rows.Next() {
+		var i Notification
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.Type,
+			&i.Payload,
+			&i.Status,
+			&i.CreatedAt,
+			&i.ReadAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}

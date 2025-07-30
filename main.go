@@ -73,6 +73,7 @@ func main() {
 	campaignUseCase := usecases.NewCampaignUseCase(ctx, repo, aiCampaignUseCase, campaignMembersUseCase)
 	passwordResetUseCase := usecases.NewPasswordResetUseCase(ctx, repo, emailUseCase, templateManager, argon2Adapter, cfg.TokenExpiry)
 	campaignInvitationUseCase := usecases.NewCampaignInvitationUseCase(ctx, repo, campaignMembersUseCase)
+	notificationUseCase := usecases.NewNotificationUseCase(ctx, repo)
 
 	// set up the HTTP server
 	server := api.NewServer(
@@ -84,6 +85,7 @@ func main() {
 		passwordResetUseCase,
 		campaignInvitationUseCase,
 		campaignMembersUseCase,
+		notificationUseCase,
 	)
 	server.Start()
 

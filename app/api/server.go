@@ -37,11 +37,13 @@ type Server struct {
 	passwordResetUseCase      *usecases.PasswordResetUseCase
 	campaignUseCase           *usecases.CampaignUseCase
 	campaignInvitationUseCase *usecases.CampaignInvitationUseCase
+	notificationUseCase       *usecases.NotificationUseCase
 
-	authHandler     *routes.AuthHandler
-	userHandler     *routes.UserHandler
-	campaignHandler *routes.CampaignHandler
-	repo            sqlc.Querier
+	authHandler         *routes.AuthHandler
+	userHandler         *routes.UserHandler
+	campaignHandler     *routes.CampaignHandler
+	notificationHandler *routes.NotificationHandler
+	repo                sqlc.Querier
 }
 
 // NewServer creates a new HTTP server
@@ -55,6 +57,7 @@ func NewServer(
 	passwordResetUseCase *usecases.PasswordResetUseCase,
 	campaignInvitationUseCase *usecases.CampaignInvitationUseCase,
 	campaignMembersUseCase *usecases.CampaignMembersUseCase,
+	notificationUseCase *usecases.NotificationUseCase,
 ) *Server {
 	router := chi.NewRouter()
 
@@ -97,6 +100,7 @@ func NewServer(
 		campaignUseCase:           campaignUseCase,
 		passwordResetUseCase:      passwordResetUseCase,
 		campaignInvitationUseCase: campaignInvitationUseCase,
+		notificationUseCase:       notificationUseCase,
 
 		authHandler: routes.NewAuthHandler(authUseCase, passwordResetUseCase),
 		userHandler: routes.NewUserHandler(userUseCase),
@@ -104,6 +108,10 @@ func NewServer(
 			campaignUseCase,
 			campaignInvitationUseCase,
 			campaignMembersUseCase,
+		),
+		notificationHandler: routes.NewNotificationHandler(
+			notificationUseCase,
+			authUseCase,
 		),
 	}
 
@@ -172,12 +180,15 @@ func (s *Server) setupRoutes() {
 
 			// Campaign routes
 			s.campaignHandler.RegisterRoutes(r)
+
+			// Notification routes
+			s.notificationHandler.RegisterRoutes(r)
 		})
 	})
 }
 
 func (s *Server) gracefulShutdown() {
-	// Wait for interrupt signal to gracefully shut down the server
+	// Wait for the interrupt signal to gracefully shut down the server
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit

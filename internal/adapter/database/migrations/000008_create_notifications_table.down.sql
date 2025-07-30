@@ -13,3 +13,4 @@ DROP INDEX IF EXISTS notifications_user_id_idx;
 
 DROP TABLE IF EXISTS notifications;
 DROP TYPE IF EXISTS notification_type;
+DROP TYPE IF EXISTS notification_status;

@@ -337,13 +337,13 @@ type Character struct {
 }
 
 type Notification struct {
-	ID        pgtype.UUID      `json:"id"`
-	UserID    pgtype.UUID      `json:"user_id"`
-	Type      NotificationType `json:"type"`
-	Payload   []byte           `json:"payload"`
-	Status    string           `json:"status"`
-	CreatedAt pgtype.Timestamp `json:"created_at"`
-	ReadAt    pgtype.Timestamp `json:"read_at"`
+	ID        pgtype.UUID        `json:"id"`
+	UserID    pgtype.UUID        `json:"user_id"`
+	Type      NotificationType   `json:"type"`
+	Payload   []byte             `json:"payload"`
+	Status    NotificationStatus `json:"status"`
+	CreatedAt pgtype.Timestamp   `json:"created_at"`
+	ReadAt    pgtype.Timestamp   `json:"read_at"`
 }
 
 type PasswordResetToken struct {

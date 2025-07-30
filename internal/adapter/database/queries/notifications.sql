@@ -5,3 +5,8 @@ INSERT INTO notifications (id,
                            payload)
 VALUES ($1, $2, $3, $4)
 RETURNING *;
+
+-- name: GetNotifications :many
+SELECT * FROM notifications
+WHERE user_id = $1
+LIMIT 10;

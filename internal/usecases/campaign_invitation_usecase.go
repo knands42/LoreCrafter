@@ -4,8 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/jackc/pgx/v5/pgtype"
 	"log"
+
+	"github.com/jackc/pgx/v5/pgtype"
 
 	"github.com/google/uuid"
 	"github.com/knands42/lorecrafter/internal/domain"
@@ -69,7 +70,7 @@ func (c *CampaignInvitationUseCase) CreateAnInvite(input domain.CreateCampaignIn
 		return domain.CampaignInvitation{}, ErrCreatingTheCampaignInvitation
 	}
 
-	go c.sendNotificationAndReturn(createdCampaignInvitation)
+	c.sendNotificationAndReturn(createdCampaignInvitation)
 	return *domain.NewCampaignInvitationFromSqlc(createdCampaignInvitation), nil
 }
 
@@ -162,7 +163,5 @@ func (c *CampaignInvitationUseCase) sendNotificationAndReturn(
 }
 
 func buildNotificationPayload(token string) string {
-	return "{" +
-		"token: " + token +
-		"}"
+	return fmt.Sprintf(`{"token": "%s"}`, token)
 }

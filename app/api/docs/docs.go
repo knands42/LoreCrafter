@@ -1090,6 +1090,49 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/api/notifications": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get all notifications for the current user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "notifications"
+                ],
+                "summary": "Get notifications",
+                "responses": {
+                    "200": {
+                        "description": "Notifications retrieved successfully",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/domain.Notification"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -1302,6 +1345,32 @@ const docTemplate = `{
                 }
             }
         },
+        "domain.Notification": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "payload": {
+                    "type": "string"
+                },
+                "read_at": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/sqlc.NotificationStatus"
+                },
+                "type": {
+                    "$ref": "#/definitions/sqlc.NotificationType"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
         "domain.PasswordResetInput": {
             "type": "object",
             "properties": {
@@ -1485,6 +1554,26 @@ const docTemplate = `{
             "x-enum-varnames": [
                 "MemberRoleGm",
                 "MemberRolePlayer"
+            ]
+        },
+        "sqlc.NotificationStatus": {
+            "type": "string",
+            "enum": [
+                "unread",
+                "read"
+            ],
+            "x-enum-varnames": [
+                "NotificationStatusUnread",
+                "NotificationStatusRead"
+            ]
+        },
+        "sqlc.NotificationType": {
+            "type": "string",
+            "enum": [
+                "campaign_invite"
+            ],
+            "x-enum-varnames": [
+                "NotificationTypeCampaignInvite"
             ]
         },
         "utils.ErrorResponse": {

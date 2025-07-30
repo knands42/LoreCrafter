@@ -25,6 +25,7 @@ type Querier interface {
 	GetCampaignByInviteCode(ctx context.Context, inviteCode pgtype.Text) (Campaign, error)
 	GetCampaignMember(ctx context.Context, arg GetCampaignMemberParams) (CampaignMember, error)
 	GetCampaignMembers(ctx context.Context, arg GetCampaignMembersParams) ([]CampaignMember, error)
+	GetNotifications(ctx context.Context, userID pgtype.UUID) ([]Notification, error)
 	GetUserByID(ctx context.Context, userID pgtype.UUID) (User, error)
 	GetUserByUsernameOrEmail(ctx context.Context, arg GetUserByUsernameOrEmailParams) (User, error)
 	GetValidPasswordResetToken(ctx context.Context, token string) (PasswordResetToken, error)

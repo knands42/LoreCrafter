@@ -137,6 +137,23 @@ definitions:
         example: johndoe
         type: string
     type: object
+  domain.Notification:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      payload:
+        type: string
+      read_at:
+        type: string
+      status:
+        $ref: '#/definitions/sqlc.NotificationStatus'
+      type:
+        $ref: '#/definitions/sqlc.NotificationType'
+      user_id:
+        type: string
+    type: object
   domain.PasswordResetInput:
     properties:
       email:
@@ -265,6 +282,20 @@ definitions:
     x-enum-varnames:
     - MemberRoleGm
     - MemberRolePlayer
+  sqlc.NotificationStatus:
+    enum:
+    - unread
+    - read
+    type: string
+    x-enum-varnames:
+    - NotificationStatusUnread
+    - NotificationStatusRead
+  sqlc.NotificationType:
+    enum:
+    - campaign_invite
+    type: string
+    x-enum-varnames:
+    - NotificationTypeCampaignInvite
   utils.ErrorResponse:
     properties:
       details: {}
@@ -972,6 +1003,33 @@ paths:
       summary: Get info about the logged user
       tags:
       - user
+  /api/notifications:
+    get:
+      consumes:
+      - application/json
+      description: Get all notifications for the current user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Notifications retrieved successfully
+          schema:
+            items:
+              $ref: '#/definitions/domain.Notification'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get notifications
+      tags:
+      - notifications
 schemes:
 - http
 securityDefinitions:

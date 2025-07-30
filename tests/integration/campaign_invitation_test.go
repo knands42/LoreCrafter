@@ -96,7 +96,6 @@ func TestCreateCampaignInvitation_Success(t *testing.T) {
 	assert.Equal(t, userGM.ID, createdInvitation.InvitedBy)
 
 	// check if notification was also persisted
-	time.Sleep(2 * time.Second)
 	var pendingInvitations []domain.CampaignInvitation
 	ListCampaignInvitations(t, userToBeInvitedCookie, &pendingInvitations)
 	assert.Equal(t, 1, len(pendingInvitations))
@@ -104,6 +103,14 @@ func TestCreateCampaignInvitation_Success(t *testing.T) {
 	assert.Equal(t, campaignUUID, pendingInvitations[0].CampaignID)
 	assert.Equal(t, userGM.ID, pendingInvitations[0].InvitedBy)
 	assert.Equal(t, sqlc.InvitationStatusPending, pendingInvitations[0].Status)
+
+	// check if notification was created
+	time.Sleep(2 * time.Second)
+	var notifications []domain.Notification
+	GetNotifications(t, userToBeInvitedCookie, &notifications)
+	assert.Equal(t, 1, len(notifications))
+	assert.Equal(t, userToBeInvited.ID, notifications[0].UserID)
+	assert.Equal(t, sqlc.NotificationType("campaign_invite"), notifications[0].Type)
 }
 
 func TestCreateCampaignInvitationForAnotherPlayerInAnotherGame_Success(t *testing.T) {
