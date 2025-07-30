@@ -2,6 +2,7 @@ package integration
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"os"
 	"testing"
@@ -171,6 +172,56 @@ func TestCreateCampaign_Failure_InvalidInput(t *testing.T) {
 			assert.Equal(t, tc.expected, statusCode)
 		})
 	}
+}
+
+func TestListCampaign_Success(t *testing.T) {
+	// Given a registered and authenticated user
+	_, cookie := CreateTestUser(t)
+
+	// Create multiple campaigns created by the user
+	for i := 0; i < 3; i++ {
+		title := fmt.Sprintf("Test Campaign %d", i)
+		settingSummary := fmt.Sprintf("This is a test campaign %d", i)
+		settings := fmt.Sprintf("This is a long test campaign %d", i)
+
+		input := domain.NewCampaignCreationInput(
+			title,
+			settingSummary,
+			settings,
+			sqlc.GameSystemEnumDND5E,
+			6,
+			"",
+			true,
+			domain.SettingsMetadata{},
+			domain.SettingsAIMetadata{},
+		)
+
+		var campaign sqlc.Campaign
+		statusCode, _ := CreateCampaign(t, nil, cookie, *input, &campaign)
+		require.Equal(t, http.StatusCreated, statusCode)
+	}
+
+	// When getting the campaign
+	var retrievedCampaign []sqlc.Campaign
+	statusCode, _ := ListCampaigns(t, cookie, &retrievedCampaign)
+
+	// Then the campaign should be retrieved successfully
+	assert.Equal(t, http.StatusOK, statusCode)
+	assert.Equal(t, 3, len(retrievedCampaign))
+	assert.Equal(t, "Test Campaign 0", retrievedCampaign[0].Title)
+}
+
+func TestListCampaign_Empty(t *testing.T) {
+	// Given a registered and authenticated user
+	_, cookie := CreateTestUser(t)
+
+	// When getting the campaign
+	var retrievedCampaign []sqlc.Campaign
+	statusCode, _ := ListCampaigns(t, cookie, &retrievedCampaign)
+
+	// Then the campaign should be retrieved successfully
+	assert.Equal(t, http.StatusOK, statusCode)
+	assert.Equal(t, 0, len(retrievedCampaign))
 }
 
 func TestGetCampaign_Success(t *testing.T) {
