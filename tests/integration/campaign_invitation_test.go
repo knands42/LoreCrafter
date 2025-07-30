@@ -49,7 +49,7 @@ func campaignInvitationSetup(t *testing.T) (
 	return userGM, userGMCookie, userToBeInvited, userToBeInvitedCookie, campaign
 }
 
-func addCampaignToAPlayer(t *testing.T, playerCookie http.Cookie) {
+func addPlayerToACampaign(t *testing.T, playerCookie http.Cookie) {
 	// create a campaign
 	title := "Test Campaign for Invitation"
 	settingSummary := "This is a test campaign for invitation"
@@ -73,7 +73,7 @@ func addCampaignToAPlayer(t *testing.T, playerCookie http.Cookie) {
 
 func TestCreateCampaignInvitation_Success(t *testing.T) {
 	// setup user & campaign
-	userGM, userGMCookie, userToBeInvited, _, campaign := campaignInvitationSetup(t)
+	userGM, userGMCookie, userToBeInvited, userToBeInvitedCookie, campaign := campaignInvitationSetup(t)
 
 	// create the campaign invitation
 	invitationInput := domain.CreateCampaignInvitationInput{
@@ -94,6 +94,16 @@ func TestCreateCampaignInvitation_Success(t *testing.T) {
 	assert.Equal(t, campaignUUID, createdInvitation.CampaignID)
 	assert.Equal(t, userToBeInvited.ID, createdInvitation.UserID)
 	assert.Equal(t, userGM.ID, createdInvitation.InvitedBy)
+
+	// check if notification was also persisted
+	time.Sleep(2 * time.Second)
+	var pendingInvitations []domain.CampaignInvitation
+	ListCampaignInvitations(t, userToBeInvitedCookie, &pendingInvitations)
+	assert.Equal(t, 1, len(pendingInvitations))
+	assert.Equal(t, userToBeInvited.ID, pendingInvitations[0].UserID)
+	assert.Equal(t, campaignUUID, pendingInvitations[0].CampaignID)
+	assert.Equal(t, userGM.ID, pendingInvitations[0].InvitedBy)
+	assert.Equal(t, sqlc.InvitationStatusPending, pendingInvitations[0].Status)
 }
 
 func TestCreateCampaignInvitationForAnotherPlayerInAnotherGame_Success(t *testing.T) {
@@ -101,7 +111,7 @@ func TestCreateCampaignInvitationForAnotherPlayerInAnotherGame_Success(t *testin
 	userGM, userGMCookie, userToBeInvited, userToBeInvitedCookie, campaign := campaignInvitationSetup(t)
 
 	// add player2 to another campaign
-	addCampaignToAPlayer(t, userToBeInvitedCookie)
+	addPlayerToACampaign(t, userToBeInvitedCookie)
 
 	// create the campaign invitation
 	invitationInput := domain.CreateCampaignInvitationInput{

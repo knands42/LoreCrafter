@@ -93,6 +93,11 @@ func ReceiveCampaignInvitation(t *testing.T, cookie http.Cookie, token string, i
 	return SendAuthenticatedRequest(t, "PATCH", fmt.Sprintf("/api/campaigns/invitations/%s", token), cookie, input, output)
 }
 
+// ListCampaignInvitations get all pending invitations
+func ListCampaignInvitations(t *testing.T, cookie http.Cookie, output interface{}) (int, []*http.Cookie) {
+	return SendAuthenticatedRequest(t, "GET", fmt.Sprint("/api/campaigns/invitations"), cookie, nil, output)
+}
+
 // GetCampaignMember gets a campaign member by ID
 func GetCampaignMember(t *testing.T, cookie http.Cookie, campaignID uuid.UUID, memberID uuid.UUID, output interface{}) (int, []*http.Cookie) {
 	return SendAuthenticatedRequest(t, "GET", fmt.Sprintf("/api/campaigns/%s/members/%s", campaignID, memberID), cookie, nil, output)

@@ -18,6 +18,10 @@ var (
 	ErrGeneratingTheToken            = errors.New("could not generate a token")
 	ErrCreatingTheCampaignInvitation = errors.New("could not create the campaign invitation")
 
+	ErrCreatingCampaignInvitationNotification = errors.New("could not create the campaign invitation notification")
+
+	ErrListingCampaignInvitations = errors.New("could not list campaign invitations")
+
 	ErrInviteIsNoLongerValid   = errors.New("the campaign invite is no longer valid")
 	ErrAddingTheCampaignMember = errors.New("fail to add the new member to the campaign")
 )
@@ -65,6 +69,7 @@ func (c *CampaignInvitationUseCase) CreateAnInvite(input domain.CreateCampaignIn
 		return domain.CampaignInvitation{}, ErrCreatingTheCampaignInvitation
 	}
 
+	go c.sendNotificationAndReturn(createdCampaignInvitation)
 	return *domain.NewCampaignInvitationFromSqlc(createdCampaignInvitation), nil
 }
 
@@ -110,4 +115,54 @@ func (c *CampaignInvitationUseCase) ReceiveAnInvite(userId uuid.UUID, input doma
 	}()
 
 	return err
+}
+
+func (c *CampaignInvitationUseCase) ListCampaignInvitations(userID uuid.UUID) ([]domain.CampaignInvitation, error) {
+	campaignInvitations, err := c.repo.ListAllPendingCampaignInvitations(c.ctx, pgtype.UUID{
+		Bytes: userID,
+		Valid: true,
+	})
+	if err != nil && err.Error() == "no rows in result set" {
+		return []domain.CampaignInvitation{}, nil
+	} else if err != nil {
+		log.Printf("error listing campaign invitations %v", err)
+		return []domain.CampaignInvitation{}, ErrListingCampaignInvitations
+	}
+
+	var result []domain.CampaignInvitation
+	for _, campaignInvitation := range campaignInvitations {
+		result = append(result, *domain.NewCampaignInvitationFromSqlc(campaignInvitation))
+	}
+	return result, nil
+}
+
+func (c *CampaignInvitationUseCase) sendNotificationAndReturn(
+	createdCampaignInvitation sqlc.CampaignInvitation) error {
+	notificationId, err := utils.GeneratePGUUID()
+	if err != nil {
+		log.Printf("error creating notification %v", err)
+		return ErrCreatingCampaignInvitationNotification
+	}
+	notificationParams := sqlc.CreateNotificationParams{
+		ID: notificationId,
+		UserID: pgtype.UUID{
+			Bytes: createdCampaignInvitation.UserID.Bytes,
+			Valid: true,
+		},
+		Type:    sqlc.NotificationTypeCampaignInvite,
+		Payload: []byte(buildNotificationPayload(createdCampaignInvitation.Token)),
+	}
+	_, err = c.repo.CreateNotification(c.ctx, notificationParams)
+	if err != nil {
+		log.Printf("error creating notification %v", err)
+		return ErrCreatingCampaignInvitationNotification
+	}
+
+	return nil
+}
+
+func buildNotificationPayload(token string) string {
+	return "{" +
+		"token: " + token +
+		"}"
 }

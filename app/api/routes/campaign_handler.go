@@ -40,6 +40,7 @@ func (h *CampaignHandler) RegisterRoutes(r chi.Router) {
 		r.Get("/", middleware.ErrorHandlerMiddleware(h.ListUserCampaigns))
 		r.Post("/{campaignID}/invitations", middleware.ErrorHandlerMiddleware(h.CreateCampaignInvitation))
 		r.Patch("/invitations/{token}", middleware.ErrorHandlerMiddleware(h.ReceiveCampaignInvitation))
+		r.Get("/invitations", middleware.ErrorHandlerMiddleware(h.GetCampaignInvitations))
 
 		r.Route("/{campaignID}", func(r chi.Router) {
 			r.Get("/", middleware.ErrorHandlerMiddleware(h.GetCampaign))
@@ -261,7 +262,7 @@ func (h *CampaignHandler) DeleteCampaign(w http.ResponseWriter, r *http.Request)
 // @Accept json
 // @Produce json
 // @Security BearerAuth
-// @Success 200 {array} sqlc.Campaign "Campaigns retrieved successfully"
+// @Success 200 {array} domain.Campaign "Campaigns retrieved successfully"
 // @Failure 401 {object} utils.ErrorResponse "Unauthorized"
 // @Failure 500 {object} utils.ErrorResponse "Internal server error"
 // @Router /api/campaigns [get]
@@ -294,7 +295,7 @@ func (h *CampaignHandler) ListUserCampaigns(w http.ResponseWriter, r *http.Reque
 // @Produce json
 // @Security BearerAuth
 // @Param campaignID path string true "Campaign ID"
-// @Param input body domain.CreateCampaignMemberInput "User ID and role"
+// @Param input body domain.CreateCampaignMemberInput true "User ID and role"
 // @Success 204 "User added to campaign successfully"
 // @Failure 400 {object} utils.ErrorResponse "Invalid request body or campaign ID"
 // @Failure 401 {object} utils.ErrorResponse "Unauthorized"
@@ -450,7 +451,7 @@ func (h *CampaignHandler) LeaveCampaign(w http.ResponseWriter, r *http.Request) 
 // @Produce json
 // @Security BearerAuth
 // @Param campaignID path string true "Campaign ID"
-// @Success 200 {array} sqlc.CampaignMember "Campaign members retrieved successfully"
+// @Success 200 {array} domain.CampaignMember "Campaign members retrieved successfully"
 // @Failure 400 {object} utils.ErrorResponse "Invalid campaign ID"
 // @Failure 401 {object} utils.ErrorResponse "Unauthorized"
 // @Failure 403 {object} utils.ErrorResponse "Insufficient permissions"
@@ -498,7 +499,7 @@ func (h *CampaignHandler) GetCampaignMembers(w http.ResponseWriter, r *http.Requ
 // @Produce json
 // @Security BearerAuth
 // @Param campaignID path string true "Campaign ID"
-// @Success 200 {array} sqlc.CampaignMember "Campaign members retrieved successfully"
+// @Success 200 {array} domain.CampaignMember "Campaign members retrieved successfully"
 // @Failure 400 {object} utils.ErrorResponse "Invalid campaign ID"
 // @Failure 401 {object} utils.ErrorResponse "Unauthorized"
 // @Failure 403 {object} utils.ErrorResponse "Insufficient permissions"
@@ -652,4 +653,45 @@ func (h *CampaignHandler) ReceiveCampaignInvitation(w http.ResponseWriter, r *ht
 
 	w.WriteHeader(http.StatusNoContent)
 	return nil
+}
+
+// GetCampaignInvitations handles listing all campaign invitations
+// @Summary List campaign invitations
+// @Description List all campaign invitations if the user has GM permissions
+// @Tags campaigns
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param campaignID path string true "Campaign ID"
+// @Success 200 {array} domain.CampaignInvitation "Campaign invitations retrieved successfully"
+// @Failure 400 {object} utils.ErrorResponse "Invalid campaign ID"
+// @Failure 401 {object} utils.ErrorResponse "Unauthorized"
+// @Failure 403 {object} utils.ErrorResponse "Insufficient permissions"
+// @Failure 500 {object} utils.ErrorResponse "Internal server error"
+// @Router /api/campaigns/invitations [get]
+func (h *CampaignHandler) GetCampaignInvitations(w http.ResponseWriter, r *http.Request) error {
+	// Get user ID from context
+	userIDStr, ok := r.Context().Value(middleware.UserIDContextKey).(string)
+	if !ok {
+		return utils.WriteJSONError(w, http.StatusUnauthorized, "User ID not found")
+	}
+
+	userID, err := uuid.Parse(userIDStr)
+	if err != nil {
+		return utils.WriteJSONError(w, http.StatusBadRequest, "Invalid user ID")
+	}
+
+	createdInvitation, err := h.campaignInvitationUseCase.ListCampaignInvitations(userID)
+	if err != nil {
+		switch {
+		case errors.Is(err, usecases.ErrListingCampaignInvitations):
+			return utils.WriteJSONError(w, http.StatusInternalServerError, err.Error())
+		}
+
+		return err
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	return json.NewEncoder(w).Encode(createdInvitation)
 }

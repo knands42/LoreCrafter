@@ -13,21 +13,14 @@ import (
 
 const createCampaignInvitation = `-- name: CreateCampaignInvitation :one
 INSERT INTO campaign_invitations (id, campaign_id, user_id, invited_by, token, expires_at)
-SELECT
-        $1::uuid as id,
-        $2::uuid as campaign_id,
-        u.id::uuid as user_id,
-        $3::uuid as invited_by,
-        $4::varchar as token,
-        $5::timestamptz as expires_at
+SELECT $1::uuid as id, $2::uuid as campaign_id, u.id::uuid as user_id, $3::uuid as invited_by, $4::varchar as token, $5::timestamptz as expires_at
 FROM users AS u
 WHERE u.username = $6
-AND NOT EXISTS (
-    SELECT 1
-    FROM campaign_members as cm
-    WHERE cm.user_id = u.id
-    AND cm.campaign_id = $2
-) RETURNING id, campaign_id, user_id, invited_by, token, status, expires_at, created_at, updated_at
+  AND NOT EXISTS (SELECT 1
+                  FROM campaign_members as cm
+                  WHERE cm.user_id = u.id
+                    AND cm.campaign_id = $2)
+    RETURNING id, campaign_id, user_id, invited_by, token, status, expires_at, created_at, updated_at
 `
 
 type CreateCampaignInvitationParams struct {
@@ -67,7 +60,7 @@ const invalidateAllCampaignInvitations = `-- name: InvalidateAllCampaignInvitati
 UPDATE campaign_invitations AS ci
 SET status = 'rejected'::invitation_status
 WHERE ci.user_id = $1::uuid
-AND ci.status != 'accepted'::invitation_status
+  AND ci.status != 'accepted'::invitation_status
 `
 
 func (q *Queries) InvalidateAllCampaignInvitations(ctx context.Context, userID pgtype.UUID) error {
@@ -75,13 +68,50 @@ func (q *Queries) InvalidateAllCampaignInvitations(ctx context.Context, userID p
 	return err
 }
 
+const listAllPendingCampaignInvitations = `-- name: ListAllPendingCampaignInvitations :many
+SELECT id, campaign_id, user_id, invited_by, token, status, expires_at, created_at, updated_at FROM campaign_invitations AS ci
+WHERE user_id = $1
+AND ci.expires_at > NOW()
+AND ci.status != 'accepted'::invitation_status
+AND ci.status != 'rejected'::invitation_status
+`
+
+func (q *Queries) ListAllPendingCampaignInvitations(ctx context.Context, userID pgtype.UUID) ([]CampaignInvitation, error) {
+	rows, err := q.db.Query(ctx, listAllPendingCampaignInvitations, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []CampaignInvitation{}
+	for rows.Next() {
+		var i CampaignInvitation
+		if err := rows.Scan(
+			&i.ID,
+			&i.CampaignID,
+			&i.UserID,
+			&i.InvitedBy,
+			&i.Token,
+			&i.Status,
+			&i.ExpiresAt,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const updateCampaignInviteStatus = `-- name: UpdateCampaignInviteStatus :one
 UPDATE campaign_invitations AS ci
 SET status = $1
 WHERE ci.token = $2
-AND ci.user_id = $3
-AND ci.expires_at > NOW()
-RETURNING id, campaign_id, user_id, invited_by, token, status, expires_at, created_at, updated_at
+  AND ci.user_id = $3
+  AND ci.expires_at > NOW() RETURNING id, campaign_id, user_id, invited_by, token, status, expires_at, created_at, updated_at
 `
 
 type UpdateCampaignInviteStatusParams struct {
@@ -92,31 +122,6 @@ type UpdateCampaignInviteStatusParams struct {
 
 func (q *Queries) UpdateCampaignInviteStatus(ctx context.Context, arg UpdateCampaignInviteStatusParams) (CampaignInvitation, error) {
 	row := q.db.QueryRow(ctx, updateCampaignInviteStatus, arg.Status, arg.Token, arg.UserID)
-	var i CampaignInvitation
-	err := row.Scan(
-		&i.ID,
-		&i.CampaignID,
-		&i.UserID,
-		&i.InvitedBy,
-		&i.Token,
-		&i.Status,
-		&i.ExpiresAt,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return i, err
-}
-
-const worker_UpdateStatusOfExpiredCampaignInvitation = `-- name: Worker_UpdateStatusOfExpiredCampaignInvitation :one
-UPDATE campaign_invitations AS ci
-SET status = 'expired'::invitation_status
-WHERE ci.expires_at < NOW()
-AND ci.status = 'pending'::invitation_status
-RETURNING id, campaign_id, user_id, invited_by, token, status, expires_at, created_at, updated_at
-`
-
-func (q *Queries) Worker_UpdateStatusOfExpiredCampaignInvitation(ctx context.Context) (CampaignInvitation, error) {
-	row := q.db.QueryRow(ctx, worker_UpdateStatusOfExpiredCampaignInvitation)
 	var i CampaignInvitation
 	err := row.Scan(
 		&i.ID,

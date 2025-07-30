@@ -238,7 +238,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/sqlc.Campaign"
+                                "$ref": "#/definitions/domain.Campaign"
                             }
                         }
                     },
@@ -306,6 +306,70 @@ const docTemplate = `{
                     },
                     "401": {
                         "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/campaigns/invitations": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "List all campaign invitations if the user has GM permissions",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "campaigns"
+                ],
+                "summary": "List campaign invitations",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Campaign ID",
+                        "name": "campaignID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Campaign invitations retrieved successfully",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/domain.CampaignInvitation"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid campaign ID",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Insufficient permissions",
                         "schema": {
                             "$ref": "#/definitions/utils.ErrorResponse"
                         }
@@ -750,7 +814,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/sqlc.CampaignMember"
+                                "$ref": "#/definitions/domain.CampaignMember"
                             }
                         }
                     },
@@ -811,10 +875,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/domain.CreateCampaignMemberInput"
                         }
                     }
                 ],
@@ -888,7 +949,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/sqlc.CampaignMember"
+                                "$ref": "#/definitions/domain.CampaignMember"
                             }
                         }
                     },
@@ -1171,12 +1232,51 @@ const docTemplate = `{
                 }
             }
         },
+        "domain.CampaignMember": {
+            "type": "object",
+            "properties": {
+                "campaign_id": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "joined_at": {
+                    "type": "string"
+                },
+                "last_accessed_at": {
+                    "type": "string"
+                },
+                "role": {
+                    "$ref": "#/definitions/sqlc.MemberRole"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
         "domain.CreateCampaignInvitationInput": {
             "type": "object",
             "properties": {
                 "username": {
                     "type": "string",
                     "example": "johndoe2"
+                }
+            }
+        },
+        "domain.CreateCampaignMemberInput": {
+            "type": "object",
+            "properties": {
+                "role": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/sqlc.MemberRole"
+                        }
+                    ],
+                    "example": "player"
+                },
+                "user_id": {
+                    "type": "string"
                 }
             }
         },
@@ -1331,172 +1431,6 @@ const docTemplate = `{
                 }
             }
         },
-        "pgtype.InfinityModifier": {
-            "type": "integer",
-            "enum": [
-                1,
-                0,
-                -1
-            ],
-            "x-enum-varnames": [
-                "Infinity",
-                "Finite",
-                "NegativeInfinity"
-            ]
-        },
-        "pgtype.Int2": {
-            "type": "object",
-            "properties": {
-                "int16": {
-                    "type": "integer"
-                },
-                "valid": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "pgtype.Text": {
-            "type": "object",
-            "properties": {
-                "string": {
-                    "type": "string"
-                },
-                "valid": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "pgtype.Timestamptz": {
-            "type": "object",
-            "properties": {
-                "infinityModifier": {
-                    "$ref": "#/definitions/pgtype.InfinityModifier"
-                },
-                "time": {
-                    "type": "string"
-                },
-                "valid": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "sqlc.Campaign": {
-            "type": "object",
-            "properties": {
-                "created_at": {
-                    "$ref": "#/definitions/pgtype.Timestamptz"
-                },
-                "created_by": {
-                    "type": "string"
-                },
-                "game_system": {
-                    "description": "The game system used for the campaign (e.g., dnd, pathfinder, etc.).",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/sqlc.GameSystemEnum"
-                        }
-                    ]
-                },
-                "id": {
-                    "type": "string"
-                },
-                "image_url": {
-                    "description": "The URL of the campaign image.",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/pgtype.Text"
-                        }
-                    ]
-                },
-                "invite_code": {
-                    "description": "The invite code for the campaign.",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/pgtype.Text"
-                        }
-                    ]
-                },
-                "is_public": {
-                    "description": "Whether the campaign is available to players outside the campaign.",
-                    "type": "boolean"
-                },
-                "number_of_players": {
-                    "$ref": "#/definitions/pgtype.Int2"
-                },
-                "setting": {
-                    "description": "The detailed setting of the campaign.",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/pgtype.Text"
-                        }
-                    ]
-                },
-                "setting_ai_metadata": {
-                    "description": "Information used by LLMs on how to generate the data (e.g., a dark tone in a high fantasy world).",
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
-                },
-                "setting_metadata": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
-                },
-                "setting_summary": {
-                    "description": "A summary of the campaign setting.",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/pgtype.Text"
-                        }
-                    ]
-                },
-                "status": {
-                    "description": "Lifecycle status of the campaign (e.g., planning, active, paused, etc.).",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/sqlc.CampaignStatusEnum"
-                        }
-                    ]
-                },
-                "title": {
-                    "type": "string"
-                },
-                "updated_at": {
-                    "$ref": "#/definitions/pgtype.Timestamptz"
-                }
-            }
-        },
-        "sqlc.CampaignMember": {
-            "type": "object",
-            "properties": {
-                "campaign_id": {
-                    "type": "string"
-                },
-                "created_at": {
-                    "$ref": "#/definitions/pgtype.Timestamptz"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "joined_at": {
-                    "$ref": "#/definitions/pgtype.Timestamptz"
-                },
-                "last_accessed": {
-                    "$ref": "#/definitions/pgtype.Timestamptz"
-                },
-                "role": {
-                    "$ref": "#/definitions/sqlc.MemberRole"
-                },
-                "updated_at": {
-                    "$ref": "#/definitions/pgtype.Timestamptz"
-                },
-                "user_id": {
-                    "type": "string"
-                }
-            }
-        },
         "sqlc.CampaignStatusEnum": {
             "type": "string",
             "enum": [
@@ -1534,14 +1468,12 @@ const docTemplate = `{
             "enum": [
                 "pending",
                 "accepted",
-                "rejected",
-                "expired"
+                "rejected"
             ],
             "x-enum-varnames": [
                 "InvitationStatusPending",
                 "InvitationStatusAccepted",
-                "InvitationStatusRejected",
-                "InvitationStatusExpired"
+                "InvitationStatusRejected"
             ]
         },
         "sqlc.MemberRole": {
