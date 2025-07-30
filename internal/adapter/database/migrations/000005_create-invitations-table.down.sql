@@ -1,5 +1,4 @@
 SELECT cron.unschedule('delete_old_expired_campaign_invitations_job');
-SELECT cron.unschedule('expire_campaign_invitations_job');
 
 DROP FUNCTION IF EXISTS delete_old_expired_campaign_invitations();
 DROP FUNCTION IF EXISTS expire_campaign_invitations();

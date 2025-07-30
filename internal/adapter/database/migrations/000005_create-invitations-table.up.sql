@@ -1,4 +1,4 @@
-CREATE TYPE invitation_status AS ENUM ('pending', 'accepted', 'rejected', 'expired');
+CREATE TYPE invitation_status AS ENUM ('pending', 'accepted', 'rejected');
 
 CREATE TABLE "campaign_invitations"
 (
@@ -31,24 +31,6 @@ EXECUTE FUNCTION update_updated_at_column();
 -- Add pg cron
 CREATE EXTENSION pg_cron;
 
--- Check and update expired campaign invitations
-CREATE OR REPLACE FUNCTION expire_campaign_invitations() RETURNS void AS
-$$
-BEGIN
-    UPDATE campaign_invitations
-    SET status     = 'expired',
-        updated_at = NOW()
-    WHERE status = 'pending'
-      AND expires_at < NOW();
-END;
-$$ LANGUAGE plpgsql;
-
-SELECT cron.schedule(
-               'expire_campaign_invitations_job',
-               '0 0,12 * * *',
-               $$SELECT expire_campaign_invitations();$$
-       );
-
 -- Delete old expired campaign invitations
 CREATE OR REPLACE FUNCTION delete_old_expired_campaign_invitations() RETURNS void AS
 $$
@@ -58,7 +40,6 @@ BEGIN
     WHERE expires_at < NOW() - INTERVAL '1 day';
 END;
 $$ LANGUAGE plpgsql;
-
 
 
 SELECT cron.schedule(
