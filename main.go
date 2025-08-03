@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"github.com/knands42/lorecrafter/internal/workers"
 	"log"
 	"os"
 	"path/filepath"
@@ -41,15 +42,14 @@ func main() {
 
 	repo := sqlc.New(pgConn)
 
-	// Set up the LLM models
+	// setup the LLM models
 	llmFactory, err := llms.NewLlmFactory(ctx, cfg)
 	if err != nil {
 		log.Fatalf("Failed to initialize llms: %v", err)
 	}
 
 	// setup adapters
-	//worker := worker2.NewValkeyAdapter(cfg)
-	//worker.Close()
+	notificationWorker := workers.NewWorker(ctx, pgConn, repo, &cfg)
 	tokenMakerAdapter, err := security.NewTokenMakerAdapter(cfg.PrivateKey, cfg.PublicKey)
 	if err != nil {
 		log.Fatalf("Failed to create token maker: %v", err)
@@ -70,8 +70,16 @@ func main() {
 	campaignUseCase := usecases.NewCampaignUseCase(ctx, repo, aiCampaignUseCase, campaignMembersUseCase)
 	passwordResetUseCase := usecases.NewPasswordResetUseCase(ctx, repo, emailUseCase, templateManager, argon2Adapter, cfg.TokenExpiry)
 	campaignInvitationUseCase := usecases.NewCampaignInvitationUseCase(ctx, repo, campaignMembersUseCase)
+	notificationUseCase := usecases.NewNotificationUseCase(ctx, repo)
 
-	// Set up the HTTP server
+	// set up workers
+	go func() {
+		if err := notificationWorker.Start(); err != nil {
+			log.Fatalf("Failed to start notification worker: %v", err)
+		}
+	}()
+
+	// set up the HTTP server
 	server := api.NewServer(
 		cfg,
 		repo,
@@ -81,9 +89,10 @@ func main() {
 		passwordResetUseCase,
 		campaignInvitationUseCase,
 		campaignMembersUseCase,
+		notificationUseCase,
 	)
-
-	// Start the server with or without TLS
 	server.Start()
-	//defer pgConn.Close()
+
+	// defer services
+	defer pgConn.Close()
 }

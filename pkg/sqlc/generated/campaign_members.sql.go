@@ -12,17 +12,14 @@ import (
 )
 
 const createCampaignPlayerMember = `-- name: CreateCampaignPlayerMember :one
-INSERT INTO campaign_members (
-    id,
-    campaign_id,
-    user_id,
-    role
-)
-SELECT
-    $1::uuid,
-    $2::uuid,
-    $3::uuid,
-    $4::member_role
+INSERT INTO campaign_members (id,
+                              campaign_id,
+                              user_id,
+                              role)
+SELECT $1::uuid,
+       $2::uuid,
+       $3::uuid,
+       $4::member_role
 FROM campaign_members cm
 WHERE cm.user_id = $5::uuid
   AND cm.campaign_id = $2::uuid
@@ -60,14 +57,11 @@ func (q *Queries) CreateCampaignPlayerMember(ctx context.Context, arg CreateCamp
 }
 
 const createFirstCampaignMember = `-- name: CreateFirstCampaignMember :one
-INSERT INTO campaign_members (
-    id,
-    campaign_id,
-    user_id,
-    role
-)VALUES (
-            $1, $2, $3, 'gm'
-        )
+INSERT INTO campaign_members (id,
+                              campaign_id,
+                              user_id,
+                              role)
+VALUES ($1, $2, $3, 'gm')
 RETURNING id, campaign_id, user_id, role, joined_at, last_accessed, created_at, updated_at
 `
 
@@ -97,12 +91,11 @@ const getCampaignMember = `-- name: GetCampaignMember :one
 SELECT cm.id, cm.campaign_id, cm.user_id, cm.role, cm.joined_at, cm.last_accessed, cm.created_at, cm.updated_at
 FROM campaign_members cm
 WHERE cm.campaign_id = $1::uuid
-AND cm.user_id = $2::uuid
-AND EXISTS (
-    SELECT 1 FROM campaign_members cm2
-    WHERE cm2.campaign_id = cm.campaign_id
-    AND cm2.user_id = $3::uuid
-)
+  AND cm.user_id = $2::uuid
+  AND EXISTS (SELECT 1
+              FROM campaign_members cm2
+              WHERE cm2.campaign_id = cm.campaign_id
+                AND cm2.user_id = $3::uuid)
 LIMIT 1
 `
 
@@ -132,11 +125,10 @@ const getCampaignMembers = `-- name: GetCampaignMembers :many
 SELECT cm.id, cm.campaign_id, cm.user_id, cm.role, cm.joined_at, cm.last_accessed, cm.created_at, cm.updated_at
 FROM campaign_members cm
 WHERE cm.campaign_id = $1::uuid
-  AND EXISTS (
-    SELECT 1 FROM campaign_members cm2
-    WHERE cm2.campaign_id = cm.campaign_id
-      AND cm2.user_id = $2::uuid
-)
+  AND EXISTS (SELECT 1
+              FROM campaign_members cm2
+              WHERE cm2.campaign_id = cm.campaign_id
+                AND cm2.user_id = $2::uuid)
 LIMIT 10
 `
 

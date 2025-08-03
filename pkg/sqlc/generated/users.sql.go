@@ -12,14 +12,12 @@ import (
 )
 
 const createUser = `-- name: CreateUser :one
-INSERT INTO users (
-    id,
-    username,
-    email,
-    hashed_password
-) VALUES (
-    $1, $2, $3, $4
-) RETURNING id, username, email, hashed_password, is_active, avatar_url, last_login_at, created_at, updated_at
+INSERT INTO users (id,
+                   username,
+                   email,
+                   hashed_password)
+VALUES ($1, $2, $3, $4)
+RETURNING id, username, email, hashed_password, is_active, avatar_url, last_login_at, created_at, updated_at
 `
 
 type CreateUserParams struct {
@@ -52,7 +50,8 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 }
 
 const getUserByID = `-- name: GetUserByID :one
-SELECT id, username, email, hashed_password, is_active, avatar_url, last_login_at, created_at, updated_at from users
+SELECT id, username, email, hashed_password, is_active, avatar_url, last_login_at, created_at, updated_at
+from users
 WHERE id = $1::uuid
 LIMIT 1
 `
@@ -75,8 +74,10 @@ func (q *Queries) GetUserByID(ctx context.Context, userID pgtype.UUID) (User, er
 }
 
 const getUserByUsernameOrEmail = `-- name: GetUserByUsernameOrEmail :one
-SELECT id, username, email, hashed_password, is_active, avatar_url, last_login_at, created_at, updated_at FROM users
-WHERE username = $1 OR email = $2
+SELECT id, username, email, hashed_password, is_active, avatar_url, last_login_at, created_at, updated_at
+FROM users
+WHERE username = $1
+   OR email = $2
 LIMIT 1
 `
 
@@ -107,9 +108,9 @@ UPDATE users AS u
 SET hashed_password = $2
 FROM password_reset_tokens AS ptr
 WHERE u.id = ptr.user_id
-AND ptr.token = $1
-AND ptr.expires_at > NOW()
-AND ptr.used = false
+  AND ptr.token = $1
+  AND ptr.expires_at > NOW()
+  AND ptr.used = false
 RETURNING ptr.id, user_id, token, expires_at, used, ptr.created_at, ptr.updated_at, u.id, username, email, hashed_password, is_active, avatar_url, last_login_at, u.created_at, u.updated_at
 `
 

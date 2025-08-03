@@ -9,9 +9,9 @@ import (
 )
 
 type CreateCampaignMemberInput struct {
-	CampaignID uuid.UUID       `db:"-"`
-	UserID     uuid.UUID       `db:"user_id"`
-	Role       sqlc.MemberRole `db:"role" example:"player"`
+	CampaignID uuid.UUID       `json:"-"`
+	UserID     uuid.UUID       `json:"user_id"`
+	Role       sqlc.MemberRole `json:"role" example:"player"`
 }
 
 func (c *CreateCampaignMemberInput) Validate() error {

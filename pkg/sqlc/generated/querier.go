@@ -16,6 +16,7 @@ type Querier interface {
 	CreateCampaignPlayerMember(ctx context.Context, arg CreateCampaignPlayerMemberParams) (CampaignMember, error)
 	CreateEmailVerificationToken(ctx context.Context, arg CreateEmailVerificationTokenParams) (UsersEmailVerification, error)
 	CreateFirstCampaignMember(ctx context.Context, arg CreateFirstCampaignMemberParams) (CampaignMember, error)
+	CreateNotification(ctx context.Context, arg CreateNotificationParams) (Notification, error)
 	CreatePasswordResetToken(ctx context.Context, arg CreatePasswordResetTokenParams) (PasswordResetToken, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
 	DeleteCampaign(ctx context.Context, arg DeleteCampaignParams) error
@@ -24,12 +25,14 @@ type Querier interface {
 	GetCampaignByInviteCode(ctx context.Context, inviteCode pgtype.Text) (Campaign, error)
 	GetCampaignMember(ctx context.Context, arg GetCampaignMemberParams) (CampaignMember, error)
 	GetCampaignMembers(ctx context.Context, arg GetCampaignMembersParams) ([]CampaignMember, error)
+	GetNotifications(ctx context.Context, userID pgtype.UUID) ([]Notification, error)
 	GetUserByID(ctx context.Context, userID pgtype.UUID) (User, error)
 	GetUserByUsernameOrEmail(ctx context.Context, arg GetUserByUsernameOrEmailParams) (User, error)
 	GetValidPasswordResetToken(ctx context.Context, token string) (PasswordResetToken, error)
 	InvalidateAllCampaignInvitations(ctx context.Context, userID pgtype.UUID) error
 	InvalidateAllUserTokens(ctx context.Context, email string) error
 	InvalidatePasswordResetToken(ctx context.Context, token string) error
+	ListAllPendingCampaignInvitations(ctx context.Context, userID pgtype.UUID) ([]CampaignInvitation, error)
 	ListCampaignMembers(ctx context.Context, campaignID pgtype.UUID) ([]CampaignMember, error)
 	ListCampaignsByUserID(ctx context.Context, userID pgtype.UUID) ([]Campaign, error)
 	UpdateCampaign(ctx context.Context, arg UpdateCampaignParams) (Campaign, error)

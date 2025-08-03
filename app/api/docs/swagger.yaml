@@ -92,10 +92,34 @@ definitions:
       user_id:
         type: string
     type: object
+  domain.CampaignMember:
+    properties:
+      campaign_id:
+        type: string
+      id:
+        type: string
+      joined_at:
+        type: string
+      last_accessed_at:
+        type: string
+      role:
+        $ref: '#/definitions/sqlc.MemberRole'
+      user_id:
+        type: string
+    type: object
   domain.CreateCampaignInvitationInput:
     properties:
       username:
         example: johndoe2
+        type: string
+    type: object
+  domain.CreateCampaignMemberInput:
+    properties:
+      role:
+        allOf:
+        - $ref: '#/definitions/sqlc.MemberRole'
+        example: player
+      user_id:
         type: string
     type: object
   domain.ForgotPasswordInput:
@@ -111,6 +135,23 @@ definitions:
         type: string
       username_or_email:
         example: johndoe
+        type: string
+    type: object
+  domain.Notification:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      payload:
+        type: string
+      read_at:
+        type: string
+      status:
+        $ref: '#/definitions/sqlc.NotificationStatus'
+      type:
+        $ref: '#/definitions/sqlc.NotificationType'
+      user_id:
         type: string
     type: object
   domain.PasswordResetInput:
@@ -197,112 +238,6 @@ definitions:
         example: johndoe
         type: string
     type: object
-  pgtype.InfinityModifier:
-    enum:
-    - 1
-    - 0
-    - -1
-    type: integer
-    x-enum-varnames:
-    - Infinity
-    - Finite
-    - NegativeInfinity
-  pgtype.Int2:
-    properties:
-      int16:
-        type: integer
-      valid:
-        type: boolean
-    type: object
-  pgtype.Text:
-    properties:
-      string:
-        type: string
-      valid:
-        type: boolean
-    type: object
-  pgtype.Timestamptz:
-    properties:
-      infinityModifier:
-        $ref: '#/definitions/pgtype.InfinityModifier'
-      time:
-        type: string
-      valid:
-        type: boolean
-    type: object
-  sqlc.Campaign:
-    properties:
-      created_at:
-        $ref: '#/definitions/pgtype.Timestamptz'
-      created_by:
-        type: string
-      game_system:
-        allOf:
-        - $ref: '#/definitions/sqlc.GameSystemEnum'
-        description: The game system used for the campaign (e.g., dnd, pathfinder,
-          etc.).
-      id:
-        type: string
-      image_url:
-        allOf:
-        - $ref: '#/definitions/pgtype.Text'
-        description: The URL of the campaign image.
-      invite_code:
-        allOf:
-        - $ref: '#/definitions/pgtype.Text'
-        description: The invite code for the campaign.
-      is_public:
-        description: Whether the campaign is available to players outside the campaign.
-        type: boolean
-      number_of_players:
-        $ref: '#/definitions/pgtype.Int2'
-      setting:
-        allOf:
-        - $ref: '#/definitions/pgtype.Text'
-        description: The detailed setting of the campaign.
-      setting_ai_metadata:
-        description: Information used by LLMs on how to generate the data (e.g., a
-          dark tone in a high fantasy world).
-        items:
-          type: integer
-        type: array
-      setting_metadata:
-        items:
-          type: integer
-        type: array
-      setting_summary:
-        allOf:
-        - $ref: '#/definitions/pgtype.Text'
-        description: A summary of the campaign setting.
-      status:
-        allOf:
-        - $ref: '#/definitions/sqlc.CampaignStatusEnum'
-        description: Lifecycle status of the campaign (e.g., planning, active, paused,
-          etc.).
-      title:
-        type: string
-      updated_at:
-        $ref: '#/definitions/pgtype.Timestamptz'
-    type: object
-  sqlc.CampaignMember:
-    properties:
-      campaign_id:
-        type: string
-      created_at:
-        $ref: '#/definitions/pgtype.Timestamptz'
-      id:
-        type: string
-      joined_at:
-        $ref: '#/definitions/pgtype.Timestamptz'
-      last_accessed:
-        $ref: '#/definitions/pgtype.Timestamptz'
-      role:
-        $ref: '#/definitions/sqlc.MemberRole'
-      updated_at:
-        $ref: '#/definitions/pgtype.Timestamptz'
-      user_id:
-        type: string
-    type: object
   sqlc.CampaignStatusEnum:
     enum:
     - PLANNING
@@ -334,13 +269,11 @@ definitions:
     - pending
     - accepted
     - rejected
-    - expired
     type: string
     x-enum-varnames:
     - InvitationStatusPending
     - InvitationStatusAccepted
     - InvitationStatusRejected
-    - InvitationStatusExpired
   sqlc.MemberRole:
     enum:
     - gm
@@ -349,6 +282,20 @@ definitions:
     x-enum-varnames:
     - MemberRoleGm
     - MemberRolePlayer
+  sqlc.NotificationStatus:
+    enum:
+    - unread
+    - read
+    type: string
+    x-enum-varnames:
+    - NotificationStatusUnread
+    - NotificationStatusRead
+  sqlc.NotificationType:
+    enum:
+    - campaign_invite
+    type: string
+    x-enum-varnames:
+    - NotificationTypeCampaignInvite
   utils.ErrorResponse:
     properties:
       details: {}
@@ -504,7 +451,7 @@ paths:
           description: Campaigns retrieved successfully
           schema:
             items:
-              $ref: '#/definitions/sqlc.Campaign'
+              $ref: '#/definitions/domain.Campaign'
             type: array
         "401":
           description: Unauthorized
@@ -754,7 +701,7 @@ paths:
           description: Campaign members retrieved successfully
           schema:
             items:
-              $ref: '#/definitions/sqlc.CampaignMember'
+              $ref: '#/definitions/domain.CampaignMember'
             type: array
         "400":
           description: Invalid campaign ID
@@ -792,9 +739,7 @@ paths:
         name: input
         required: true
         schema:
-          additionalProperties:
-            type: string
-          type: object
+          $ref: '#/definitions/domain.CreateCampaignMemberInput'
       produces:
       - application/json
       responses:
@@ -843,7 +788,7 @@ paths:
           description: Campaign members retrieved successfully
           schema:
             items:
-              $ref: '#/definitions/sqlc.CampaignMember'
+              $ref: '#/definitions/domain.CampaignMember'
             type: array
         "400":
           description: Invalid campaign ID
@@ -910,6 +855,47 @@ paths:
       security:
       - BearerAuth: []
       summary: Remove a user from a campaign
+      tags:
+      - campaigns
+  /api/campaigns/invitations:
+    get:
+      consumes:
+      - application/json
+      description: List all campaign invitations if the user has GM permissions
+      parameters:
+      - description: Campaign ID
+        in: path
+        name: campaignID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Campaign invitations retrieved successfully
+          schema:
+            items:
+              $ref: '#/definitions/domain.CampaignInvitation'
+            type: array
+        "400":
+          description: Invalid campaign ID
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "403":
+          description: Insufficient permissions
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: List campaign invitations
       tags:
       - campaigns
   /api/campaigns/invitations/{token}:
@@ -1017,6 +1003,33 @@ paths:
       summary: Get info about the logged user
       tags:
       - user
+  /api/notifications:
+    get:
+      consumes:
+      - application/json
+      description: Get all notifications for the current user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Notifications retrieved successfully
+          schema:
+            items:
+              $ref: '#/definitions/domain.Notification'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get notifications
+      tags:
+      - notifications
 schemes:
 - http
 securityDefinitions:

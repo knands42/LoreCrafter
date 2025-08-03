@@ -12,7 +12,7 @@ services:
       - .env
     environment:
       - POSTGRES_URL=postgresql://postgres:postgres@db:5432/lorecrafter?sslmode=disable
-      - VALKEY_ADDRESS=valkey:6379
+      - VALKEY_ADDRESS=cache:6379
     depends_on:
       db:
         condition: service_healthy
@@ -21,14 +21,20 @@ services:
     restart: unless-stopped
 
   db:
-    image: postgres:17-alpine
+    build:
+      context: .
+      dockerfile: Dockerfile.postgres
     container_name: db
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=lorecrafter
+      - POSTGRES_DATABASE=lorecrafter
+      - POSTGRES_POSTGRES_PASSWORD=postgres
+      - POSTGRES_SHARED_PRELOAD_LIBRARIES=pg_cron
     ports:
       - '5432:5432'
+    restart: unless-stopped
     networks:
       - app-network
     healthcheck:
@@ -39,12 +45,17 @@ services:
       start_period: 10s
 
   db-test:
-    image: postgres:17-alpine
+    build:
+      context: .
+      dockerfile: Dockerfile.postgres-test
     container_name: db_test
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=lorecrafter_test
+      - POSTGRES_DATABASE=lorecrafter_test
+      - POSTGRES_POSTGRES_PASSWORD=postgres
+      - POSTGRES_SHARED_PRELOAD_LIBRARIES=pg_cron
     ports:
       - '5433:5432'
     networks:
@@ -56,19 +67,9 @@ services:
       retries: 5
       start_period: 10s
 
-  mailhog:
-    image: mailhog/mailhog
-    container_name: mailhog
-    ports:
-      - '1025:1025' # SMTP
-      - '8025:8025' # Web UI
-    restart: always
-    networks:
-      - app-network
-
-  valkey:
+  cache:
     image: valkey/valkey:7.2
-    container_name: valkey
+    container_name: cache
     ports:
       - '6379:6379'
     networks:

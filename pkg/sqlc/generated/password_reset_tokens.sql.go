@@ -13,11 +13,10 @@ import (
 
 const createPasswordResetToken = `-- name: CreatePasswordResetToken :one
 INSERT INTO password_reset_tokens (id, user_id, token, expires_at)
-SELECT 
-    $1::uuid as id,
-    u.id as user_id,
-    $2::varchar as token,
-    $3::timestamptz as expires_at
+SELECT $1::uuid                as id,
+       u.id                     as user_id,
+       $2::varchar          as token,
+       $3::timestamptz as expires_at
 FROM users u
 WHERE u.email = $4
 RETURNING id, user_id, token, expires_at, used, created_at, updated_at
@@ -51,10 +50,11 @@ func (q *Queries) CreatePasswordResetToken(ctx context.Context, arg CreatePasswo
 }
 
 const getValidPasswordResetToken = `-- name: GetValidPasswordResetToken :one
-SELECT id, user_id, token, expires_at, used, created_at, updated_at FROM password_reset_tokens
+SELECT id, user_id, token, expires_at, used, created_at, updated_at
+FROM password_reset_tokens
 WHERE token = $1
-AND used = false
-AND expires_at > NOW()
+  AND used = false
+  AND expires_at > NOW()
 LIMIT 1
 `
 
@@ -75,10 +75,11 @@ func (q *Queries) GetValidPasswordResetToken(ctx context.Context, token string) 
 
 const invalidateAllUserTokens = `-- name: InvalidateAllUserTokens :exec
 UPDATE password_reset_tokens AS ptr
-SET used = true, updated_at = NOW()
+SET used       = true,
+    updated_at = NOW()
 FROM users u
 WHERE u.id = ptr.user_id
-AND u.email = $1
+  AND u.email = $1
 `
 
 func (q *Queries) InvalidateAllUserTokens(ctx context.Context, email string) error {
@@ -88,7 +89,8 @@ func (q *Queries) InvalidateAllUserTokens(ctx context.Context, email string) err
 
 const invalidatePasswordResetToken = `-- name: InvalidatePasswordResetToken :exec
 UPDATE password_reset_tokens
-SET used = true, updated_at = NOW()
+SET used       = true,
+    updated_at = NOW()
 WHERE token = $1
 `
 

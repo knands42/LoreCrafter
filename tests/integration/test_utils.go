@@ -93,24 +93,34 @@ func ReceiveCampaignInvitation(t *testing.T, cookie http.Cookie, token string, i
 	return SendAuthenticatedRequest(t, "PATCH", fmt.Sprintf("/api/campaigns/invitations/%s", token), cookie, input, output)
 }
 
+// ListCampaignInvitations get all pending invitations
+func ListCampaignInvitations(t *testing.T, cookie http.Cookie, output interface{}) (int, []*http.Cookie) {
+	return SendAuthenticatedRequest(t, "GET", fmt.Sprint("/api/campaigns/invitations"), cookie, nil, output)
+}
+
+// GetNotifications gets a campaign member by ID
+func GetNotifications(t *testing.T, cookie http.Cookie, output interface{}) (int, []*http.Cookie) {
+	return SendAuthenticatedRequest(t, "GET", fmt.Sprint("/api/notifications"), cookie, nil, output)
+}
+
 // GetCampaignMember gets a campaign member by ID
 func GetCampaignMember(t *testing.T, cookie http.Cookie, campaignID uuid.UUID, memberID uuid.UUID, output interface{}) (int, []*http.Cookie) {
 	return SendAuthenticatedRequest(t, "GET", fmt.Sprintf("/api/campaigns/%s/members/%s", campaignID, memberID), cookie, nil, output)
 }
 
-// GetCampaignMember gets a campaign member by ID
+// GetCampaignMembers gets a campaign member by ID
 func GetCampaignMembers(t *testing.T, cookie http.Cookie, campaignID uuid.UUID, output interface{}) (int, []*http.Cookie) {
 	return SendAuthenticatedRequest(t, "GET", fmt.Sprintf("/api/campaigns/%s/members", campaignID), cookie, nil, output)
-}
-
-// CreateCampaignMember create a new member for a campaign
-func CreateCampaignMember(t *testing.T, cookie http.Cookie, campaignID uuid.UUID, input domain.CreateCampaignMemberInput, output interface{}) (int, []*http.Cookie) {
-	return SendAuthenticatedRequest(t, "POST", fmt.Sprintf("/api/campaigns/%s/members", campaignID), cookie, input, output)
 }
 
 // GetCampaign gets a campaign by ID
 func GetCampaign(t *testing.T, cookie http.Cookie, campaignID uuid.UUID, output interface{}) (int, []*http.Cookie) {
 	return SendAuthenticatedRequest(t, "GET", fmt.Sprintf("/api/campaigns/%s", campaignID), cookie, nil, output)
+}
+
+// ListCampaigns gets multiple campaigns
+func ListCampaigns(t *testing.T, cookie http.Cookie, output interface{}) (int, []*http.Cookie) {
+	return SendAuthenticatedRequest(t, "GET", fmt.Sprint("/api/campaigns"), cookie, nil, output)
 }
 
 // UpdateCampaign updates a campaign
