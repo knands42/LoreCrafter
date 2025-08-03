@@ -28,6 +28,7 @@ BEGIN
     payload := json_build_object(
             'id', NEW.id,
             'user_id', NEW.user_id,
+            'payload', NEW.payload,
             'type', NEW.type,
             'status', NEW.status,
             'created_at', NEW.created_at

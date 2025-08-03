@@ -2,8 +2,7 @@ package integration
 
 import (
 	"context"
-	"github.com/hibiken/asynq"
-	"github.com/knands42/lorecrafter/internal/adapter/worker"
+	"github.com/knands42/lorecrafter/internal/workers"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -57,9 +56,7 @@ func SetupIntegrationTest() error {
 	}
 
 	// setup adapters
-	asynq.NewClient(asynq.RedisClientOpt{Addr: cfg.VALKEY_ADDRESS})
-	workerServer := worker.NewWorker(cfg, repo)
-	workerServer.StartWorkers()
+	notificationWorker := workers.NewWorker(ctx, pgConn, repo, &cfg)
 	tokenMakerAdapter, err := security.NewTokenMakerAdapter(cfg.PrivateKey, cfg.PublicKey)
 	if err != nil {
 		log.Fatalf("Failed to create token maker: %v", err)
@@ -75,13 +72,21 @@ func SetupIntegrationTest() error {
 	emailUseCase := usecases.NewEmailUseCase(ctx, emailSender, templateManager, repo, "")
 	authUseCase := usecases.NewAuthUseCase(ctx, repo, tokenMakerAdapter, argon2Adapter, cfg.TokenExpiry, emailUseCase)
 	userUseCase := usecases.NewUserUseCase(ctx, repo)
-	aiCampaignUseCase := usecases.NewAICampaignUseCase(ctx, repo, llmFactory)
 	campaignMembersUseCase = usecases.NewCampaignMembersUseCase(ctx, repo)
+	aiCampaignUseCase := usecases.NewAICampaignUseCase(ctx, repo, llmFactory)
 	campaignUseCase := usecases.NewCampaignUseCase(ctx, repo, aiCampaignUseCase, campaignMembersUseCase)
 	passwordResetUseCase := usecases.NewPasswordResetUseCase(ctx, repo, emailUseCase, templateManager, argon2Adapter, cfg.TokenExpiry)
 	campaignInvitationUseCase := usecases.NewCampaignInvitationUseCase(ctx, repo, campaignMembersUseCase)
 	notificationUseCase := usecases.NewNotificationUseCase(ctx, repo)
 
+	// set up workers
+	go func() {
+		if err := notificationWorker.Start(); err != nil {
+			log.Fatalf("Failed to start notification worker: %v", err)
+		}
+	}()
+
+	// set up the HTTP server
 	server := api.NewServer(
 		cfg,
 		repo,

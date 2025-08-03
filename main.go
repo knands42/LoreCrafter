@@ -2,8 +2,7 @@ package main
 
 import (
 	"context"
-	"github.com/hibiken/asynq"
-	"github.com/knands42/lorecrafter/internal/adapter/worker"
+	"github.com/knands42/lorecrafter/internal/workers"
 	"log"
 	"os"
 	"path/filepath"
@@ -50,9 +49,7 @@ func main() {
 	}
 
 	// setup adapters
-	workerClient := asynq.NewClient(asynq.RedisClientOpt{Addr: cfg.VALKEY_ADDRESS})
-	workerServer := worker.NewWorker(cfg, repo)
-	workerServer.StartWorkers()
+	notificationWorker := workers.NewWorker(ctx, pgConn, repo, &cfg)
 	tokenMakerAdapter, err := security.NewTokenMakerAdapter(cfg.PrivateKey, cfg.PublicKey)
 	if err != nil {
 		log.Fatalf("Failed to create token maker: %v", err)
@@ -75,6 +72,13 @@ func main() {
 	campaignInvitationUseCase := usecases.NewCampaignInvitationUseCase(ctx, repo, campaignMembersUseCase)
 	notificationUseCase := usecases.NewNotificationUseCase(ctx, repo)
 
+	// set up workers
+	go func() {
+		if err := notificationWorker.Start(); err != nil {
+			log.Fatalf("Failed to start notification worker: %v", err)
+		}
+	}()
+
 	// set up the HTTP server
 	server := api.NewServer(
 		cfg,
@@ -91,10 +95,4 @@ func main() {
 
 	// defer services
 	defer pgConn.Close()
-	defer func(workerClient *asynq.Client) {
-		err := workerClient.Close()
-		if err != nil {
-			log.Fatalf("Failed to close asynq worker: %v", err)
-		}
-	}(workerClient)
 }
